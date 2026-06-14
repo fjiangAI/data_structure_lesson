@@ -1,0 +1,19 @@
+# C build artifacts
+*.exe
+*.out
+*.o
+*.obj
+*.dll
+*.so
+*.dylib
+a.out
+
+# Generated site artifact used by GitHub Pages workflow
+_site/
+
+# Editor and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
