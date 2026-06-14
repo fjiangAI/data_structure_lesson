@@ -139,6 +139,8 @@ node tools/generate_course.mjs
 
 这里选择发布“准备后的仓库静态内容”，而不是只发布 `onlineweb/`。原因是 `onlineweb` 中的周次卡片会链接到 `week*/lecture.md`、`week*/examples/*.c` 和 `test/`，如果只发布 `onlineweb/`，这些学习材料会在 Pages 上断链。
 
+首次部署如果在 `Configure Pages` 步骤看到 `Get Pages site failed` 或 `HttpError: Not Found`，通常表示 GitHub 还没有为这个仓库创建 Pages site。处理方式是重新进入 `Settings -> Pages`，确认 `Source` 已保存为 `GitHub Actions`，然后回到 `Actions` 手动重新运行工作流。如果仓库是私有仓库，还需要确认当前 GitHub 计划支持私有仓库 Pages。
+
 ## C 语言编译建议
 
 示例代码均按 C11 风格编写。单个示例可用如下命令编译：
