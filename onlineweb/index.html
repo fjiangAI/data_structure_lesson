@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数据结构 C 语言版课程网站</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav>
+      <strong>数据结构 C 语言版</strong>
+      <div>
+        <a href="#weeks">周次</a>
+        <a href="#lab">交互实验</a>
+        <a href="#practice">练习</a>
+      </div>
+    </nav>
+    <section class="hero">
+      <div>
+        <p class="eyebrow">16 周本科课程辅助材料</p>
+        <h1>程序 = 数据结构 + 算法</h1>
+        <p>数据结构描述物质如何组成，算法描述行动如何发生。进入课程后，学生将从 C 语言表示、关键操作、复杂度分析和测试验证四条线同时学习。</p>
+        <div class="hero-actions">
+          <a class="primary" href="#weeks">开始学习</a>
+          <a class="secondary" href="../README.md">查看课程 README</a>
+        </div>
+      </div>
+      <div class="hero-board" aria-label="课程知识结构示意">
+        <div class="board-row"><span>线性结构</span><b>顺序表</b><b>链表</b><b>栈</b><b>队列</b></div>
+        <div class="board-row"><span>非线性结构</span><b>树</b><b>堆</b><b>图</b></div>
+        <div class="board-row"><span>查找结构</span><b>二分</b><b>哈希</b><b>BST</b><b>AVL</b></div>
+        <div class="board-row"><span>排序算法</span><b>插入</b><b>快排</b><b>归并</b><b>基数</b></div>
+      </div>
+    </section>
+  </header>
+
+  <main>
+    <section class="band summary">
+      <article>
+        <strong id="progressText">0/16</strong>
+        <span>已标记完成周次</span>
+      </article>
+      <article>
+        <strong>64+</strong>
+        <span>讲义、练习、答案、拓展与示例代码文件</span>
+      </article>
+      <article>
+        <strong>C11</strong>
+        <span>全部示例围绕 C 语言结构体、指针和数组</span>
+      </article>
+    </section>
+
+    <section id="weeks" class="content-section">
+      <div class="section-title">
+        <p class="eyebrow">Course Map</p>
+        <h2>16 周学习路径</h2>
+      </div>
+      <div class="toolbar">
+        <input id="searchInput" type="search" placeholder="搜索：链表、图、排序、哈希...">
+        <select id="topicFilter">
+          <option value="all">全部主题</option>
+          <option value="线性">线性结构</option>
+          <option value="树">树与堆</option>
+          <option value="图">图</option>
+          <option value="查找">查找</option>
+          <option value="排序">排序</option>
+          <option value="算法">算法分析</option>
+        </select>
+      </div>
+      <div id="weekGrid" class="week-grid"></div>
+    </section>
+
+    <section id="lab" class="content-section lab-layout">
+      <div>
+        <p class="eyebrow">Interactive Lab</p>
+        <h2>结构操作演示</h2>
+        <p class="muted">选择一个结构，逐步观察插入、删除、遍历或排序过程中状态如何变化。</p>
+        <div class="segmented" id="labTabs"></div>
+      </div>
+      <div class="lab-panel">
+        <div id="labCanvas" class="lab-canvas"></div>
+        <div class="lab-controls">
+          <button id="labPrev" aria-label="上一步">←</button>
+          <button id="labNext" aria-label="下一步">→</button>
+        </div>
+        <p id="labExplain"></p>
+      </div>
+    </section>
+
+    <section id="practice" class="content-section practice-layout">
+      <div>
+        <p class="eyebrow">Practice</p>
+        <h2>自测练习</h2>
+        <p class="muted">题目强调概念、操作和复杂度。提交后会给出即时反馈。</p>
+      </div>
+      <div class="quiz-card">
+        <p id="quizTopic" class="eyebrow"></p>
+        <h3 id="quizQuestion"></h3>
+        <div id="quizOptions" class="quiz-options"></div>
+        <p id="quizFeedback"></p>
+        <button id="nextQuiz">下一题</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>面向 C 语言版数据结构课程。建议与每周 lecture.md、examples/*.c 和 test/ 题库配合使用。</p>
+  </footer>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
