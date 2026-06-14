@@ -16,7 +16,7 @@
 - 每周包含系统讲义、C 示例代码、练习题、参考答案、拓展问题和交互演示页。
 - 示例代码围绕 C 语言数组、结构体、指针、动态内存和模块化接口展开。
 - `test/` 中包含随堂测试、课后作业、阶段任务和 LLM 辅助学习模板。
-- `onlineweb/` 提供可直接托管的静态课程网站，不依赖前端构建工具。
+- `interactive.html` 和 `onlineweb/` 使用 GSAP 驱动步骤动画，不依赖前端构建工具，可直接托管到 GitHub Pages。
 
 ## 课程核心观念
 
@@ -45,6 +45,7 @@
 ├── index.html
 ├── README.md
 ├── LICENSE
+├── assets/
 ├── week01_algorithm_analysis/
 │   ├── lecture.md
 │   ├── exercises.md
@@ -68,7 +69,7 @@
 - `extensions.md`：不带标准答案的拓展讨论问题。
 - `interactive.html`：独立交互演示页，可直接用浏览器打开。
 
-`test/` 包含随堂测试、课后作业、LLM/代码大模型辅助学习任务和参考答案。`onlineweb/` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习和记录学习进度。`.github/workflows/pages.yml` 用于自动部署 GitHub Pages，`tools/generate_course.mjs` 用于重新生成课程材料。
+`assets/` 存放公共可视化样式和脚本。`test/` 包含随堂测试、课后作业、LLM/代码大模型辅助学习任务和参考答案。`onlineweb/` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习和记录学习进度。`.github/workflows/pages.yml` 用于自动部署 GitHub Pages，`tools/generate_course.mjs` 用于重新生成课程材料。
 
 ## 16 周安排
 

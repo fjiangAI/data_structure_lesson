@@ -10,6 +10,7 @@ a.out
 
 # Generated site artifact used by GitHub Pages workflow
 _site/
+verification_screenshots/
 
 # Editor and OS files
 .DS_Store

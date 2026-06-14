@@ -49,6 +49,9 @@ function renderWeeks() {
       `;
       grid.appendChild(card);
     });
+  if (window.gsap) {
+    gsap.fromTo(".week-card", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .35, stagger: .025, ease: "power2.out" });
+  }
   document.querySelectorAll(".mark-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = Number(btn.dataset.id);
@@ -142,6 +145,10 @@ function renderLab() {
     labCanvas.innerHTML = '<div class="viz-row">' + state.values.map((v, i) => '<div class="viz-cell ' + (i === state.active ? 'viz-active' : '') + '">' + v + '</div>').join("") + '</div>';
   }
   labExplain.textContent = state.text;
+  if (window.gsap) {
+    gsap.fromTo("#labCanvas .viz-cell, #labCanvas .viz-node, #labCanvas .viz-bar", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .32, stagger: .04, ease: "power2.out" });
+    gsap.fromTo("#labCanvas .viz-active", { scale: .92 }, { scale: 1, duration: .45, ease: "back.out(1.8)" });
+  }
 }
 
 document.getElementById("labPrev").addEventListener("click", () => {
@@ -179,6 +186,10 @@ function renderQuiz() {
       });
       if (index !== quiz.answer) btn.classList.add("wrong");
       quizFeedback.textContent = (index === quiz.answer ? "回答正确。 " : "需要复习。 ") + quiz.explain;
+      if (window.gsap) {
+        gsap.fromTo(".quiz-card", { x: index === quiz.answer ? 0 : -6 }, { x: 0, duration: .25, ease: "power2.out" });
+        gsap.fromTo("#quizFeedback", { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: .25 });
+      }
     });
     quizOptions.appendChild(btn);
   });

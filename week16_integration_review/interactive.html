@@ -4,247 +4,187 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Week 16 综合设计、复习与 AI 辅助实践</title>
-  <style>
-    :root {
-      color-scheme: light;
-      --ink: #1f2933;
-      --muted: #667085;
-      --line: #d6dce5;
-      --panel: #ffffff;
-      --soft: #f3f7f4;
-      --accent: #1f8a70;
-      --accent-2: #c2410c;
-      --accent-3: #334e68;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
-      color: var(--ink);
-      background: #f7f8fa;
-      line-height: 1.6;
-    }
-    header {
-      padding: 28px clamp(18px, 5vw, 64px);
-      background: #ffffff;
-      border-bottom: 1px solid var(--line);
-    }
-    .eyebrow { margin: 0 0 8px; color: var(--accent); font-weight: 700; }
-    h1 { margin: 0; font-size: clamp(28px, 4vw, 44px); letter-spacing: 0; }
-    .theme { max-width: 900px; color: var(--muted); font-size: 17px; }
-    main { max-width: 1180px; margin: 0 auto; padding: 28px 18px 48px; }
-    .layout { display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 18px; align-items: start; }
-    section {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 18px;
-    }
-    h2 { margin: 0 0 12px; font-size: 22px; }
-    .topics { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
-    .topics span {
-      border: 1px solid #bfd7d2;
-      color: #116149;
-      background: #eef8f4;
-      border-radius: 999px;
-      padding: 5px 10px;
-      font-size: 14px;
-    }
-    .visual {
-      min-height: 300px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(180deg, #fbfcfd 0%, #eef4f1 100%);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      overflow: hidden;
-      position: relative;
-    }
-    .canvas { width: min(720px, 100%); min-height: 260px; padding: 16px; display: grid; place-items: center; }
-    .array-row, .stack-col, .queue-row, .hash-grid, .sort-row { display: flex; gap: 8px; align-items: end; justify-content: center; flex-wrap: wrap; }
-    .cell, .node, .bar, .bucket {
-      min-width: 44px;
-      min-height: 44px;
-      display: grid;
-      place-items: center;
-      border-radius: 8px;
-      border: 2px solid #7aa89d;
-      background: #ffffff;
-      font-weight: 700;
-      transition: transform .25s ease, background .25s ease, border-color .25s ease;
-    }
-    .cell.active, .node.active, .bar.active, .bucket.active { background: #fde68a; border-color: var(--accent-2); transform: translateY(-6px); }
-    .node { border-radius: 999px; position: relative; }
-    .link { width: 34px; height: 2px; background: #7993a6; align-self: center; }
-    .stack-col { flex-direction: column-reverse; min-height: 210px; align-items: center; }
-    .queue-row .cell:first-child { border-color: var(--accent-2); }
-    .tree-layer { display: flex; gap: 18px; justify-content: center; margin: 10px 0; }
-    .graph-svg { width: 100%; height: 260px; }
-    .graph-edge { stroke: #8da2b5; stroke-width: 2; }
-    .graph-node { fill: #fff; stroke: #1f8a70; stroke-width: 3; }
-    .graph-node.active { fill: #fde68a; stroke: #c2410c; }
-    .graph-label { font-weight: 700; text-anchor: middle; dominant-baseline: middle; fill: #1f2933; }
-    .bar { width: 34px; min-width: 34px; align-items: end; color: #ffffff; background: #2f6f88; border-color: #2f6f88; padding-bottom: 6px; }
-    .ops { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
-    button {
-      font: inherit;
-      cursor: pointer;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      background: #fff;
-      color: var(--ink);
-    }
-    .op-card { padding: 12px; text-align: left; min-height: 84px; }
-    .op-card strong, .op-card small { display: block; }
-    .op-card small { color: var(--muted); margin-top: 6px; }
-    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-    .controls button {
-      padding: 9px 12px;
-      background: #1f8a70;
-      color: #fff;
-      border-color: #1f8a70;
-      font-weight: 700;
-    }
-    .controls button.secondary { background: #fff; color: var(--accent-3); border-color: var(--line); }
-    .explain { margin-top: 12px; padding: 12px; border-left: 4px solid var(--accent); background: #f4faf8; min-height: 76px; }
-    .links { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
-    .links a {
-      color: #0f766e;
-      text-decoration: none;
-      border-bottom: 1px solid currentColor;
-      font-weight: 700;
-    }
-    @media (max-width: 860px) {
-      .layout { grid-template-columns: 1fr; }
-      .cell, .node, .bucket { min-width: 38px; min-height: 38px; }
-    }
-  </style>
+  <link rel="stylesheet" href="../assets/course-visualizer.css">
 </head>
 <body>
-  <header>
-    <p class="eyebrow">Week 16 交互演示</p>
-    <h1>综合设计、复习与 AI 辅助实践</h1>
-    <p class="theme">把线性结构、树、图、查找、排序和复杂度分析放到同一工程问题中，训练结构选择和实现验证。</p>
-    <div class="topics"><span>结构选择</span><span>接口设计</span><span>复杂度论证</span><span>测试驱动</span><span>代码大模型辅助</span><span>课程复习</span></div>
-  </header>
-  <main>
-    <div class="layout">
-      <section>
-        <h2>结构可视化</h2>
-        <div class="visual">
-          <div id="canvas" class="canvas"></div>
-        </div>
-        <div class="controls">
-          <button id="stepBtn">执行一步</button>
-          <button id="resetBtn" class="secondary">重置</button>
-        </div>
-        <div id="explain" class="explain"></div>
-      </section>
-      <section>
-        <h2>关键操作</h2>
-        <div class="ops">
-        <button class="op-card" data-name="需求建模" data-action="识别对象、关系和高频操作" data-cost="设计活动">
-          <strong>需求建模</strong>
-          <small>设计活动</small>
-        </button>
-        <button class="op-card" data-name="结构选择" data-action="用访问模式决定数组、链表、树、图或哈希" data-cost="设计活动">
-          <strong>结构选择</strong>
-          <small>设计活动</small>
-        </button>
-        <button class="op-card" data-name="接口实现" data-action="保持 ADT 边界清晰" data-cost="工程活动">
-          <strong>接口实现</strong>
-          <small>工程活动</small>
-        </button>
-        <button class="op-card" data-name="复杂度评审" data-action="给出关键操作的上界" data-cost="分析活动">
-          <strong>复杂度评审</strong>
-          <small>分析活动</small>
-        </button>
-        <button class="op-card" data-name="AI 辅助验证" data-action="让模型生成反例、边界用例和解释" data-cost="学习活动">
-          <strong>AI 辅助验证</strong>
-          <small>学习活动</small>
-        </button>
-        </div>
-        <div class="links">
-          <a href="lecture.md">课程讲义</a>
-          <a href="examples/student_index_lab.c">C 示例代码</a>
-          <a href="exercises.md">练习题</a>
-          <a href="answers.md">参考答案</a>
-          <a href="extensions.md">拓展问题</a>
-        </div>
-      </section>
+  <header class="week-hero">
+    <nav class="week-nav">
+      <a href="../onlineweb/">课程首页</a>
+      <a href="lecture.md">讲义</a>
+      <a href="examples/student_index_lab.c">C 代码</a>
+      <a href="exercises.md">练习</a>
+    </nav>
+    <div class="week-hero-grid">
+      <div>
+        <p class="eyebrow">Week 16 交互演示</p>
+        <h1>综合设计、复习与 AI 辅助实践</h1>
+        <p class="theme">把线性结构、树、图、查找、排序和复杂度分析放到同一工程问题中，训练结构选择和实现验证。</p>
+        <div class="topics"><span>结构选择</span><span>接口设计</span><span>复杂度论证</span><span>测试驱动</span><span>代码大模型辅助</span><span>课程复习</span></div>
+      </div>
+      <aside class="principle-panel">
+        <strong>本演示要验证的结构不变量</strong>
+        <p>先识别高频操作，再选择结构；每个结构只承担它擅长的职责。</p>
+      </aside>
     </div>
+  </header>
+  <main class="learning-shell">
+    <section class="demo-stage">
+      <div class="stage-header">
+        <div>
+          <p class="eyebrow">Scenario</p>
+          <h2>把学生记录查询系统分解为结构选择：数组保存记录，哈希表按学号查找，排序生成排名。</h2>
+        </div>
+        <div class="stage-actions">
+          <button id="prevStep" class="icon-btn" aria-label="上一步" title="上一步">←</button>
+          <button id="playSteps" class="primary-btn">自动播放</button>
+          <button id="nextStep" class="icon-btn" aria-label="下一步" title="下一步">→</button>
+          <button id="resetSteps" class="ghost-btn">重置</button>
+        </div>
+      </div>
+      <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
+      <div class="stage-grid">
+        <div id="visualCanvas" class="visual-canvas"></div>
+        <aside class="step-panel">
+          <p id="stepCounter" class="step-counter"></p>
+          <h3 id="stepTitle"></h3>
+          <p id="stepText"></p>
+          <div id="stepMeta" class="step-meta"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="operation-section">
+      <div>
+        <p class="eyebrow">Operations</p>
+        <h2>关键操作不是口号，而是状态变化</h2>
+      </div>
+      <div class="ops">
+          <button class="op-card" data-name="需求建模" data-action="识别对象、关系和高频操作" data-cost="设计活动">
+            <strong>需求建模</strong>
+            <small>设计活动</small>
+          </button>
+          <button class="op-card" data-name="结构选择" data-action="用访问模式决定数组、链表、树、图或哈希" data-cost="设计活动">
+            <strong>结构选择</strong>
+            <small>设计活动</small>
+          </button>
+          <button class="op-card" data-name="接口实现" data-action="保持 ADT 边界清晰" data-cost="工程活动">
+            <strong>接口实现</strong>
+            <small>工程活动</small>
+          </button>
+          <button class="op-card" data-name="复杂度评审" data-action="给出关键操作的上界" data-cost="分析活动">
+            <strong>复杂度评审</strong>
+            <small>分析活动</small>
+          </button>
+          <button class="op-card" data-name="AI 辅助验证" data-action="让模型生成反例、边界用例和解释" data-cost="学习活动">
+            <strong>AI 辅助验证</strong>
+            <small>学习活动</small>
+          </button>
+      </div>
+      <div id="operationExplain" class="operation-explain">点击一个操作，观察它对应的组织方式和复杂度。</div>
+    </section>
+
+    <section class="resource-strip">
+      <a href="lecture.md">课程讲义</a>
+      <a href="examples/student_index_lab.c">C 示例代码</a>
+      <a href="exercises.md">练习题</a>
+      <a href="answers.md">参考答案</a>
+      <a href="extensions.md">拓展问题</a>
+    </section>
   </main>
   <script>
-    const kind = "review";
-    const steps = [
-      "观察结构的初始状态，先说清元素之间的关系。",
-      "执行核心操作，注意哪些位置、指针或辅助数组发生变化。",
-      "分析本步操作的时间复杂度，并说明输入规模。",
-      "检查边界条件：空结构、满结构、查找失败或重复元素。"
-    ];
-    let step = 0;
-    const canvas = document.getElementById("canvas");
-    const explain = document.getElementById("explain");
-
-    function cell(value, active) {
-      return '<div class="cell' + (active ? ' active' : '') + '">' + value + '</div>';
+    window.COURSE_DEMO = {
+  "id": 16,
+  "title": "综合设计、复习与 AI 辅助实践",
+  "shortTitle": "综合复习",
+  "theme": "把线性结构、树、图、查找、排序和复杂度分析放到同一工程问题中，训练结构选择和实现验证。",
+  "operations": [
+    {
+      "name": "需求建模",
+      "action": "识别对象、关系和高频操作",
+      "cost": "设计活动"
+    },
+    {
+      "name": "结构选择",
+      "action": "用访问模式决定数组、链表、树、图或哈希",
+      "cost": "设计活动"
+    },
+    {
+      "name": "接口实现",
+      "action": "保持 ADT 边界清晰",
+      "cost": "工程活动"
+    },
+    {
+      "name": "复杂度评审",
+      "action": "给出关键操作的上界",
+      "cost": "分析活动"
+    },
+    {
+      "name": "AI 辅助验证",
+      "action": "让模型生成反例、边界用例和解释",
+      "cost": "学习活动"
     }
-    function node(value, active) {
-      return '<div class="node' + (active ? ' active' : '') + '">' + value + '</div>';
+  ],
+  "kind": "review",
+  "scenario": "把学生记录查询系统分解为结构选择：数组保存记录，哈希表按学号查找，排序生成排名。",
+  "invariant": "先识别高频操作，再选择结构；每个结构只承担它擅长的职责。",
+  "steps": [
+    {
+      "title": "识别数据对象",
+      "blocks": [
+        "Student 记录",
+        "id/name/score",
+        "操作：查询、插入、排名"
+      ],
+      "active": [
+        0
+      ],
+      "text": "先定义记录和字段，不急着写代码。"
+    },
+    {
+      "title": "选择存储结构",
+      "blocks": [
+        "顺序表保存全部记录",
+        "哈希表 id -> 下标",
+        "排序生成成绩榜"
+      ],
+      "active": [
+        0,
+        1
+      ],
+      "text": "顺序表便于遍历和排序，哈希表让按学号查询接近 O(1)。"
+    },
+    {
+      "title": "维护一致性",
+      "blocks": [
+        "add_student",
+        "更新 list",
+        "更新 hash index"
+      ],
+      "active": [
+        1,
+        2
+      ],
+      "text": "插入记录时必须同时维护顺序表和哈希索引，否则查询结果会失效。"
+    },
+    {
+      "title": "验证方案",
+      "blocks": [
+        "边界测试",
+        "复杂度说明",
+        "LLM 生成反例"
+      ],
+      "active": [
+        0,
+        1,
+        2
+      ],
+      "text": "综合设计的质量来自正确性、复杂度、接口清晰度和测试证据。"
     }
-    function bar(value, active) {
-      const h = 42 + value * 8;
-      return '<div class="bar' + (active ? ' active' : '') + '" style="height:' + h + 'px">' + value + '</div>';
-    }
-    function renderGraph(active) {
-      const nodes = [
-        [70, 60, 'A'], [190, 48, 'B'], [315, 88, 'C'], [125, 178, 'D'], [275, 196, 'E']
-      ];
-      const edges = [[0,1],[0,3],[1,2],[1,3],[2,4],[3,4]];
-      let svg = '<svg class="graph-svg" viewBox="0 0 380 250">';
-      edges.forEach(([a,b]) => {
-        svg += '<line class="graph-edge" x1="' + nodes[a][0] + '" y1="' + nodes[a][1] + '" x2="' + nodes[b][0] + '" y2="' + nodes[b][1] + '"></line>';
-      });
-      nodes.forEach((n, i) => {
-        svg += '<circle class="graph-node' + (i === active ? ' active' : '') + '" cx="' + n[0] + '" cy="' + n[1] + '" r="24"></circle>';
-        svg += '<text class="graph-label" x="' + n[0] + '" y="' + n[1] + '">' + n[2] + '</text>';
-      });
-      return svg + '</svg>';
-    }
-    function render() {
-      const active = step % 5;
-      if (kind === "list") {
-        canvas.innerHTML = '<div class="array-row">' + node('head', active === 0) + '<div class="link"></div>' + node('10', active === 1) + '<div class="link"></div>' + node('20', active === 2) + '<div class="link"></div>' + node('30', active === 3) + '</div>';
-      } else if (kind === "stack") {
-        canvas.innerHTML = '<div class="stack-col">' + [10,20,30,40].map((v,i) => cell(v, i === active)).join('') + '</div>';
-      } else if (kind === "queue") {
-        canvas.innerHTML = '<div class="queue-row">' + [20,30,40,50,60].map((v,i) => cell(v, i === active)).join('') + '</div>';
-      } else if (kind === "tree" || kind === "bst" || kind === "heap") {
-        canvas.innerHTML = '<div><div class="tree-layer">' + node(kind === "heap" ? '3' : 'A', active === 0) + '</div><div class="tree-layer">' + node(kind === "heap" ? '7' : 'B', active === 1) + node(kind === "heap" ? '12' : 'C', active === 2) + '</div><div class="tree-layer">' + node(kind === "heap" ? '18' : 'D', active === 3) + node(kind === "heap" ? '28' : 'E', active === 4) + '</div></div>';
-      } else if (kind === "graph" || kind === "path") {
-        canvas.innerHTML = renderGraph(active);
-      } else if (kind.indexOf("sort") >= 0 || kind === "radix") {
-        canvas.innerHTML = '<div class="sort-row">' + [5,2,8,3,7,1,6].map((v,i) => bar(v, i === active)).join('') + '</div>';
-      } else if (kind === "hash") {
-        canvas.innerHTML = '<div class="hash-grid">' + [22,'',13,46,'',30,41,'',53,'',1].map((v,i) => '<div class="bucket' + (i === active ? ' active' : '') + '">' + v + '</div>').join('') + '</div>';
-      } else if (kind === "string") {
-        canvas.innerHTML = '<div><div class="array-row">' + ['a','b','a','b','c','a','b','c','a','c'].map((v,i) => cell(v, i === active + 2)).join('') + '</div><p style="text-align:center;color:#667085">模式串：abcac，观察失配时 j 如何回退</p></div>';
-      } else if (kind === "complexity") {
-        canvas.innerHTML = '<div class="sort-row">' + [1,2,4,8,16,32].map((v,i) => bar(Math.min(8, i + 1), i === active)).join('') + '</div>';
-      } else {
-        canvas.innerHTML = '<div class="array-row">' + [10,20,30,40,50].map((v,i) => cell(v, i === active)).join('') + '</div>';
-      }
-      explain.textContent = steps[step % steps.length];
-    }
-    document.getElementById("stepBtn").addEventListener("click", () => { step += 1; render(); });
-    document.getElementById("resetBtn").addEventListener("click", () => { step = 0; render(); });
-    document.querySelectorAll(".op-card").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        explain.textContent = btn.dataset.name + "： " + btn.dataset.action + "。复杂度：" + btn.dataset.cost + "。";
-      });
-    });
-    render();
+  ]
+};
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="../assets/course-visualizer.js"></script>
 </body>
 </html>
 

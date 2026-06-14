@@ -1623,12 +1623,243 @@ int main(void) {
 `
 };
 
+const functionComments = {
+  linear_sum: "线性扫描示例：每个元素访问一次，用来观察 O(n) 的来源。",
+  binary_search: "二分查找示例：区间 [left, right] 每轮缩小一半，前提是数组有序且支持随机访问。",
+  pair_count_less_than: "双重循环示例：枚举所有二元组，用来观察 O(n^2) 的增长。",
+  fibonacci_calls: "递归调用示例：故意使用朴素递归，展示重复子问题会造成指数级调用。",
+  init_list: "建立顺序表的合法空状态：申请连续空间，并把 size 与 capacity 分开维护。",
+  destroy_list: "释放顺序表持有的动态内存，并把字段清空，避免悬空指针被继续使用。",
+  reserve: "扩容只改变物理容量，不改变逻辑长度；realloc 成功后原元素仍按原顺序保存。",
+  insert_at: "顺序表插入的核心：先保证容量，再从后向前搬移元素，最后写入新值。",
+  erase_at: "顺序表删除的核心：目标之后的元素整体前移，逻辑长度减一。",
+  find_value: "按值查找只能顺序比较；顺序表的 O(1) 随机访问不等于 O(1) 按值查找。",
+  print_list: "输出函数用于观察结构状态，调试数据结构时要同时看元素、size 和 capacity。",
+  create_node: "封装结点申请，保证每个新结点的数据域和指针域都有明确初始值。",
+  create_head: "创建头结点。头结点不存业务数据，它让首元结点的插入删除更统一。",
+  insert_after: "已知前驱结点时插入是 O(1)：先让新结点接上后继，再让前驱指向新结点。",
+  find_prev: "单链表删除通常需要前驱结点，因此查找时返回目标结点的前驱。",
+  erase_value: "删除结点时要先改前驱指针，再释放目标结点，避免链表断裂和内存泄漏。",
+  reverse: "链表逆置逐个改变 next 方向，需要同时保存 prev、cur 和 next 三个位置。",
+  destroy: "释放结构中的动态结点；释放前要保证仍能访问到尚未释放的部分。",
+  init_stack: "初始化栈顶位置。这里 top=-1 表示空栈。",
+  is_empty: "判断结构是否为空，很多操作都要先走这个边界检查。",
+  push: "入栈只改变栈顶一端；先检查容量，再移动 top 并写入元素。",
+  pop: "出栈只从栈顶删除；先判断空栈，再返回栈顶元素并移动 top。",
+  match_pair: "把括号配对规则集中到一个函数中，主算法只关心入栈和出栈。",
+  is_matched: "括号匹配的核心：左括号入栈，右括号必须匹配最近的左括号。",
+  init_queue: "循环队列初始化时 front 和 rear 指向同一位置，表示队空。",
+  is_full: "牺牲一个数组单元后，rear 的下一个位置等于 front 表示队满。",
+  enqueue: "入队在 rear 写入，然后 rear 取模后移，避免普通数组队列的整体搬移。",
+  dequeue: "出队在 front 读取，然后 front 取模后移，操作代价为 O(1)。",
+  print_queue: "按循环下标从 front 走到 rear，显示队列的逻辑顺序。",
+  build_next: "构造 KMP 的 next 数组，记录模式串前缀与后缀可复用的匹配长度。",
+  kmp_search: "KMP 匹配时文本指针不回退，失配后只根据 next 调整模式串下标。",
+  new_node: "创建树结点或 AVL 结点，所有孩子指针必须初始化为空。",
+  build_demo_tree: "手工连接一棵小二叉树，便于观察三种深度优先遍历的差别。",
+  preorder: "前序遍历：先访问根，再递归访问左子树和右子树。",
+  inorder: "中序遍历：左、根、右；在 BST 中会得到有序序列。",
+  postorder: "后序遍历：先处理左右子树，最后处理根，常用于释放树。",
+  height: "返回子树高度：普通二叉树版本递归计算，AVL 版本读取结点中维护的高度字段。",
+  count_nodes: "结点计数递归：根结点 1 个，加上左右子树结点数。",
+  max_int: "小工具函数，避免在高度更新时重复写条件表达式。",
+  update_height: "AVL 每次修改子树后都要重新计算高度，高度是判断平衡的基础。",
+  balance_factor: "平衡因子等于左子树高度减右子树高度，用它判断旋转类型。",
+  rotate_right: "右旋处理 LL 型失衡，局部改变父子关系但保持中序有序。",
+  rotate_left: "左旋处理 RR 型失衡，旋转后要从下到上更新高度。",
+  insert: "AVL 插入先按 BST 插入，再沿递归返回路径更新高度并旋转恢复平衡。",
+  search: "BST/AVL 查找利用关键字大小，每次只进入一侧子树。",
+  swap_int: "交换两个整数位置，排序和堆调整中都会频繁使用。",
+  init_heap: "堆的 size 表示当前元素个数，数组下标关系隐含完全二叉树结构。",
+  sift_up: "上滤用于插入后修复堆序：新元素不断与父结点比较并交换。",
+  sift_down: "下滤用于删除堆顶或建堆：父结点与更小的孩子交换直到堆序恢复。",
+  init_graph: "邻接表初始化时，每个顶点的边链表都为空。",
+  add_edge: "添加一条有向边，使用头插法把边结点接到顶点的邻接链表。",
+  add_undirected_edge: "无向边可以看成两条方向相反的有向边。",
+  dfs: "深度优先遍历沿一条路径尽量深入，递归调用栈保存回退位置。",
+  bfs: "广度优先遍历使用队列，保证按距离层次扩展顶点。",
+  min_unvisited: "Dijkstra 每轮选择当前 dist 最小且尚未确定的顶点。",
+  dijkstra: "Dijkstra 的核心是选择最小未确定顶点，并用它松弛所有邻接边。",
+  print_path: "根据 prev 前驱数组递归恢复从源点到目标点的路径。",
+  sequential_search: "顺序查找逐个比较，不要求数据有序，但最坏要看完所有元素。",
+  init_table: "哈希表空槽要有明确标记，这里用 EMPTY 表示从未存放关键字。",
+  hash: "哈希函数把关键字映射到桶下标，实际系统要关注分布是否均匀。",
+  hash_insert: "线性探测插入：冲突时按固定序列寻找下一个空槽。",
+  hash_search: "线性探测查找必须沿同一探测序列前进，遇到空槽才停止。",
+  print_array: "输出数组用于观察排序每次操作后的结果。",
+  insertion_sort: "插入排序维护有序前缀，把当前元素插入前缀中的合适位置。",
+  selection_sort: "选择排序每轮选择未排序区间最小元素放到前面。",
+  bubble_sort: "冒泡排序通过相邻交换把大元素逐步推到后面，可用 swapped 提前结束。",
+  copy_array: "排序实验需要复制原数组，避免前一个算法的结果影响后一个算法。",
+  partition: "快速排序划分函数维护小于等于 pivot 的左侧区间。",
+  quick_sort: "快速排序先划分确定 pivot 最终位置，再递归处理左右区间。",
+  merge: "归并函数把两个有序子段线性合并成一个有序段。",
+  merge_sort_rec: "归并排序递归拆分区间，直到单元素区间天然有序。",
+  merge_sort: "归并排序需要辅助数组保存合并结果，空间复杂度为 O(n)。",
+  heap_sift_down: "堆排序中的下滤维护最大堆性质。",
+  heap_sort: "堆排序先建最大堆，再反复把堆顶最大值放到数组末尾。",
+  counting_sort_nonnegative: "计数排序统计关键字出现次数，再用前缀和决定输出位置。",
+  get_max: "基数排序需要知道最大值，从而确定要处理多少位。",
+  radix_counting_pass: "基数排序每一位都使用稳定的计数排序作为子过程。",
+  radix_sort: "基数排序从低位到高位多轮稳定排序，最终得到整体有序结果。",
+  init_hash: "综合实验中的哈希索引初始化，key=-1 表示空槽。",
+  hash_id: "学号到桶位置的映射函数，示例使用取模。",
+  add_student: "添加学生时同时维护顺序表和哈希索引，保证后续按学号快速查找。",
+  find_by_id: "按学号查找通过哈希索引找到顺序表下标，再返回学生记录地址。",
+  sort_by_score: "按成绩排序使用插入排序，示例规模较小时实现简单且稳定。",
+  print_students: "输出所有学生记录，用于检查排序和查询结果。",
+  main: "用小规模数据驱动核心操作，观察结构状态和输出是否符合预期。"
+};
+
+function annotateCCode(week, source) {
+  const header = `/*
+ * ${weekName(week)} ${week.title}
+ * 学习重点：先看数据如何组织，再看操作如何维护结构不变量。
+ * 阅读路线：结构体定义 -> 初始化/销毁 -> 核心操作 -> 边界条件 -> main 中的小样例。
+ * 这些注释强调思想和状态变化，课堂上建议配合 lecture.md 与 interactive.html 一起阅读。
+ */
+`;
+  const lines = source.trimStart().split("\n");
+  const output = [];
+  for (const line of lines) {
+    if (/^typedef struct/.test(line)) {
+      output.push("");
+      output.push("/* 结构体定义：把抽象数据类型落实为 C 语言中的字段。 */");
+    }
+    const match = line.match(/^(?:[A-Za-z_][\w\s\*]*\s+)([A-Za-z_]\w*)\s*\(/);
+    if (match && functionComments[match[1]]) {
+      output.push("");
+      output.push(`/* ${functionComments[match[1]]} */`);
+    }
+    output.push(line);
+  }
+  return header + output.join("\n");
+}
+
 function markdownTable(rows) {
   return [
     "| 操作 | 组织方式/关键动作 | 复杂度 |",
     "|---|---|---|",
     ...rows.map((r) => `| ${r[0]} | ${r[1]} | ${r[2]} |`)
   ].join("\n");
+}
+
+function studyGuideFor(week) {
+  const demo = demoFor(week);
+  const opLines = week.operations.map((op, i) => `${i + 1}. **${op[0]}**：${op[1]}。分析时先找会重复执行的语句，再判断重复次数，所以复杂度为 ${op[2]}。`).join("\n");
+  const stepLines = demo.steps.map((step, i) => `${i + 1}. **${step.title}**：${step.text}`).join("\n");
+  const kindNotes = {
+    complexity: {
+      representation: "本周没有单一结构体，重点是把代码片段转化为增长函数：顺序语句看常数，循环看迭代次数，递归看子问题规模和递归层数。",
+      code: "阅读示例代码时，把 `linear_sum`、`binary_search`、`pair_count_less_than` 和 `fibonacci_calls` 分别标注为线性、对数、平方和递归增长。不要只看函数名，要数循环和递归调用。"
+    },
+    array: {
+      representation: "顺序表通常包含 `data`、`size`、`capacity` 三个字段。`data` 指向连续内存，`size` 表示已有元素个数，`capacity` 表示已申请空间能容纳多少元素。",
+      code: "`insert_at` 是本周最值得精读的函数：先检查下标，再判断是否扩容，最后从后向前移动元素。移动方向是顺序表插入正确性的关键。"
+    },
+    list: {
+      representation: "链表结点至少包含数据域和指针域。带头结点的链表让首元结点插入、删除和普通位置保持统一，因为所有删除都可以描述为“已知前驱，越过目标”。",
+      code: "阅读链表代码时要画箭头。每看到一次 `next` 赋值，就在纸上重画一次箭头，确认没有丢失后续链。"
+    },
+    stack: {
+      representation: "顺序栈用数组保存元素，用 `top` 表示栈顶位置。空栈常写作 `top == -1`，入栈先移动 top 再写入，出栈先读栈顶再移动 top。",
+      code: "括号匹配代码展示了栈的核心思想：左括号表示尚未完成的任务，右括号必须解决最近的未完成任务。"
+    },
+    queue: {
+      representation: "循环队列用 `front` 和 `rear` 两个下标描述状态。`front` 指向队头元素，`rear` 指向下一个可写位置，所有移动都对容量取模。",
+      code: "阅读队列代码时重点看队空和队满条件。牺牲一个数组单元后，`front == rear` 表示空，`(rear + 1) % capacity == front` 表示满。"
+    },
+    string: {
+      representation: "串可以看成字符类型的线性表。KMP 的额外结构是 `next` 数组，它记录模式串每个前缀中最长相等前后缀长度。",
+      code: "读 KMP 时要分开两个阶段：`build_next` 只处理模式串，`kmp_search` 才同时处理文本串和模式串。失配时文本下标不回退。"
+    },
+    tree: {
+      representation: "二叉树结点包含数据、左孩子指针和右孩子指针。空指针也是结构的一部分，它表示对应子树不存在。",
+      code: "遍历函数的递归出口是 `root == NULL`。只要理解“对左子树和右子树做同样的事”，前序、中序、后序的差别就只剩访问根的位置。"
+    },
+    bst: {
+      representation: "二叉搜索树在二叉树结构上增加关键字有序约束：左子树关键字小于根，右子树关键字大于根。AVL 额外维护高度。",
+      code: "AVL 插入代码要按递归返回路径理解：先按 BST 规则插入，再更新高度，最后根据平衡因子选择旋转。"
+    },
+    heap: {
+      representation: "堆用数组表示完全二叉树。下标关系是结构的核心：父结点 `(i-1)/2`，左孩子 `2*i+1`，右孩子 `2*i+2`。",
+      code: "`sift_up` 和 `sift_down` 分别对应插入和删除堆顶后的修复。每次交换都在恢复父子之间的堆序关系。"
+    },
+    graph: {
+      representation: "邻接表用顶点数组加边链表保存图。它适合稀疏图，因为只保存实际存在的边。",
+      code: "DFS 的隐含结构是递归调用栈，BFS 的显式结构是队列。两者访问同一张图，但扩展顺序完全不同。"
+    },
+    path: {
+      representation: "图算法中的数组就是算法状态：`dist` 保存当前最短距离估计，`prev` 保存路径前驱，`visited` 或 settled 集合保存已经确定的顶点。",
+      code: "读 Dijkstra 代码时抓住“选择最小未确定顶点”和“松弛邻接边”两个动作，其余循环都是为了实现这两个动作。"
+    },
+    hash: {
+      representation: "查找结构的表示取决于是否有序。二分查找需要有序数组；哈希表需要桶数组、哈希函数和冲突处理策略。",
+      code: "线性探测查找必须沿插入时同一探测序列前进。遇到空槽才能断定不存在，不能遇到第一个不相等元素就停止。"
+    },
+    sort_simple: {
+      representation: "排序算法操作的是记录序列和关键字。分析时要区分比较次数、移动次数、额外空间和稳定性。",
+      code: "插入排序的内层循环负责移动比 key 大的元素。它不是简单交换，而是先腾位置，最后一次写入 key。"
+    },
+    sort_fast: {
+      representation: "高效排序通过分治或结构约束减少比较。快速排序维护划分边界，归并排序维护有序子段，堆排序维护堆序。",
+      code: "快速排序代码重点看 partition 的循环不变量：扫描到 j 之前，左侧区间已经不大于 pivot。"
+    },
+    radix: {
+      representation: "线性时间排序利用关键字范围或位数，不通过两两比较确定顺序。它通常需要辅助数组。",
+      code: "计数排序从后向前放置元素是为了稳定性；基数排序依赖每一轮按位排序都稳定。"
+    },
+    review: {
+      representation: "综合设计不是把结构堆在一起，而是让每种结构服务于一个高频操作。顺序表负责遍历，哈希表负责按关键字定位，排序负责排名。",
+      code: "综合示例代码展示了索引一致性：添加学生时既要写入顺序表，也要把学号映射到顺序表下标。"
+    }
+  };
+  const note = kindNotes[week.visual] || kindNotes.array;
+  return `
+## 从问题出发理解本周结构
+
+本周可以从这个具体问题进入：${demo.scenario}
+
+学习时不要先背定义，而要先回答：如果只用最朴素的数组、循环或指针，会在哪个操作上变慢、变乱或容易出错？数据结构的价值就在于把对象之间的关系稳定地组织起来，让操作可以按照可预测的方式执行。
+
+## 结构不变量
+
+${demo.invariant}
+
+不变量是实现数据结构时最重要的检查标准。每个操作执行前不变量应当成立，操作执行后也必须重新成立。如果程序出错，通常就是某一步破坏了不变量，例如顺序表的 \`size\` 与实际元素不一致，链表断链，队列 \`front/rear\` 含义混乱，或者树的有序性被破坏。
+
+## 存储表示拆解
+
+${note.representation}
+
+把逻辑结构翻译成 C 语言时，重点不是写出一个 \`struct\`，而是解释每个字段承担什么责任。字段一旦设计错误，后面的操作会变得复杂甚至无法保证正确。
+
+## 核心操作推演
+
+${opLines}
+
+本周交互演示中的状态变化如下：
+
+${stepLines}
+
+建议学生在纸上跟着演示重画结构图。每一步都要标出“读了哪些字段、写了哪些字段、哪些关系保持不变”。
+
+## 复杂度推导方法
+
+复杂度不是结论表，而是从操作过程推出来的。分析时按下面顺序：
+
+1. 明确输入规模，例如元素个数 \`n\`、模式串长度 \`m\`、顶点数 \`V\`、边数 \`E\` 或关键字范围 \`k\`。
+2. 找到最内层重复执行的基本动作，例如比较、赋值、指针跳转、交换或松弛。
+3. 说明这个动作最多执行多少次。
+4. 区分最好、平均和最坏情况，尤其是查找、哈希和快速排序。
+5. 写出额外空间来自哪里，例如辅助数组、队列、栈或递归调用栈。
+
+## 结合代码理解思想
+
+${note.code}
+
+阅读代码时建议按“结构定义 -> 初始化 -> 核心操作 -> 边界处理 -> 释放资源”的顺序。不要从 \`main\` 开始只看输出结果；数据结构课更关心状态如何被维护。
+`;
 }
 
 function conceptMap(week) {
@@ -1673,6 +1904,8 @@ ${week.adt}
 - 数据对象是什么：元素、结点、记录、顶点还是字符。
 - 关系如何保存：连续位置、指针、父子关系、邻接关系、关键字映射还是有序关系。
 - 操作如何改变结构：插入、删除、查找、遍历、排序、合并或旋转到底修改了哪些字段。
+
+${studyGuideFor(week)}
 
 ## C 语言表示
 
@@ -1762,6 +1995,197 @@ function exercisesContent(week) {
 `;
 }
 
+function demoFor(week) {
+  const common = {
+    id: week.id,
+    title: week.title,
+    shortTitle: week.shortTitle,
+    theme: week.theme,
+    operations: week.operations.map((op) => ({ name: op[0], action: op[1], cost: op[2] }))
+  };
+  const demos = {
+    complexity: {
+      kind: "complexity",
+      scenario: "比较 n 从 8 增长到 32 时，不同复杂度函数的增长速度。",
+      invariant: "复杂度分析关注增长趋势，不关注机器、语言和常数级差异。",
+      steps: [
+        { title: "O(1)：固定工作量", n: 8, values: [["O(1)", 1], ["O(log n)", 3], ["O(n)", 8], ["O(n log n)", 24], ["O(n^2)", 64]], active: ["O(1)"], text: "无论 n 是多少，常数时间操作只执行固定次数，例如读取数组 a[i]。" },
+        { title: "O(log n)：每次缩小一半", n: 16, values: [["O(1)", 1], ["O(log n)", 4], ["O(n)", 16], ["O(n log n)", 64], ["O(n^2)", 256]], active: ["O(log n)"], text: "二分查找每轮排除一半元素，因此规模翻倍只多一次比较。" },
+        { title: "O(n)：逐个扫描", n: 32, values: [["O(1)", 1], ["O(log n)", 5], ["O(n)", 32], ["O(n log n)", 160], ["O(n^2)", 1024]], active: ["O(n)", "O(n^2)"], text: "线性扫描随元素个数等比例增长；平方复杂度在规模增加后会迅速变得不可接受。" }
+      ]
+    },
+    array: {
+      kind: "array",
+      scenario: "在顺序表 [10,20,30,40] 的下标 2 插入 25，观察为什么要从后往前移动。",
+      invariant: "0 <= size <= capacity；下标 0 到 size-1 是有效元素；逻辑相邻由连续内存位置表示。",
+      steps: [
+        { title: "插入前", cells: [10, 20, 30, 40, "_", "_"], size: 4, capacity: 6, active: [2], markers: { insert: 2 }, text: "目标位置是 index=2。直接写入会覆盖 30，所以必须先腾出位置。" },
+        { title: "移动尾部元素", cells: [10, 20, 30, 40, 40, "_"], size: 4, capacity: 6, active: [3, 4], markers: { from: 3, to: 4 }, text: "从最后一个有效元素开始后移，先把 a[3] 复制到 a[4]。" },
+        { title: "继续向后移动", cells: [10, 20, 30, 30, 40, "_"], size: 4, capacity: 6, active: [2, 3], markers: { from: 2, to: 3 }, text: "再把 a[2] 复制到 a[3]。从后往前移动可以避免数据被提前覆盖。" },
+        { title: "写入新元素", cells: [10, 20, 25, 30, 40, "_"], size: 5, capacity: 6, active: [2], markers: { insert: 2 }, text: "把 25 写到 a[2]，size 从 4 变成 5。中间插入的代价来自元素移动。" }
+      ]
+    },
+    list: {
+      kind: "list",
+      scenario: "在带头结点单链表中，把 20 插入到 10 和 30 之间。",
+      invariant: "每个结点只知道自己的 next；插入和删除的关键是先找到前驱结点。",
+      steps: [
+        { title: "找到前驱", nodes: ["head", "10", "30", "NULL"], active: [1], text: "要在 10 后插入 20，必须先保存前驱结点 p=10。" },
+        { title: "分配新结点", nodes: ["head", "10", "20", "30", "NULL"], active: [2], dashed: [[2, 3]], text: "创建新结点 s。此时先让 s->next 指向原来的 p->next，也就是 30。" },
+        { title: "接入链表", nodes: ["head", "10", "20", "30", "NULL"], active: [1, 2], text: "再令 p->next = s。顺序不能反，否则会丢失 30 之后的链。" },
+        { title: "删除结点的本质", nodes: ["head", "10", "30", "NULL"], active: [1, 2], text: "删除 20 时，让前驱 10 的 next 越过 20 指向 30，然后释放 20。" }
+      ]
+    },
+    stack: {
+      kind: "stack",
+      scenario: "用栈检查表达式 a[(b+c)*d] 的括号是否匹配。",
+      invariant: "栈顶保存最近尚未匹配的左括号；右括号必须和栈顶配对。",
+      steps: [
+        { title: "读到 [", input: "a[(b+c)*d]", cursor: 1, stack: ["["], active: [0], text: "左括号入栈，等待后续右括号匹配。" },
+        { title: "读到 (", input: "a[(b+c)*d]", cursor: 2, stack: ["[", "("], active: [1], text: "新的左括号继续入栈。栈顶现在是最近的未匹配括号 (。" },
+        { title: "读到 )", input: "a[(b+c)*d]", cursor: 6, stack: ["["], active: [0], text: "右括号 ) 必须匹配栈顶 (。匹配成功后弹出。" },
+        { title: "读到 ]", input: "a[(b+c)*d]", cursor: 9, stack: [], active: [], text: "右括号 ] 匹配栈顶 [。最终栈为空，说明所有括号都被匹配。" }
+      ]
+    },
+    queue: {
+      kind: "queue",
+      scenario: "循环队列容量为 6，观察 rear 和 front 如何取模移动。",
+      invariant: "front 指向队头元素；rear 指向下一个可写位置；牺牲一个单元区分队空和队满。",
+      steps: [
+        { title: "初始入队", cells: [10, 20, 30, "_", "_", "_"], front: 0, rear: 3, active: [0, 1, 2], text: "元素从 rear 写入，rear 每次加 1 并对 capacity 取模。" },
+        { title: "出队两次", cells: ["_", "_", 30, "_", "_", "_"], front: 2, rear: 3, active: [2], text: "出队只移动 front，不移动数组中的所有元素，所以是 O(1)。" },
+        { title: "尾部继续入队", cells: ["_", "_", 30, 40, 50, "_"], front: 2, rear: 5, active: [3, 4], text: "rear 继续向后写入，空出来的前两个位置暂时不搬移。" },
+        { title: "rear 回绕", cells: [70, "_", 30, 40, 50, 60], front: 2, rear: 1, active: [5, 0], text: "写到数组末尾后 rear 回到 0，这就是循环队列避免整体搬移的关键。" }
+      ]
+    },
+    string: {
+      kind: "kmp",
+      scenario: "在文本 ababcabcacbab 中查找模式 abcac，观察失配时模式串如何回退。",
+      invariant: "KMP 的文本指针 i 不回退；next 数组告诉 j 应该回到哪个前后缀长度。",
+      steps: [
+        { title: "开始比较", textChars: "ababcabcacbab", pattern: "abcac", i: 2, j: 0, offset: 2, next: [0, 0, 0, 1, 0], text: "尝试从文本下标 2 开始匹配，a 与 a 成功。" },
+        { title: "连续匹配", textChars: "ababcabcacbab", pattern: "abcac", i: 5, j: 3, offset: 2, next: [0, 0, 0, 1, 0], text: "abc 已经匹配。此时 j=3，表示模式串前三个字符已经确认。" },
+        { title: "失配回退", textChars: "ababcabcacbab", pattern: "abcac", i: 6, j: 1, offset: 5, next: [0, 0, 0, 1, 0], text: "失配时 i 不回退，j 根据 next[j-1] 回到 1，复用已知前后缀。" },
+        { title: "找到模式串", textChars: "ababcabcacbab", pattern: "abcac", i: 9, j: 4, offset: 5, next: [0, 0, 0, 1, 0], text: "从下标 5 开始的 abcac 完整匹配，返回位置 5。" }
+      ]
+    },
+    tree: {
+      kind: "tree",
+      scenario: "对二叉树执行前序遍历，理解递归为什么天然适合树。",
+      invariant: "每个子树仍然是一棵二叉树；遍历规则对根、左子树、右子树递归适用。",
+      steps: [
+        { title: "访问根 A", active: ["A"], visited: ["A"], text: "前序遍历规则是根、左、右。先访问根结点 A。" },
+        { title: "进入左子树 B", active: ["B"], visited: ["A", "B"], text: "对左子树重复同样规则，访问 B。" },
+        { title: "访问 B 的孩子", active: ["D", "E"], visited: ["A", "B", "D", "E"], text: "左子树处理完 D，再处理右孩子 E。" },
+        { title: "进入右子树 C", active: ["C", "F"], visited: ["A", "B", "D", "E", "C", "F"], text: "最后处理 A 的右子树 C，再访问 C 的右孩子 F。" }
+      ]
+    },
+    bst: {
+      kind: "rotation",
+      scenario: "AVL 插入 30、20、10 后出现 LL 失衡，观察右旋如何恢复高度。",
+      invariant: "AVL 要求每个结点左右子树高度差不超过 1；旋转只改变局部父子关系，不破坏中序有序。",
+      steps: [
+        { title: "插入 30", nodes: [{ id: "30", x: 50, y: 15 }], active: ["30"], text: "第一 个关键字成为根结点。" },
+        { title: "插入 20", nodes: [{ id: "30", x: 50, y: 15 }, { id: "20", x: 32, y: 45, parent: "30" }], active: ["20"], text: "20 小于 30，插入到左子树。此时仍然平衡。" },
+        { title: "插入 10 后失衡", nodes: [{ id: "30", x: 50, y: 15 }, { id: "20", x: 32, y: 45, parent: "30" }, { id: "10", x: 18, y: 75, parent: "20" }], active: ["30"], text: "30 的左子树高度比右子树高 2，这是 LL 型失衡。" },
+        { title: "对 30 右旋", nodes: [{ id: "20", x: 50, y: 15 }, { id: "10", x: 32, y: 45, parent: "20" }, { id: "30", x: 68, y: 45, parent: "20" }], active: ["20"], text: "20 成为新的局部根，10 和 30 分别成为左右孩子，中序序列仍是 10,20,30。" }
+      ]
+    },
+    heap: {
+      kind: "heap",
+      scenario: "在最小堆中插入 3，观察上滤如何维护堆序性质。",
+      invariant: "堆是完全二叉树，数组下标 i 的父结点是 (i-1)/2；每个父结点不大于孩子。",
+      steps: [
+        { title: "插入到数组末尾", values: [7, 12, 28, 18, 35, 3], active: [5], text: "新元素先放在完全二叉树的最后一个位置，保证形状仍是完全二叉树。" },
+        { title: "与父结点比较", values: [7, 12, 3, 18, 35, 28], active: [2, 5], text: "3 小于父结点 28，交换。数组中交换两个位置，树形关系由下标决定。" },
+        { title: "继续上滤到根", values: [3, 12, 7, 18, 35, 28], active: [0, 2], text: "3 继续小于父结点 7，再交换到根。此时每个父结点都不大于孩子。" }
+      ]
+    },
+    graph: {
+      kind: "graph",
+      scenario: "从顶点 A 开始执行 BFS，观察队列如何按层扩展。",
+      invariant: "BFS 队列中保存已经发现但邻接点尚未全部处理的顶点。",
+      steps: [
+        { title: "A 入队", activeNodes: ["A"], visited: ["A"], queue: ["A"], activeEdges: [], text: "从 A 出发，先标记 A 并入队。" },
+        { title: "扩展 A", activeNodes: ["B", "C"], visited: ["A", "B", "C"], queue: ["B", "C"], activeEdges: ["A-B", "A-C"], text: "A 出队，发现 B 和 C，它们的距离都是 1。" },
+        { title: "扩展 B", activeNodes: ["D"], visited: ["A", "B", "C", "D"], queue: ["C", "D"], activeEdges: ["B-D"], text: "B 出队，发现 D。队列保证先处理距离更近的 C。" },
+        { title: "完成遍历", activeNodes: ["E"], visited: ["A", "B", "C", "D", "E"], queue: [], activeEdges: ["C-E"], text: "所有可达顶点都被访问，BFS 访问顺序体现层次。" }
+      ]
+    },
+    path: {
+      kind: "path",
+      scenario: "Dijkstra 从 A 出发，观察 dist 数组如何通过松弛变小。",
+      invariant: "每轮选择 dist 最小的未确定顶点；一旦确定，该顶点最短距离不再改变。",
+      steps: [
+        { title: "初始化", activeNodes: ["A"], settled: [], dist: { A: 0, B: "∞", C: "∞", D: "∞", E: "∞" }, activeEdges: [], text: "源点 A 的距离为 0，其余未知为无穷大。" },
+        { title: "确定 A 并松弛", activeNodes: ["B", "C"], settled: ["A"], dist: { A: 0, B: 10, C: 3, D: "∞", E: "∞" }, activeEdges: ["A-B", "A-C"], text: "通过 A 可以到达 B 和 C，更新 dist[B]=10，dist[C]=3。" },
+        { title: "选择 C", activeNodes: ["B", "E"], settled: ["A", "C"], dist: { A: 0, B: 7, C: 3, D: 11, E: 5 }, activeEdges: ["C-B", "C-E"], text: "未确定顶点中 C 最近。经 C 到 B 的距离 3+4=7，比 10 更短。" },
+        { title: "继续确定最短路", activeNodes: ["E", "B"], settled: ["A", "C", "E", "B"], dist: { A: 0, B: 7, C: 3, D: 9, E: 5 }, activeEdges: ["B-D"], text: "每次选择当前最小 dist 的未确定顶点，最终得到从 A 到各点的最短距离。" }
+      ]
+    },
+    hash: {
+      kind: "search",
+      scenario: "先看二分查找的边界收缩，再看哈希表线性探测如何处理冲突。",
+      invariant: "二分查找依赖有序数组；线性探测查找必须沿插入时同一条探测序列前进。",
+      steps: [
+        { title: "二分：检查中点", array: [3, 8, 12, 19, 24, 31, 44], low: 0, mid: 3, high: 6, target: 24, text: "mid=3，对应 19。目标 24 更大，因此左边界移动到 mid+1。" },
+        { title: "二分：缩小区间", array: [3, 8, 12, 19, 24, 31, 44], low: 4, mid: 5, high: 6, target: 24, text: "现在只需在下标 4 到 6 中查找。31 大于 24，右边界左移。" },
+        { title: "二分：找到目标", array: [3, 8, 12, 19, 24, 31, 44], low: 4, mid: 4, high: 4, target: 24, text: "mid=4，找到目标。二分的高效来自每轮排除一半。" },
+        { title: "哈希：线性探测", buckets: [22, "", 13, 46, "", 30, 41, "", 53, "", 1], active: [2, 3], target: 46, text: "查找 46 从 hash(46)=2 开始。2 号槽被 13 占用，继续探测到 3 号槽找到 46。" }
+      ]
+    },
+    sort_simple: {
+      kind: "sort",
+      scenario: "对同一组数据观察插入、选择、冒泡三种简单排序的关键动作差异。",
+      invariant: "简单排序都在原数组中逐步减少无序关系，但它们移动元素的方式不同：插入维护有序前缀，选择固定最小值位置，冒泡通过相邻交换推进最大值。",
+      steps: [
+        { title: "插入排序：取出 key", values: [29, 10, 14, 37, 14, 3], active: [1], sorted: 1, text: "已排序前缀是 [29]。插入排序取出 key=10，准备把它插入前缀中的正确位置。" },
+        { title: "插入排序：移动并插入", values: [10, 29, 14, 37, 14, 3], active: [0, 1], sorted: 2, text: "29 > 10，所以 29 后移，10 放到下标 0。插入排序的移动是为了维护有序前缀。" },
+        { title: "选择排序：选择最小值", values: [3, 10, 14, 37, 14, 29], active: [0, 5], sorted: 1, text: "选择排序在未排序区间中找到最小值 3，并与区间首元素交换。它每轮只确定一个最终位置。" },
+        { title: "冒泡排序：相邻交换", values: [10, 14, 29, 14, 3, 37], active: [4, 5], sorted: 0, text: "冒泡排序只比较相邻元素，逆序就交换。一趟扫描后，最大值 37 被推到末尾。" },
+        { title: "三者对比", values: [3, 10, 14, 14, 29, 37], active: [0, 5], sorted: 6, text: "三种算法最终都得到有序序列，但比较次数、移动次数和稳定性不同。" }
+      ]
+    },
+    sort_fast: {
+      kind: "sort",
+      scenario: "比较快速排序、归并排序和堆排序的核心状态变化。",
+      invariant: "高效排序都把 O(n^2) 的无效比较压缩掉：快排靠划分，归并靠有序子段合并，堆排序靠堆序性质反复选出最大值。",
+      steps: [
+        { title: "快速排序：选择枢轴", values: [38, 27, 43, 3, 9, 82, 10], active: [6], pivot: 10, text: "快排选末尾 10 作为 pivot，扫描数组，把不大于 pivot 的元素放到左侧。" },
+        { title: "快速排序：枢轴归位", values: [3, 9, 10, 38, 27, 82, 43], active: [2], pivot: 10, text: "划分结束后，10 的最终位置已经确定，左右两侧再递归排序。" },
+        { title: "归并排序：两个有序段", values: [3, 27, 38, 43, 9, 10, 82], active: [0, 4], sorted: 4, text: "归并排序先把区间拆到足够小，再得到两个有序段：[3,27,38,43] 和 [9,10,82]。" },
+        { title: "归并排序：线性合并", values: [3, 9, 10, 27, 38, 43, 82], active: [1, 2, 3], sorted: 7, text: "合并两个有序段时，每次取较小者放入辅助数组，整个合并过程是 O(n)。" },
+        { title: "堆排序：堆顶最大值归位", values: [3, 9, 10, 27, 38, 43, 82], active: [6], sorted: 7, text: "堆排序先建最大堆，再不断把堆顶最大值交换到末尾，末尾有序区逐步扩大。" }
+      ]
+    },
+    radix: {
+      kind: "counting",
+      scenario: "比较计数排序、桶排序和基数排序为什么可以不靠元素两两比较。",
+      invariant: "线性时间排序用关键字范围、分布或位数换取速度；它们必须满足数据范围或分布前提，并通常需要额外空间。",
+      steps: [
+        { title: "计数排序：统计次数", input: [4, 2, 2, 8, 3, 3, 1], counts: { 1: 1, 2: 2, 3: 2, 4: 1, 8: 1 }, output: [], active: ["2", "3"], text: "计数排序扫描原数组，记录每个关键字出现多少次，适合关键字范围较小的整数。" },
+        { title: "计数排序：稳定放置", input: [4, 2, 2, 8, 3, 3, 1], counts: { 1: 0, 2: 1, 3: 3, 4: 5, 8: 6 }, output: [1, 2, 2, 3, 3, 4, 8], active: ["output"], text: "通过前缀和确定位置，从后向前填入输出数组，可以保持稳定性。" },
+        { title: "桶排序：按区间分桶", input: [0.12, 0.42, 0.31, 0.78, 0.66, 0.25], buckets: [["0.12", "0.25"], ["0.31", "0.42"], ["0.66", "0.78"]], output: [], active: ["bucket"], text: "桶排序按数据分布把元素放进不同区间的桶里，桶内再排序或插入。" },
+        { title: "基数排序：个位稳定分配", input: [170, 45, 75, 90, 802, 24, 2, 66], buckets: [["170", "90"], ["802", "2"], ["24"], ["45", "75"], ["66"]], output: [170, 90, 802, 2, 24, 45, 75, 66], active: ["bucket"], text: "基数排序按位处理。先按个位稳定分配，再按十位、百位重复。" },
+        { title: "基数排序：多轮后有序", input: [170, 45, 75, 90, 802, 24, 2, 66], counts: { ones: "完成", tens: "完成", hundreds: "完成" }, output: [2, 24, 45, 66, 75, 90, 170, 802], active: ["output"], text: "每一轮按位排序都必须稳定，低位顺序才能被高位排序正确保留。" }
+      ]
+    },
+    review: {
+      kind: "review",
+      scenario: "把学生记录查询系统分解为结构选择：数组保存记录，哈希表按学号查找，排序生成排名。",
+      invariant: "先识别高频操作，再选择结构；每个结构只承担它擅长的职责。",
+      steps: [
+        { title: "识别数据对象", blocks: ["Student 记录", "id/name/score", "操作：查询、插入、排名"], active: [0], text: "先定义记录和字段，不急着写代码。" },
+        { title: "选择存储结构", blocks: ["顺序表保存全部记录", "哈希表 id -> 下标", "排序生成成绩榜"], active: [0, 1], text: "顺序表便于遍历和排序，哈希表让按学号查询接近 O(1)。" },
+        { title: "维护一致性", blocks: ["add_student", "更新 list", "更新 hash index"], active: [1, 2], text: "插入记录时必须同时维护顺序表和哈希索引，否则查询结果会失效。" },
+        { title: "验证方案", blocks: ["边界测试", "复杂度说明", "LLM 生成反例"], active: [0, 1, 2], text: "综合设计的质量来自正确性、复杂度、接口清晰度和测试证据。" }
+      ]
+    }
+  };
+  const demo = demos[week.visual] || demos.array;
+  return { ...common, ...demo };
+}
+
 function answersContent(week) {
   return `
 # ${weekName(week)} ${week.title} 参考答案
@@ -1807,6 +2231,96 @@ function extensionsContent(week) {
 }
 
 function interactiveHtml(week) {
+  const demo = demoFor(week);
+  const demoJson = JSON.stringify(demo, null, 2).replace(/</g, "\\u003c");
+  const demoTopicList = week.topics.map((t) => `<span>${t}</span>`).join("");
+  const demoOperationCards = week.operations.map((op) => `
+          <button class="op-card" data-name="${op[0]}" data-action="${op[1]}" data-cost="${op[2]}">
+            <strong>${op[0]}</strong>
+            <small>${op[2]}</small>
+          </button>`).join("");
+  return `
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${weekName(week)} ${week.title}</title>
+  <link rel="stylesheet" href="../assets/course-visualizer.css">
+</head>
+<body>
+  <header class="week-hero">
+    <nav class="week-nav">
+      <a href="../onlineweb/">课程首页</a>
+      <a href="lecture.md">讲义</a>
+      <a href="${cFileFor(week)}">C 代码</a>
+      <a href="exercises.md">练习</a>
+    </nav>
+    <div class="week-hero-grid">
+      <div>
+        <p class="eyebrow">${weekName(week)} 交互演示</p>
+        <h1>${week.title}</h1>
+        <p class="theme">${week.theme}</p>
+        <div class="topics">${demoTopicList}</div>
+      </div>
+      <aside class="principle-panel">
+        <strong>本演示要验证的结构不变量</strong>
+        <p>${demo.invariant}</p>
+      </aside>
+    </div>
+  </header>
+  <main class="learning-shell">
+    <section class="demo-stage">
+      <div class="stage-header">
+        <div>
+          <p class="eyebrow">Scenario</p>
+          <h2>${demo.scenario}</h2>
+        </div>
+        <div class="stage-actions">
+          <button id="prevStep" class="icon-btn" aria-label="上一步" title="上一步">←</button>
+          <button id="playSteps" class="primary-btn">自动播放</button>
+          <button id="nextStep" class="icon-btn" aria-label="下一步" title="下一步">→</button>
+          <button id="resetSteps" class="ghost-btn">重置</button>
+        </div>
+      </div>
+      <div class="progress-track" aria-hidden="true"><span id="progressBar"></span></div>
+      <div class="stage-grid">
+        <div id="visualCanvas" class="visual-canvas"></div>
+        <aside class="step-panel">
+          <p id="stepCounter" class="step-counter"></p>
+          <h3 id="stepTitle"></h3>
+          <p id="stepText"></p>
+          <div id="stepMeta" class="step-meta"></div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="operation-section">
+      <div>
+        <p class="eyebrow">Operations</p>
+        <h2>关键操作不是口号，而是状态变化</h2>
+      </div>
+      <div class="ops">${demoOperationCards}
+      </div>
+      <div id="operationExplain" class="operation-explain">点击一个操作，观察它对应的组织方式和复杂度。</div>
+    </section>
+
+    <section class="resource-strip">
+      <a href="lecture.md">课程讲义</a>
+      <a href="${cFileFor(week)}">C 示例代码</a>
+      <a href="exercises.md">练习题</a>
+      <a href="answers.md">参考答案</a>
+      <a href="extensions.md">拓展问题</a>
+    </section>
+  </main>
+  <script>
+    window.COURSE_DEMO = ${demoJson};
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+  <script src="../assets/course-visualizer.js"></script>
+</body>
+</html>
+`;
   const topicList = week.topics.map((t) => `<span>${t}</span>`).join("");
   const operationCards = week.operations.map((op) => `
         <button class="op-card" data-name="${op[0]}" data-action="${op[1]}" data-cost="${op[2]}">
@@ -2068,7 +2582,7 @@ function readmeContent() {
 - 每周包含系统讲义、C 示例代码、练习题、参考答案、拓展问题和交互演示页。
 - 示例代码围绕 C 语言数组、结构体、指针、动态内存和模块化接口展开。
 - \`test/\` 中包含随堂测试、课后作业、阶段任务和 LLM 辅助学习模板。
-- \`onlineweb/\` 提供可直接托管的静态课程网站，不依赖前端构建工具。
+- \`interactive.html\` 和 \`onlineweb/\` 使用 GSAP 驱动步骤动画，不依赖前端构建工具，可直接托管到 GitHub Pages。
 
 ## 课程核心观念
 
@@ -2097,6 +2611,7 @@ function readmeContent() {
 ├── index.html
 ├── README.md
 ├── LICENSE
+├── assets/
 ├── week01_algorithm_analysis/
 │   ├── lecture.md
 │   ├── exercises.md
@@ -2120,7 +2635,7 @@ function readmeContent() {
 - \`extensions.md\`：不带标准答案的拓展讨论问题。
 - \`interactive.html\`：独立交互演示页，可直接用浏览器打开。
 
-\`test/\` 包含随堂测试、课后作业、LLM/代码大模型辅助学习任务和参考答案。\`onlineweb/\` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习和记录学习进度。\`.github/workflows/pages.yml\` 用于自动部署 GitHub Pages，\`tools/generate_course.mjs\` 用于重新生成课程材料。
+\`assets/\` 存放公共可视化样式和脚本。\`test/\` 包含随堂测试、课后作业、LLM/代码大模型辅助学习任务和参考答案。\`onlineweb/\` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习和记录学习进度。\`.github/workflows/pages.yml\` 用于自动部署 GitHub Pages，\`tools/generate_course.mjs\` 用于重新生成课程材料。
 
 ## 16 周安排
 
@@ -2499,6 +3014,7 @@ function onlineIndex() {
   <footer>
     <p>面向 C 语言版数据结构课程。建议与每周 lecture.md、examples/*.c 和 test/ 题库配合使用。</p>
   </footer>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
 </body>
@@ -2886,6 +3402,9 @@ function renderWeeks() {
       \`;
       grid.appendChild(card);
     });
+  if (window.gsap) {
+    gsap.fromTo(".week-card", { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: .35, stagger: .025, ease: "power2.out" });
+  }
   document.querySelectorAll(".mark-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = Number(btn.dataset.id);
@@ -2979,6 +3498,10 @@ function renderLab() {
     labCanvas.innerHTML = '<div class="viz-row">' + state.values.map((v, i) => '<div class="viz-cell ' + (i === state.active ? 'viz-active' : '') + '">' + v + '</div>').join("") + '</div>';
   }
   labExplain.textContent = state.text;
+  if (window.gsap) {
+    gsap.fromTo("#labCanvas .viz-cell, #labCanvas .viz-node, #labCanvas .viz-bar", { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: .32, stagger: .04, ease: "power2.out" });
+    gsap.fromTo("#labCanvas .viz-active", { scale: .92 }, { scale: 1, duration: .45, ease: "back.out(1.8)" });
+  }
 }
 
 document.getElementById("labPrev").addEventListener("click", () => {
@@ -3016,6 +3539,10 @@ function renderQuiz() {
       });
       if (index !== quiz.answer) btn.classList.add("wrong");
       quizFeedback.textContent = (index === quiz.answer ? "回答正确。 " : "需要复习。 ") + quiz.explain;
+      if (window.gsap) {
+        gsap.fromTo(".quiz-card", { x: index === quiz.answer ? 0 : -6 }, { x: 0, duration: .25, ease: "power2.out" });
+        gsap.fromTo("#quizFeedback", { opacity: 0, y: 8 }, { opacity: 1, y: 0, duration: .25 });
+      }
     });
     quizOptions.appendChild(btn);
   });
@@ -3025,6 +3552,511 @@ document.getElementById("nextQuiz").addEventListener("click", () => {
   renderQuiz();
 });
 renderQuiz();
+`;
+}
+
+function visualizerCss() {
+  return `
+:root {
+  color-scheme: light;
+  --ink: #172033;
+  --muted: #667085;
+  --line: #d7dee8;
+  --paper: #ffffff;
+  --bg: #f5f7f6;
+  --green: #147a63;
+  --blue: #315f7d;
+  --rust: #b45309;
+  --gold: #f3c969;
+  --violet: #6d5bd0;
+  --soft-green: #eaf7f2;
+  --soft-blue: #eef5fb;
+  --soft-rust: #fff4e6;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.6;
+}
+a { color: inherit; }
+.week-hero {
+  padding: 18px clamp(18px, 4vw, 58px) 32px;
+  background:
+    linear-gradient(rgba(255,255,255,.92), rgba(255,255,255,.96)),
+    radial-gradient(circle at 20% 10%, #d9efe8 0, transparent 32%),
+    radial-gradient(circle at 84% 16%, #f8dfb8 0, transparent 28%),
+    #fff;
+  border-bottom: 1px solid var(--line);
+}
+.week-nav {
+  max-width: 1180px;
+  margin: 0 auto 26px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.week-nav a {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 800;
+  border-bottom: 1px solid transparent;
+}
+.week-nav a:hover { color: var(--green); border-color: currentColor; }
+.week-hero-grid {
+  max-width: 1180px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 22px;
+  align-items: end;
+}
+.eyebrow { margin: 0 0 8px; color: var(--green); font-weight: 900; letter-spacing: 0; }
+h1, h2, h3 { letter-spacing: 0; line-height: 1.2; }
+h1 { margin: 0; font-size: clamp(34px, 5vw, 58px); }
+h2 { margin: 0; font-size: clamp(24px, 3vw, 34px); }
+h3 { margin: 0; font-size: 22px; }
+.theme { max-width: 850px; color: #46566a; font-size: 18px; }
+.topics { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.topics span, .step-meta span {
+  border: 1px solid #bbd8d0;
+  color: #0f5f4d;
+  background: var(--soft-green);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 800;
+}
+.principle-panel, .demo-stage, .operation-section, .resource-strip {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 16px 40px rgba(31, 41, 55, .06);
+}
+.principle-panel { padding: 18px; }
+.principle-panel strong { display: block; margin-bottom: 8px; color: var(--blue); }
+.principle-panel p { margin: 0; color: var(--muted); }
+.learning-shell { max-width: 1180px; margin: 0 auto; padding: 26px 18px 54px; }
+.demo-stage { padding: 18px; }
+.stage-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: start;
+}
+.stage-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+button {
+  font: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-weight: 800;
+}
+.primary-btn { background: var(--green); color: #fff; border-color: var(--green); padding: 8px 13px; }
+.ghost-btn { padding: 8px 13px; color: var(--blue); }
+.icon-btn { width: 42px; font-size: 18px; }
+.progress-track {
+  height: 8px;
+  background: #e9eef2;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 18px 0;
+}
+.progress-track span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--green), var(--rust)); }
+.stage-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 18px;
+  align-items: stretch;
+}
+.visual-canvas {
+  min-height: 420px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, #fbfcfd, #f1f5f4);
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  overflow: hidden;
+}
+.step-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+  padding: 18px;
+}
+.step-counter { margin: 0 0 8px; color: var(--rust); font-weight: 900; }
+#stepText { color: #46566a; }
+.step-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.viz-row, .viz-stack, .viz-queue, .viz-buckets, .viz-bars, .viz-blocks {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.viz-stack { min-height: 260px; flex-direction: column-reverse; justify-content: flex-start; }
+.viz-cell, .viz-node, .viz-bucket, .viz-token, .viz-count, .viz-block {
+  min-width: 54px;
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 2px solid #8fb6ac;
+  background: #fff;
+  color: var(--ink);
+  font-weight: 900;
+  position: relative;
+}
+.viz-node { border-radius: 999px; }
+.viz-null { color: var(--muted); border-style: dashed; }
+.is-active, .is-changed {
+  background: #ffefb0 !important;
+  border-color: var(--rust) !important;
+  box-shadow: 0 8px 18px rgba(180, 83, 9, .18);
+}
+.is-sorted { background: var(--soft-green); border-color: var(--green); }
+.viz-link { width: 34px; height: 2px; background: #8094a8; position: relative; }
+.viz-link::after {
+  content: "";
+  position: absolute;
+  right: -1px;
+  top: -4px;
+  border-left: 8px solid #8094a8;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+}
+.viz-index { margin-top: 8px; color: var(--muted); font-size: 12px; text-align: center; }
+.marker { display: block; margin-top: 4px; color: var(--rust); font-size: 12px; min-height: 18px; }
+.queue-wrap, .kmp-wrap, .counting-wrap, .complexity-wrap { width: 100%; display: grid; gap: 18px; }
+.queue-cells { display: grid; grid-template-columns: repeat(6, minmax(46px, 1fr)); gap: 10px; }
+.queue-labels { display: grid; grid-template-columns: repeat(6, minmax(46px, 1fr)); gap: 10px; color: var(--muted); font-size: 13px; text-align: center; }
+.input-line { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.viz-token { min-width: 38px; min-height: 38px; border-color: #bdc9d6; }
+.pattern-row { margin-left: var(--offset, 0); }
+.next-row, .dist-table, .count-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.viz-count { min-width: 64px; min-height: 44px; font-size: 13px; background: var(--soft-blue); border-color: #a8c2d8; }
+.viz-bars { align-items: end; min-height: 260px; }
+.viz-bar {
+  width: 52px;
+  min-height: 34px;
+  border-radius: 8px 8px 4px 4px;
+  background: var(--blue);
+  color: #fff;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  padding-bottom: 8px;
+  font-weight: 900;
+}
+.bar-label { color: var(--muted); font-size: 12px; text-align: center; margin-top: 6px; max-width: 78px; }
+.tree-svg, .graph-svg { width: 100%; height: 340px; }
+.svg-edge { stroke: #8da2b5; stroke-width: 3; }
+.svg-edge.active { stroke: var(--rust); stroke-width: 5; }
+.svg-node { fill: #fff; stroke: var(--green); stroke-width: 3; }
+.svg-node.active { fill: #ffefb0; stroke: var(--rust); stroke-width: 4; }
+.svg-node.settled { fill: var(--soft-green); stroke: var(--green); }
+.svg-label { text-anchor: middle; dominant-baseline: middle; font-weight: 900; fill: var(--ink); }
+.operation-section { margin-top: 18px; padding: 18px; }
+.ops { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 14px; }
+.op-card { padding: 12px; text-align: left; min-height: 84px; }
+.op-card strong, .op-card small { display: block; }
+.op-card small { color: var(--muted); margin-top: 6px; }
+.operation-explain {
+  margin-top: 14px;
+  padding: 13px;
+  border-left: 4px solid var(--green);
+  background: #f4faf8;
+  color: #46566a;
+}
+.resource-strip {
+  margin-top: 18px;
+  padding: 14px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.resource-strip a {
+  color: var(--blue);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  background: #fff;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-weight: 900;
+}
+@media (max-width: 920px) {
+  .week-hero-grid, .stage-grid { grid-template-columns: 1fr; }
+  .stage-header { flex-direction: column; }
+  .visual-canvas { min-height: 360px; }
+}
+`;
+}
+
+function visualizerJs() {
+  return `
+(function () {
+  const demo = window.COURSE_DEMO;
+  if (!demo) return;
+
+  const canvas = document.getElementById("visualCanvas");
+  const stepTitle = document.getElementById("stepTitle");
+  const stepText = document.getElementById("stepText");
+  const stepCounter = document.getElementById("stepCounter");
+  const stepMeta = document.getElementById("stepMeta");
+  const progressBar = document.getElementById("progressBar");
+  const opExplain = document.getElementById("operationExplain");
+  let index = 0;
+  let timer = null;
+
+  function esc(value) {
+    return String(value).replace(/[&<>"']/g, (ch) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    })[ch]);
+  }
+
+  function isActive(active, value) {
+    return Array.isArray(active) && active.map(String).includes(String(value));
+  }
+
+  function cell(value, active, extra = "") {
+    const blank = value === "_" || value === "" || value === null || value === undefined;
+    return '<div class="viz-cell ' + (active ? "is-active " : "") + (blank ? "viz-null " : "") + extra + '">' + esc(blank ? "空" : value) + '</div>';
+  }
+
+  function renderArray(step) {
+    const cells = step.cells.map((v, i) => {
+      const marker = step.markers && Object.entries(step.markers).filter(([, pos]) => pos === i).map(([name]) => name).join("/");
+      return '<div>' + cell(v, isActive(step.active, i)) + '<div class="viz-index">' + i + '</div><span class="marker">' + (marker || "") + '</span></div>';
+    }).join("");
+    return '<div><div class="viz-row">' + cells + '</div><div class="step-meta"><span>size=' + step.size + '</span><span>capacity=' + step.capacity + '</span></div></div>';
+  }
+
+  function renderList(step) {
+    return '<div class="viz-row">' + step.nodes.map((n, i) => {
+      const node = '<div class="viz-node ' + (isActive(step.active, i) ? "is-active" : "") + (n === "NULL" ? " viz-null" : "") + '">' + esc(n) + '</div>';
+      return node + (i + 1 < step.nodes.length ? '<div class="viz-link"></div>' : "");
+    }).join("") + '</div>';
+  }
+
+  function renderStack(step) {
+    const tokens = step.input ? '<div class="input-line">' + step.input.split("").map((ch, i) => '<div class="viz-token ' + (i === step.cursor ? "is-active" : "") + '">' + esc(ch) + '</div>').join("") + '</div>' : "";
+    const stack = '<div class="viz-stack">' + step.stack.map((v, i) => cell(v, isActive(step.active, i))).join("") + '</div>';
+    return '<div>' + tokens + stack + '</div>';
+  }
+
+  function renderQueue(step) {
+    const cells = step.cells.map((v, i) => cell(v, isActive(step.active, i))).join("");
+    const labels = step.cells.map((_, i) => {
+      const tags = [];
+      if (i === step.front) tags.push("front");
+      if (i === step.rear) tags.push("rear");
+      return '<div>' + tags.join(" / ") + '</div>';
+    }).join("");
+    return '<div class="queue-wrap"><div class="queue-cells">' + cells + '</div><div class="queue-labels">' + labels + '</div></div>';
+  }
+
+  function renderKmp(step) {
+    const text = step.textChars.split("").map((ch, i) => '<div class="viz-token ' + (i === step.i ? "is-active" : "") + '">' + esc(ch) + '<span class="marker">' + i + '</span></div>').join("");
+    const pattern = step.pattern.split("").map((ch, j) => '<div class="viz-token ' + (j === step.j ? "is-active" : "") + '">' + esc(ch) + '</div>').join("");
+    const next = step.next.map((v, i) => '<div class="viz-count">next[' + i + ']=' + v + '</div>').join("");
+    return '<div class="kmp-wrap"><div class="input-line">' + text + '</div><div class="input-line pattern-row" style="--offset:' + (step.offset * 44) + 'px">' + pattern + '</div><div class="next-row">' + next + '</div></div>';
+  }
+
+  function treeNodes(kind, step) {
+    if (kind === "tree") {
+      return [
+        { id: "A", x: 50, y: 14 },
+        { id: "B", x: 30, y: 42, parent: "A" },
+        { id: "C", x: 70, y: 42, parent: "A" },
+        { id: "D", x: 20, y: 72, parent: "B" },
+        { id: "E", x: 40, y: 72, parent: "B" },
+        { id: "F", x: 80, y: 72, parent: "C" }
+      ];
+    }
+    if (kind === "heap") {
+      const positions = [[50,12],[30,42],[70,42],[20,72],[40,72],[60,72]];
+      return step.values.map((v, i) => ({ id: String(v), x: positions[i][0], y: positions[i][1], parentIndex: i === 0 ? -1 : Math.floor((i - 1) / 2), index: i }));
+    }
+    return step.nodes;
+  }
+
+  function renderTreeLike(kind, step) {
+    const nodes = treeNodes(kind, step);
+    const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+    let svg = '<svg class="tree-svg" viewBox="0 0 100 90" preserveAspectRatio="xMidYMid meet">';
+    nodes.forEach((n) => {
+      const parent = n.parent || (n.parentIndex >= 0 ? nodes[n.parentIndex].id : null);
+      if (parent && byId[parent]) {
+        svg += '<line class="svg-edge" x1="' + byId[parent].x + '" y1="' + byId[parent].y + '" x2="' + n.x + '" y2="' + n.y + '"></line>';
+      }
+    });
+    nodes.forEach((n) => {
+      const active = isActive(step.active, n.id) || isActive(step.active, n.index);
+      const settled = isActive(step.visited, n.id);
+      svg += '<circle class="svg-node ' + (active ? "active " : "") + (settled ? "settled" : "") + '" cx="' + n.x + '" cy="' + n.y + '" r="6"></circle>';
+      svg += '<text class="svg-label" x="' + n.x + '" y="' + n.y + '">' + esc(n.id) + '</text>';
+    });
+    svg += '</svg>';
+    if (step.visited) svg += '<div class="step-meta"><span>访问序列：' + step.visited.join(" -> ") + '</span></div>';
+    return svg;
+  }
+
+  function graphModel() {
+    const nodes = [
+      ["A", 16, 24], ["B", 40, 15], ["C", 42, 54], ["D", 68, 29], ["E", 78, 68]
+    ];
+    const edges = [["A","B",10],["A","C",3],["B","D",2],["C","B",4],["C","E",2],["C","D",8],["D","E",7],["E","D",9]];
+    return { nodes, edges };
+  }
+
+  function renderGraph(step, withDist) {
+    const model = graphModel();
+    const byId = Object.fromEntries(model.nodes.map((n) => [n[0], n]));
+    let svg = '<svg class="graph-svg" viewBox="0 0 100 84" preserveAspectRatio="xMidYMid meet">';
+    model.edges.forEach(([a, b, w]) => {
+      const edgeId = a + "-" + b;
+      const active = isActive(step.activeEdges, edgeId);
+      svg += '<line class="svg-edge ' + (active ? "active" : "") + '" x1="' + byId[a][1] + '" y1="' + byId[a][2] + '" x2="' + byId[b][1] + '" y2="' + byId[b][2] + '"></line>';
+      if (withDist) svg += '<text class="svg-label" x="' + ((byId[a][1] + byId[b][1]) / 2) + '" y="' + ((byId[a][2] + byId[b][2]) / 2 - 2) + '" font-size="4">' + w + '</text>';
+    });
+    model.nodes.forEach(([id, x, y]) => {
+      const active = isActive(step.activeNodes, id);
+      const settled = isActive(step.settled || step.visited, id);
+      svg += '<circle class="svg-node ' + (active ? "active " : "") + (settled ? "settled" : "") + '" cx="' + x + '" cy="' + y + '" r="6"></circle>';
+      svg += '<text class="svg-label" x="' + x + '" y="' + y + '">' + id + '</text>';
+    });
+    svg += '</svg>';
+    const extra = withDist
+      ? '<div class="dist-table">' + Object.entries(step.dist).map(([k, v]) => '<div class="viz-count">dist[' + k + ']=' + v + '</div>').join("") + '</div>'
+      : '<div class="step-meta"><span>visited: ' + (step.visited || []).join(", ") + '</span><span>queue: ' + (step.queue || []).join(" -> ") + '</span></div>';
+    return '<div class="counting-wrap">' + svg + extra + '</div>';
+  }
+
+  function renderSearch(step) {
+    if (step.buckets) {
+      return '<div class="viz-buckets">' + step.buckets.map((v, i) => '<div><div class="viz-bucket ' + (isActive(step.active, i) ? "is-active" : "") + '">' + esc(v === "" ? "空" : v) + '</div><div class="viz-index">' + i + '</div></div>').join("") + '</div>';
+    }
+    return '<div class="viz-row">' + step.array.map((v, i) => {
+      const tags = [];
+      if (i === step.low) tags.push("low");
+      if (i === step.mid) tags.push("mid");
+      if (i === step.high) tags.push("high");
+      return '<div>' + cell(v, i === step.mid || v === step.target) + '<span class="marker">' + tags.join("/") + '</span></div>';
+    }).join("") + '</div>';
+  }
+
+  function renderSort(step) {
+    const max = Math.max(...step.values);
+    return '<div class="viz-bars">' + step.values.map((v, i) => {
+      const h = 54 + Math.round((v / max) * 190);
+      const cls = (isActive(step.active, i) ? "is-active " : "") + (i < (step.sorted || 0) ? "is-sorted " : "");
+      const pivot = step.pivot === v ? '<div class="bar-label">pivot</div>' : '<div class="bar-label">' + i + '</div>';
+      return '<div><div class="viz-bar ' + cls + '" style="height:' + h + 'px">' + v + '</div>' + pivot + '</div>';
+    }).join("") + '</div>';
+  }
+
+  function renderCounting(step) {
+    const input = '<div class="viz-row">' + step.input.map((v) => cell(v, false)).join("") + '</div>';
+    const buckets = step.buckets
+      ? '<div class="count-row">' + step.buckets.map((bucket, i) => '<div class="viz-count ' + (isActive(step.active, "bucket") ? "is-active" : "") + '">桶 ' + i + '<br>' + bucket.map(esc).join(", ") + '</div>').join("") + '</div>'
+      : "";
+    const counts = step.counts
+      ? '<div class="count-row">' + Object.entries(step.counts).map(([k, v]) => '<div class="viz-count ' + (isActive(step.active, k) ? "is-active" : "") + '">' + k + ': ' + v + '</div>').join("") + '</div>'
+      : "";
+    const output = step.output && step.output.length ? '<div class="viz-row">' + step.output.map((v) => cell(v, true)).join("") + '</div>' : '<div class="viz-row">' + cell("输出数组待填充", false) + '</div>';
+    return '<div class="counting-wrap">' + input + counts + buckets + output + '</div>';
+  }
+
+  function renderComplexity(step) {
+    const max = Math.max(...step.values.map(([, v]) => v));
+    return '<div class="complexity-wrap"><div class="viz-bars">' + step.values.map(([label, value]) => {
+      const h = 42 + Math.round((value / max) * 220);
+      return '<div><div class="viz-bar ' + (isActive(step.active, label) ? "is-active" : "") + '" style="height:' + h + 'px">' + value + '</div><div class="bar-label">' + esc(label) + '</div></div>';
+    }).join("") + '</div><div class="step-meta"><span>n=' + step.n + '</span></div></div>';
+  }
+
+  function renderReview(step) {
+    return '<div class="viz-blocks">' + step.blocks.map((b, i) => '<div class="viz-block ' + (isActive(step.active, i) ? "is-active" : "") + '">' + esc(b) + '</div>').join('<div class="viz-link"></div>') + '</div>';
+  }
+
+  function renderVisual(step) {
+    switch (demo.kind) {
+      case "complexity": return renderComplexity(step);
+      case "array": return renderArray(step);
+      case "list": return renderList(step);
+      case "stack": return renderStack(step);
+      case "queue": return renderQueue(step);
+      case "kmp": return renderKmp(step);
+      case "tree": return renderTreeLike("tree", step);
+      case "rotation": return renderTreeLike("rotation", step);
+      case "heap": return renderTreeLike("heap", step);
+      case "graph": return renderGraph(step, false);
+      case "path": return renderGraph(step, true);
+      case "search": return renderSearch(step);
+      case "sort": return renderSort(step);
+      case "counting": return renderCounting(step);
+      case "review": return renderReview(step);
+      default: return renderArray(step);
+    }
+  }
+
+  function animate() {
+    if (!window.gsap) return;
+    gsap.fromTo(canvas.querySelectorAll(".viz-cell,.viz-node,.viz-token,.viz-bucket,.viz-count,.viz-block,.viz-bar,.svg-node"),
+      { opacity: 0, y: 12 },
+      { opacity: 1, y: 0, duration: .36, stagger: .025, ease: "power2.out" }
+    );
+    gsap.fromTo(canvas.querySelectorAll(".is-active,.svg-node.active,.svg-edge.active"),
+      { scale: .92 },
+      { scale: 1, duration: .48, ease: "back.out(1.8)", transformOrigin: "center" }
+    );
+  }
+
+  function render() {
+    const step = demo.steps[index];
+    canvas.innerHTML = renderVisual(step);
+    stepCounter.textContent = "Step " + (index + 1) + " / " + demo.steps.length;
+    stepTitle.textContent = step.title;
+    stepText.textContent = step.text;
+    stepMeta.innerHTML = '<span>' + demo.shortTitle + '</span><span>' + demo.kind + '</span>';
+    progressBar.style.width = ((index + 1) / demo.steps.length * 100) + "%";
+    animate();
+  }
+
+  function next() { index = (index + 1) % demo.steps.length; render(); }
+  function prev() { index = (index - 1 + demo.steps.length) % demo.steps.length; render(); }
+  function reset() { index = 0; render(); }
+  function play() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+      document.getElementById("playSteps").textContent = "自动播放";
+      return;
+    }
+    document.getElementById("playSteps").textContent = "暂停";
+    timer = setInterval(next, 1800);
+  }
+
+  document.getElementById("nextStep").addEventListener("click", next);
+  document.getElementById("prevStep").addEventListener("click", prev);
+  document.getElementById("resetSteps").addEventListener("click", reset);
+  document.getElementById("playSteps").addEventListener("click", play);
+  document.querySelectorAll(".op-card").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      opExplain.textContent = btn.dataset.name + "： " + btn.dataset.action + "。复杂度：" + btn.dataset.cost + "。";
+      if (window.gsap) gsap.fromTo(opExplain, { x: -8, opacity: .65 }, { x: 0, opacity: 1, duration: .25 });
+    });
+  });
+  render();
+})();
 `;
 }
 
@@ -3107,7 +4139,7 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site
-          cp -R index.html README.md onlineweb test tools week* _site/
+          cp -R index.html README.md assets onlineweb test tools week* _site/
           if [ -f LICENSE ]; then cp LICENSE _site/; fi
           touch _site/.nojekyll
 
@@ -3137,6 +4169,7 @@ a.out
 
 # Generated site artifact used by GitHub Pages workflow
 _site/
+verification_screenshots/
 
 # Editor and OS files
 .DS_Store
@@ -3151,6 +4184,8 @@ function generate() {
   writeFile(".gitignore", gitignoreContent());
   writeFile(".nojekyll", "");
   writeFile(".github/workflows/pages.yml", pagesWorkflowContent());
+  writeFile("assets/course-visualizer.css", visualizerCss());
+  writeFile("assets/course-visualizer.js", visualizerJs());
   writeFile("README.md", readmeContent());
   weeks.forEach((week, index) => {
     const prev = weeks[index - 1];
@@ -3161,7 +4196,7 @@ function generate() {
     writeFile(`${base}/answers.md`, answersContent(week));
     writeFile(`${base}/extensions.md`, extensionsContent(week));
     writeFile(`${base}/interactive.html`, interactiveHtml(week));
-    writeFile(`${base}/examples/${week.codeFile}`, codeSamples[week.codeFile]);
+    writeFile(`${base}/examples/${week.codeFile}`, annotateCCode(week, codeSamples[week.codeFile]));
   });
   writeFile("test/README.md", testsReadme());
   writeFile("test/in_class_quizzes.md", inClassQuizzes());
