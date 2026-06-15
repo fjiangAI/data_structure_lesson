@@ -19,6 +19,10 @@ function matchesFilter(week, filter) {
   return text.includes(filter);
 }
 
+function viewerUrl(path) {
+  return "viewer.html?src=" + encodeURIComponent(path);
+}
+
 function renderWeeks() {
   const q = searchInput.value.trim().toLowerCase();
   const filter = topicFilter.value;
@@ -30,6 +34,9 @@ function renderWeeks() {
       return !q || text.includes(q);
     })
     .forEach((week) => {
+      const lectureUrl = viewerUrl(week.folder + "lecture.md");
+      const codeUrl = viewerUrl(week.folder + "examples/" + week.codeFile);
+      const exerciseUrl = viewerUrl(week.folder + "exercises.md");
       const card = document.createElement("article");
       card.className = "week-card" + (done.has(week.id) ? " done" : "");
       card.innerHTML = `
@@ -40,10 +47,10 @@ function renderWeeks() {
         <p>${week.theme}</p>
         <div class="topic-tags">${week.topics.slice(0, 5).map((t) => "<span>" + t + "</span>").join("")}</div>
         <div class="card-links">
-          <a href="${week.folder}lecture.md">讲义</a>
+          <a href="${lectureUrl}">讲义</a>
           <a href="${week.folder}interactive.html">演示</a>
-          <a href="${week.folder}examples/${week.codeFile}">代码</a>
-          <a href="${week.folder}exercises.md">练习</a>
+          <a href="${codeUrl}">代码</a>
+          <a href="${exerciseUrl}">练习</a>
           <button class="mark-btn" data-id="${week.id}">${done.has(week.id) ? "取消完成" : "标记完成"}</button>
         </div>
       `;

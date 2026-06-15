@@ -206,13 +206,20 @@
 
   function animate() {
     if (!window.gsap) return;
-    gsap.fromTo(canvas.querySelectorAll(".viz-cell,.viz-node,.viz-token,.viz-bucket,.viz-count,.viz-block,.viz-bar,.svg-node"),
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: .36, stagger: .025, ease: "power2.out" }
+    const tl = gsap.timeline();
+    tl.fromTo(canvas.querySelectorAll(".svg-edge,.viz-link"),
+      { opacity: 0, scaleX: .65 },
+      { opacity: 1, scaleX: 1, duration: .28, stagger: .02, ease: "power2.out", transformOrigin: "left center" }
     );
-    gsap.fromTo(canvas.querySelectorAll(".is-active,.svg-node.active,.svg-edge.active"),
-      { scale: .92 },
-      { scale: 1, duration: .48, ease: "back.out(1.8)", transformOrigin: "center" }
+    tl.fromTo(canvas.querySelectorAll(".viz-cell,.viz-node,.viz-token,.viz-bucket,.viz-count,.viz-block,.viz-bar,.svg-node"),
+      { opacity: 0, y: 14, scale: .96 },
+      { opacity: 1, y: 0, scale: 1, duration: .42, stagger: .028, ease: "power3.out" },
+      "-=.12"
+    );
+    tl.fromTo(canvas.querySelectorAll(".is-active,.svg-node.active,.svg-edge.active"),
+      { scale: .9, filter: "brightness(1.08)" },
+      { scale: 1, filter: "brightness(1)", duration: .55, ease: "back.out(1.9)", transformOrigin: "center" },
+      "-=.18"
     );
   }
 
@@ -223,7 +230,9 @@
     stepTitle.textContent = step.title;
     stepText.textContent = step.text;
     stepMeta.innerHTML = '<span>' + demo.shortTitle + '</span><span>' + demo.kind + '</span>';
-    progressBar.style.width = ((index + 1) / demo.steps.length * 100) + "%";
+    const progress = ((index + 1) / demo.steps.length * 100) + "%";
+    if (window.gsap) gsap.to(progressBar, { width: progress, duration: .34, ease: "power2.out" });
+    else progressBar.style.width = progress;
     animate();
   }
 

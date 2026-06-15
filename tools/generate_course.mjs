@@ -304,7 +304,9 @@ function ensureDir(dir) {
 function writeFile(rel, content) {
   const file = path.join(root, rel);
   ensureDir(path.dirname(file));
-  fs.writeFileSync(file, content.trimStart() + "\n", "utf8");
+  const body = content.trimStart() + "\n";
+  const needsBom = rel.endsWith(".c");
+  fs.writeFileSync(file, needsBom ? "\ufeff" + body : body, "utf8");
 }
 
 function weekName(week) {
@@ -2234,6 +2236,8 @@ function interactiveHtml(week) {
   const demo = demoFor(week);
   const demoJson = JSON.stringify(demo, null, 2).replace(/</g, "\\u003c");
   const demoTopicList = week.topics.map((t) => `<span>${t}</span>`).join("");
+  const viewerBase = `../onlineweb/viewer.html?src=../${week.folder}/`;
+  const codeViewer = `../onlineweb/viewer.html?src=../${week.folder}/${cFileFor(week)}`;
   const demoOperationCards = week.operations.map((op) => `
           <button class="op-card" data-name="${op[0]}" data-action="${op[1]}" data-cost="${op[2]}">
             <strong>${op[0]}</strong>
@@ -2252,9 +2256,9 @@ function interactiveHtml(week) {
   <header class="week-hero">
     <nav class="week-nav">
       <a href="../onlineweb/">课程首页</a>
-      <a href="lecture.md">讲义</a>
-      <a href="${cFileFor(week)}">C 代码</a>
-      <a href="exercises.md">练习</a>
+      <a href="${viewerBase}lecture.md">讲义</a>
+      <a href="${codeViewer}">C 代码</a>
+      <a href="${viewerBase}exercises.md">练习</a>
     </nav>
     <div class="week-hero-grid">
       <div>
@@ -2306,11 +2310,11 @@ function interactiveHtml(week) {
     </section>
 
     <section class="resource-strip">
-      <a href="lecture.md">课程讲义</a>
-      <a href="${cFileFor(week)}">C 示例代码</a>
-      <a href="exercises.md">练习题</a>
-      <a href="answers.md">参考答案</a>
-      <a href="extensions.md">拓展问题</a>
+      <a href="${viewerBase}lecture.md">课程讲义</a>
+      <a href="${codeViewer}">C 示例代码</a>
+      <a href="${viewerBase}exercises.md">练习题</a>
+      <a href="${viewerBase}answers.md">参考答案</a>
+      <a href="${viewerBase}extensions.md">拓展问题</a>
     </section>
   </main>
   <script>
@@ -2574,7 +2578,7 @@ function readmeContent() {
 - GitHub Pages 入口：\`https://<你的用户名或组织名>.github.io/<仓库名>/\`
 - 课程网站入口文件：[index.html](index.html) 会自动跳转到 \`onlineweb/\`，方便 GitHub Pages 直接访问。
 
-本项目的 Pages 工作流会发布一个包含 \`onlineweb/\`、16 个 week 文件夹、\`test/\` 和 README 的静态站点。这样在线网站中的“讲义、演示、代码、练习”链接都能正常打开。
+本项目的 Pages 工作流会发布一个包含 \`onlineweb/\`、16 个 week 文件夹、\`test/\` 和 README 的静态站点。在线网站中的“讲义、代码、练习、答案、拓展”会通过 \`onlineweb/viewer.html\` 渲染为排版后的阅读页，交互演示仍直接进入每周的 \`interactive.html\`。
 
 ## 项目亮点
 
@@ -2582,6 +2586,7 @@ function readmeContent() {
 - 每周包含系统讲义、C 示例代码、练习题、参考答案、拓展问题和交互演示页。
 - 示例代码围绕 C 语言数组、结构体、指针、动态内存和模块化接口展开。
 - \`test/\` 中包含随堂测试、课后作业、阶段任务和 LLM 辅助学习模板。
+- \`onlineweb/viewer.html\` 会把 Markdown 讲义、练习和 C 源码渲染成更适合阅读的网页，并为 C 代码提供语法高亮与行号。
 - \`interactive.html\` 和 \`onlineweb/\` 使用 GSAP 驱动步骤动画，不依赖前端构建工具，可直接托管到 GitHub Pages。
 
 ## 课程核心观念
@@ -2635,7 +2640,7 @@ function readmeContent() {
 - \`extensions.md\`：不带标准答案的拓展讨论问题。
 - \`interactive.html\`：独立交互演示页，可直接用浏览器打开。
 
-\`assets/\` 存放公共可视化样式和脚本。\`test/\` 包含随堂测试、课后作业、LLM/代码大模型辅助学习任务和参考答案。\`onlineweb/\` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习和记录学习进度。\`.github/workflows/pages.yml\` 用于自动部署 GitHub Pages，\`tools/generate_course.mjs\` 用于重新生成课程材料。
+\`assets/\` 存放公共可视化样式和脚本。\`test/\` 包含随堂测试、课后作业、LLM/代码大模型辅助学习任务和参考答案。\`onlineweb/\` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习、阅读材料和记录学习进度。\`.github/workflows/pages.yml\` 用于自动部署 GitHub Pages，\`tools/generate_course.mjs\` 用于重新生成课程材料。
 
 ## 16 周安排
 
@@ -2666,8 +2671,8 @@ LLM 相关部分不评价“是否用了模型”，而评价学生是否能提�
 ## 使用方式
 
 1. 从 \`onlineweb/index.html\` 进入课程网站。
-2. 每周先读 \`lecture.md\`，再运行 \`examples/*.c\`。
-3. 完成 \`exercises.md\` 后对照 \`answers.md\` 自查。
+2. 每周先在网站中阅读排版后的讲义，再运行 \`examples/*.c\`。
+3. 完成练习后对照参考答案自查；原始 Markdown 文件仍保留在每个 week 文件夹中，便于教师编辑。
 4. 用 \`interactive.html\` 做课堂演示或学生自学演示。
 5. 使用 \`test/\` 中的测验和作业组织随堂测试、课后作业或复习。
 
@@ -2689,13 +2694,13 @@ node tools/generate_course.mjs
 4. 回到 \`Actions\` 页面，等待 \`Deploy course website to GitHub Pages\` 工作流完成。
 5. 打开 \`https://<你的用户名或组织名>.github.io/<仓库名>/\`，页面会自动进入 \`onlineweb/\`。
 
-这里选择发布“准备后的仓库静态内容”，而不是只发布 \`onlineweb/\`。原因是 \`onlineweb\` 中的周次卡片会链接到 \`week*/lecture.md\`、\`week*/examples/*.c\` 和 \`test/\`，如果只发布 \`onlineweb/\`，这些学习材料会在 Pages 上断链。
+这里选择发布“准备后的仓库静态内容”，而不是只发布 \`onlineweb/\`。原因是 \`onlineweb\` 中的阅读器会读取 \`week*/lecture.md\`、\`week*/examples/*.c\`、\`week*/exercises.md\` 和 \`test/\`，如果只发布 \`onlineweb/\`，这些学习材料会在 Pages 上断链。
 
 首次部署如果在 \`Configure Pages\` 步骤看到 \`Get Pages site failed\` 或 \`HttpError: Not Found\`，通常表示 GitHub 还没有为这个仓库创建 Pages site。处理方式是重新进入 \`Settings -> Pages\`，确认 \`Source\` 已保存为 \`GitHub Actions\`，然后回到 \`Actions\` 手动重新运行工作流。如果仓库是私有仓库，还需要确认当前 GitHub 计划支持私有仓库 Pages。
 
 ## C 语言编译建议
 
-示例代码均按 C11 风格编写。单个示例可用如下命令编译：
+示例代码均按 C11 风格编写。为避免 Windows 编辑器把中文注释误判为本地 ANSI 编码，生成器会把 \`examples/*.c\` 写成带 UTF-8 BOM 的文本，并提供 \`.editorconfig\`。单个示例可用如下命令编译：
 
 \`\`\`bash
 gcc -std=c11 -Wall -Wextra week02_sequential_list/examples/seq_list.c -o seq_list
@@ -2930,7 +2935,7 @@ function onlineIndex() {
         <p>数据结构描述物质如何组成，算法描述行动如何发生。进入课程后，学生将从 C 语言表示、关键操作、复杂度分析和测试验证四条线同时学习。</p>
         <div class="hero-actions">
           <a class="primary" href="#weeks">开始学习</a>
-          <a class="secondary" href="../README.md">查看课程 README</a>
+          <a class="secondary" href="viewer.html?src=../README.md">查看课程 README</a>
         </div>
       </div>
       <div class="hero-board" aria-label="课程知识结构示意">
@@ -3168,6 +3173,12 @@ input { flex: 1 1 280px; }
   display: grid;
   gap: 12px;
   min-height: 250px;
+  transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease;
+}
+.week-card:hover {
+  transform: translateY(-3px);
+  border-color: #9bc9bd;
+  box-shadow: 0 18px 38px rgba(31, 41, 55, .10);
 }
 .week-card.done { border-color: #77b7a5; background: #fbfffd; }
 .week-card header {
@@ -3207,6 +3218,12 @@ input { flex: 1 1 280px; }
   text-decoration: none;
   font-weight: 800;
   font-size: 13px;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+.card-links a:hover, .mark-btn:hover {
+  transform: translateY(-1px);
+  border-color: #9bc9bd;
+  background: var(--soft-green);
 }
 button { font: inherit; cursor: pointer; }
 .mark-btn { color: var(--green-dark); }
@@ -3231,7 +3248,11 @@ button { font: inherit; cursor: pointer; }
   min-height: 300px;
   border-radius: 8px;
   border: 1px solid var(--line);
-  background: #f9fbfa;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,249,248,.96)),
+    linear-gradient(90deg, rgba(49,95,125,.07) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(49,95,125,.07) 1px, transparent 1px);
+  background-size: auto, 28px 28px, 28px 28px;
   display: grid;
   place-items: center;
   overflow: hidden;
@@ -3254,16 +3275,29 @@ button { font: inherit; cursor: pointer; }
   min-width: 48px;
   min-height: 48px;
   border: 2px solid #8db6ac;
-  background: #fff;
+  background: linear-gradient(180deg, #ffffff, #f5faf8);
   border-radius: 8px;
   font-weight: 900;
-  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+  box-shadow: 0 10px 22px rgba(31, 41, 55, .08);
+  transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
 .viz-node { border-radius: 999px; }
-.viz-active { background: #fde68a; border-color: var(--rust); transform: translateY(-7px); }
+.viz-active {
+  background: linear-gradient(180deg, #fff5c7, #fde68a);
+  border-color: var(--rust);
+  transform: translateY(-7px);
+  box-shadow: 0 16px 28px rgba(180, 83, 9, .20);
+}
 .viz-link { width: 36px; height: 2px; background: #8da2b5; }
 .viz-stack { display: flex; flex-direction: column-reverse; gap: 8px; min-height: 220px; justify-content: flex-start; }
-.viz-bar { min-width: 34px; color: #fff; background: #315f7d; border-color: #315f7d; align-items: end; padding-bottom: 6px; }
+.viz-bar {
+  min-width: 34px;
+  color: #fff;
+  background: linear-gradient(180deg, #44789c, #315f7d);
+  border-color: #315f7d;
+  align-items: end;
+  padding-bottom: 6px;
+}
 .quiz-card { padding: 18px; }
 .quiz-options { display: grid; gap: 10px; margin: 16px 0; }
 .quiz-options button {
@@ -3283,6 +3317,17 @@ footer {
   padding: 22px 18px;
   color: var(--muted);
   text-align: center;
+}
+.summary article, .lab-panel, .quiz-card {
+  box-shadow: 0 14px 34px rgba(31, 41, 55, .06);
+}
+.quiz-options button {
+  transition: transform .18s ease, border-color .18s ease, background .18s ease;
+}
+.quiz-options button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: #9bc9bd;
+  background: #fbfffd;
 }
 @media (max-width: 860px) {
   .hero, .lab-layout, .practice-layout { grid-template-columns: 1fr; }
@@ -3372,6 +3417,10 @@ function matchesFilter(week, filter) {
   return text.includes(filter);
 }
 
+function viewerUrl(path) {
+  return "viewer.html?src=" + encodeURIComponent(path);
+}
+
 function renderWeeks() {
   const q = searchInput.value.trim().toLowerCase();
   const filter = topicFilter.value;
@@ -3383,6 +3432,9 @@ function renderWeeks() {
       return !q || text.includes(q);
     })
     .forEach((week) => {
+      const lectureUrl = viewerUrl(week.folder + "lecture.md");
+      const codeUrl = viewerUrl(week.folder + "examples/" + week.codeFile);
+      const exerciseUrl = viewerUrl(week.folder + "exercises.md");
       const card = document.createElement("article");
       card.className = "week-card" + (done.has(week.id) ? " done" : "");
       card.innerHTML = \`
@@ -3393,10 +3445,10 @@ function renderWeeks() {
         <p>\${week.theme}</p>
         <div class="topic-tags">\${week.topics.slice(0, 5).map((t) => "<span>" + t + "</span>").join("")}</div>
         <div class="card-links">
-          <a href="\${week.folder}lecture.md">讲义</a>
+          <a href="\${lectureUrl}">讲义</a>
           <a href="\${week.folder}interactive.html">演示</a>
-          <a href="\${week.folder}examples/\${week.codeFile}">代码</a>
-          <a href="\${week.folder}exercises.md">练习</a>
+          <a href="\${codeUrl}">代码</a>
+          <a href="\${exerciseUrl}">练习</a>
           <button class="mark-btn" data-id="\${week.id}">\${done.has(week.id) ? "取消完成" : "标记完成"}</button>
         </div>
       \`;
@@ -3555,6 +3607,475 @@ renderQuiz();
 `;
 }
 
+function viewerHtml() {
+  return `
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>课程材料阅读器</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js/styles/github.min.css">
+  <link rel="stylesheet" href="viewer.css">
+</head>
+<body>
+  <header class="reader-header">
+    <nav>
+      <a href="index.html">课程首页</a>
+      <a id="rawLink" href="#">打开原始文件</a>
+    </nav>
+    <div class="reader-title">
+      <p class="eyebrow">Course Reader</p>
+      <h1 id="docTitle">课程材料</h1>
+      <p id="srcPath" class="src-path"></p>
+      <div id="fileBadges" class="file-badges"></div>
+    </div>
+  </header>
+  <main class="reader-shell">
+    <aside class="outline-card">
+      <strong>目录</strong>
+      <div id="outline" class="outline-list"></div>
+    </aside>
+    <article id="docContent" class="doc-content">
+      <div class="loading">正在加载课程材料...</div>
+    </article>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/highlight.js/lib/common.min.js"></script>
+  <script src="viewer.js"></script>
+</body>
+</html>
+`;
+}
+
+function viewerCss() {
+  return `
+:root {
+  color-scheme: light;
+  --ink: #172033;
+  --muted: #65758a;
+  --line: #d8e0e8;
+  --paper: #ffffff;
+  --bg: #f4f7f6;
+  --green: #147a63;
+  --green-dark: #0f5f4d;
+  --blue: #315f7d;
+  --rust: #b45309;
+  --soft-green: #edf8f4;
+  --soft-blue: #eef5fb;
+  --soft-rust: #fff4e6;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+  color: var(--ink);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.82), rgba(244,247,246,.98)),
+    linear-gradient(90deg, rgba(49,95,125,.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(49,95,125,.06) 1px, transparent 1px),
+    var(--bg);
+  background-size: auto, 32px 32px, 32px 32px, auto;
+  line-height: 1.72;
+}
+a { color: inherit; }
+.reader-header {
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(135deg, rgba(234,247,242,.96), rgba(255,244,230,.72)),
+    #fff;
+}
+.reader-header nav {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 18px clamp(18px, 4vw, 34px);
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.reader-header nav a {
+  text-decoration: none;
+  color: var(--blue);
+  font-weight: 900;
+  border-bottom: 1px solid transparent;
+}
+.reader-header nav a:hover { color: var(--green-dark); border-color: currentColor; }
+.reader-title {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 34px clamp(18px, 4vw, 34px) 40px;
+}
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--green-dark);
+  font-weight: 900;
+  letter-spacing: 0;
+}
+h1, h2, h3, h4 { letter-spacing: 0; line-height: 1.25; }
+h1 { margin: 0; font-size: clamp(32px, 4vw, 54px); }
+.src-path {
+  color: var(--muted);
+  word-break: break-all;
+  margin: 12px 0 0;
+}
+.file-badges {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.file-badges span {
+  border: 1px solid #b8d8cf;
+  background: var(--soft-green);
+  color: var(--green-dark);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 900;
+}
+.reader-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 24px clamp(18px, 4vw, 34px) 56px;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+.outline-card, .doc-content {
+  background: rgba(255,255,255,.96);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 18px 42px rgba(31,41,55,.07);
+}
+.outline-card {
+  position: sticky;
+  top: 18px;
+  padding: 16px;
+}
+.outline-card strong {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--blue);
+}
+.outline-list {
+  display: grid;
+  gap: 6px;
+  max-height: calc(100vh - 120px);
+  overflow: auto;
+}
+.outline-list a, .outline-list span {
+  display: block;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 8px;
+  padding: 7px 8px;
+  font-size: 14px;
+}
+.outline-list a:hover {
+  color: var(--green-dark);
+  background: var(--soft-green);
+}
+.outline-list .depth-3 { padding-left: 20px; }
+.doc-content {
+  min-height: 520px;
+  padding: clamp(20px, 4vw, 42px);
+}
+.doc-content > *:first-child { margin-top: 0; }
+.doc-content h1 {
+  font-size: clamp(28px, 3.5vw, 42px);
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--line);
+}
+.doc-content h2 {
+  margin-top: 34px;
+  font-size: 26px;
+  padding-left: 12px;
+  border-left: 5px solid var(--green);
+}
+.doc-content h3 {
+  margin-top: 26px;
+  font-size: 21px;
+  color: var(--blue);
+}
+.doc-content p, .doc-content li {
+  color: #344256;
+  font-size: 16px;
+}
+.doc-content ul, .doc-content ol { padding-left: 1.35em; }
+.doc-content li + li { margin-top: 4px; }
+.doc-content blockquote {
+  margin: 18px 0;
+  padding: 12px 16px;
+  border-left: 5px solid var(--rust);
+  background: var(--soft-rust);
+  color: #5c4630;
+  border-radius: 0 8px 8px 0;
+}
+.doc-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+.doc-content th, .doc-content td {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 12px;
+  vertical-align: top;
+}
+.doc-content th {
+  background: var(--soft-blue);
+  color: var(--blue);
+  text-align: left;
+}
+.doc-content tr:nth-child(even) td { background: #fafcfc; }
+.doc-content code {
+  font-family: Consolas, "Cascadia Mono", "Courier New", monospace;
+}
+.doc-content :not(pre) > code {
+  background: #eef3f5;
+  color: #1f516b;
+  border: 1px solid #dde8ed;
+  border-radius: 6px;
+  padding: 2px 5px;
+}
+.doc-content pre {
+  border: 1px solid #d7e1ea;
+  border-radius: 8px;
+  background: #f8fafc;
+  overflow: auto;
+  padding: 14px;
+}
+.doc-content pre code {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  font-size: 14px;
+}
+.code-panel {
+  padding: 0;
+  overflow: auto;
+  background: #0f172a;
+  border-color: #233044;
+}
+.code-view {
+  margin: 0;
+  min-width: 720px;
+  padding: 16px 0;
+  color: #dbeafe;
+  background: #0f172a;
+}
+.code-line {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  min-height: 22px;
+}
+.code-line:hover { background: rgba(255,255,255,.06); }
+.line-no {
+  color: #7890aa;
+  text-align: right;
+  padding-right: 14px;
+  user-select: none;
+  border-right: 1px solid #26354b;
+}
+.code-line code {
+  padding-left: 14px;
+  white-space: pre;
+}
+.loading, .error-box {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfcfd;
+  color: var(--muted);
+}
+.error-box {
+  border-color: #f0c49b;
+  background: var(--soft-rust);
+  color: #6d3f13;
+}
+@media (max-width: 900px) {
+  .reader-shell { grid-template-columns: 1fr; }
+  .outline-card { position: static; }
+}
+`;
+}
+
+function viewerJs() {
+  return `
+(function () {
+  const params = new URLSearchParams(window.location.search);
+  const src = params.get("src") || "../README.md";
+  const docTitle = document.getElementById("docTitle");
+  const srcPath = document.getElementById("srcPath");
+  const rawLink = document.getElementById("rawLink");
+  const badges = document.getElementById("fileBadges");
+  const content = document.getElementById("docContent");
+  const outline = document.getElementById("outline");
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, function (ch) {
+      return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch];
+    });
+  }
+
+  function cleanText(value) {
+    return value.replace(/^\\uFEFF/, "");
+  }
+
+  function fileName(path) {
+    const parts = decodeURIComponent(path).split("/").filter(Boolean);
+    return parts[parts.length - 1] || "课程材料";
+  }
+
+  function fileKind(path) {
+    const lower = path.toLowerCase();
+    if (lower.endsWith(".md")) return "markdown";
+    if (lower.endsWith(".c") || lower.endsWith(".h")) return "c";
+    return "text";
+  }
+
+  function safeRelative(path) {
+    return !/^https?:\\/\\//i.test(path) && !path.startsWith("//");
+  }
+
+  function setBadges(kind, text) {
+    const lineCount = text.split(/\\r?\\n/).length;
+    const words = text.length;
+    const labels = kind === "c"
+      ? ["C 语言源码", lineCount + " 行", "UTF-8"]
+      : kind === "markdown"
+        ? ["Markdown 讲义", lineCount + " 行", "已排版"]
+        : ["文本材料", lineCount + " 行", words + " 字符"];
+    badges.innerHTML = labels.map(function (label) {
+      return "<span>" + escapeHtml(label) + "</span>";
+    }).join("");
+  }
+
+  function buildOutline() {
+    const headings = Array.from(content.querySelectorAll("h1, h2, h3"));
+    if (!headings.length) {
+      outline.innerHTML = "<span>当前文件没有可提取目录</span>";
+      return;
+    }
+    outline.innerHTML = headings.map(function (heading, index) {
+      if (!heading.id) heading.id = "heading-" + index;
+      const depth = heading.tagName === "H3" ? " depth-3" : "";
+      return '<a class="' + depth.trim() + '" href="#' + heading.id + '">' + escapeHtml(heading.textContent.trim()) + "</a>";
+    }).join("");
+  }
+
+  function highlightMarkdownCode() {
+    if (!window.hljs) return;
+    content.querySelectorAll("pre code").forEach(function (block) {
+      window.hljs.highlightElement(block);
+    });
+  }
+
+  function rewriteRelativeLinks() {
+    const sourceUrl = new URL(src, window.location.href);
+    content.querySelectorAll("a[href]").forEach(function (link) {
+      const href = link.getAttribute("href");
+      if (!href || href.startsWith("#") || /^[a-z]+:/i.test(href)) return;
+      const target = new URL(href, sourceUrl);
+      if (target.origin !== window.location.origin) {
+        link.href = target.href;
+        return;
+      }
+      const lower = target.pathname.toLowerCase();
+      if (lower.endsWith(".md") || lower.endsWith(".c") || lower.endsWith(".h")) {
+        link.href = "viewer.html?src=" + encodeURIComponent(target.pathname + target.search);
+      } else {
+        link.href = target.href;
+      }
+    });
+  }
+
+  function renderMarkdown(text) {
+    if (!window.marked || !window.DOMPurify) {
+      content.innerHTML = '<pre><code>' + escapeHtml(text) + "</code></pre>";
+      return;
+    }
+    window.marked.setOptions({ gfm: true, breaks: false });
+    const html = window.marked.parse(text);
+    content.classList.remove("code-panel");
+    content.innerHTML = window.DOMPurify.sanitize(html);
+    rewriteRelativeLinks();
+    highlightMarkdownCode();
+    buildOutline();
+  }
+
+  function renderCode(text, language) {
+    content.classList.add("code-panel");
+    const highlighted = window.hljs && window.hljs.getLanguage(language)
+      ? window.hljs.highlight(text, { language: language }).value
+      : escapeHtml(text);
+    const rows = highlighted.split(/\\r?\\n/).map(function (line, index) {
+      const body = line.length ? line : "&nbsp;";
+      return '<span class="code-line"><span class="line-no">' + (index + 1) + '</span><code>' + body + '</code></span>';
+    }).join("");
+    content.innerHTML = '<pre class="code-view" tabindex="0">' + rows + "</pre>";
+    outline.innerHTML = "<span>C 代码阅读模式</span><span>建议结合讲义中的结构不变量逐函数阅读。</span>";
+  }
+
+  function renderText(text) {
+    content.classList.remove("code-panel");
+    content.innerHTML = '<pre><code>' + escapeHtml(text) + "</code></pre>";
+    outline.innerHTML = "<span>文本阅读模式</span>";
+  }
+
+  async function load() {
+    const decoded = decodeURIComponent(src);
+    docTitle.textContent = fileName(src);
+    srcPath.textContent = decoded;
+    rawLink.href = src;
+
+    if (!safeRelative(src)) {
+      content.innerHTML = '<div class="error-box">只允许读取本仓库中的相对路径文件。</div>';
+      return;
+    }
+
+    try {
+      const response = await fetch(src);
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      const text = cleanText(await response.text());
+      const kind = fileKind(src);
+      setBadges(kind, text);
+      if (kind === "markdown") renderMarkdown(text);
+      else if (kind === "c") renderCode(text, "c");
+      else renderText(text);
+    } catch (error) {
+      content.classList.remove("code-panel");
+      content.innerHTML = '<div class="error-box"><strong>材料加载失败。</strong><p>如果你是直接用 file:// 打开本页面，浏览器可能会阻止读取本地 Markdown 或 C 文件。请通过 GitHub Pages 或本地静态服务器访问。</p><p>' + escapeHtml(error.message) + "</p></div>";
+      outline.innerHTML = "<span>加载失败</span>";
+    }
+  }
+
+  load();
+})();
+`;
+}
+
+function editorconfigContent() {
+  return `
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = false
+
+[*.c]
+charset = utf-8-bom
+`;
+}
+
 function visualizerCss() {
   return `
 :root {
@@ -3585,10 +4106,11 @@ a { color: inherit; }
 .week-hero {
   padding: 18px clamp(18px, 4vw, 58px) 32px;
   background:
-    linear-gradient(rgba(255,255,255,.92), rgba(255,255,255,.96)),
-    radial-gradient(circle at 20% 10%, #d9efe8 0, transparent 32%),
-    radial-gradient(circle at 84% 16%, #f8dfb8 0, transparent 28%),
+    linear-gradient(135deg, rgba(237,248,244,.96), rgba(255,244,230,.78)),
+    linear-gradient(90deg, rgba(49,95,125,.06) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(49,95,125,.06) 1px, transparent 1px),
     #fff;
+  background-size: auto, 32px 32px, 32px 32px;
   border-bottom: 1px solid var(--line);
 }
 .week-nav {
@@ -3634,7 +4156,7 @@ h3 { margin: 0; font-size: 22px; }
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: 0 16px 40px rgba(31, 41, 55, .06);
+  box-shadow: 0 18px 42px rgba(31, 41, 55, .08);
 }
 .principle-panel { padding: 18px; }
 .principle-panel strong { display: block; margin-bottom: 8px; color: var(--blue); }
@@ -3657,6 +4179,12 @@ button {
   background: #fff;
   color: var(--ink);
   font-weight: 800;
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
+}
+.primary-btn:hover, .ghost-btn:hover, .icon-btn:hover, .op-card:hover, .resource-strip a:hover {
+  transform: translateY(-1px);
+  border-color: #9bc9bd;
+  box-shadow: 0 10px 22px rgba(31, 41, 55, .08);
 }
 .primary-btn { background: var(--green); color: #fff; border-color: var(--green); padding: 8px 13px; }
 .ghost-btn { padding: 8px 13px; color: var(--blue); }
@@ -3680,7 +4208,10 @@ button {
   border: 1px solid var(--line);
   border-radius: 8px;
   background:
-    linear-gradient(180deg, #fbfcfd, #f1f5f4);
+    linear-gradient(180deg, rgba(255,255,255,.88), rgba(242,247,246,.98)),
+    linear-gradient(90deg, rgba(49,95,125,.07) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(49,95,125,.07) 1px, transparent 1px);
+  background-size: auto, 30px 30px, 30px 30px;
   display: grid;
   place-items: center;
   padding: 18px;
@@ -3689,8 +4220,10 @@ button {
 .step-panel {
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfcfd;
+  background:
+    linear-gradient(180deg, #ffffff, #f8fbfa);
   padding: 18px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
 }
 .step-counter { margin: 0 0 8px; color: var(--rust); font-weight: 900; }
 #stepText { color: #46566a; }
@@ -3710,19 +4243,33 @@ button {
   place-items: center;
   border-radius: 8px;
   border: 2px solid #8fb6ac;
-  background: #fff;
+  background: linear-gradient(180deg, #ffffff, #f5faf8);
   color: var(--ink);
   font-weight: 900;
   position: relative;
+  box-shadow:
+    0 12px 26px rgba(31, 41, 55, .08),
+    inset 0 1px 0 rgba(255,255,255,.9);
+  transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
 }
-.viz-node { border-radius: 999px; }
+.viz-node {
+  border-radius: 999px;
+  min-width: 58px;
+  min-height: 58px;
+}
 .viz-null { color: var(--muted); border-style: dashed; }
 .is-active, .is-changed {
-  background: #ffefb0 !important;
+  background: linear-gradient(180deg, #fff7d1, #ffefb0) !important;
   border-color: var(--rust) !important;
-  box-shadow: 0 8px 18px rgba(180, 83, 9, .18);
+  box-shadow:
+    0 18px 30px rgba(180, 83, 9, .20),
+    inset 0 1px 0 rgba(255,255,255,.92);
+  transform: translateY(-4px);
 }
-.is-sorted { background: var(--soft-green); border-color: var(--green); }
+.is-sorted {
+  background: linear-gradient(180deg, #f5fffb, var(--soft-green));
+  border-color: var(--green);
+}
 .viz-link { width: 34px; height: 2px; background: #8094a8; position: relative; }
 .viz-link::after {
   content: "";
@@ -3748,19 +4295,32 @@ button {
   width: 52px;
   min-height: 34px;
   border-radius: 8px 8px 4px 4px;
-  background: var(--blue);
+  background: linear-gradient(180deg, #4d83a6, var(--blue));
   color: #fff;
   display: grid;
   align-items: end;
   justify-items: center;
   padding-bottom: 8px;
   font-weight: 900;
+  box-shadow: 0 14px 28px rgba(49, 95, 125, .18);
+  border: 1px solid rgba(255,255,255,.38);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
 }
 .bar-label { color: var(--muted); font-size: 12px; text-align: center; margin-top: 6px; max-width: 78px; }
 .tree-svg, .graph-svg { width: 100%; height: 340px; }
-.svg-edge { stroke: #8da2b5; stroke-width: 3; }
+.svg-edge {
+  stroke: #8da2b5;
+  stroke-width: 3;
+  transition: stroke .2s ease, stroke-width .2s ease;
+}
 .svg-edge.active { stroke: var(--rust); stroke-width: 5; }
-.svg-node { fill: #fff; stroke: var(--green); stroke-width: 3; }
+.svg-node {
+  fill: #fff;
+  stroke: var(--green);
+  stroke-width: 3;
+  filter: drop-shadow(0 5px 6px rgba(31, 41, 55, .18));
+  transition: fill .2s ease, stroke .2s ease, stroke-width .2s ease;
+}
 .svg-node.active { fill: #ffefb0; stroke: var(--rust); stroke-width: 4; }
 .svg-node.settled { fill: var(--soft-green); stroke: var(--green); }
 .svg-label { text-anchor: middle; dominant-baseline: middle; font-weight: 900; fill: var(--ink); }
@@ -4010,13 +4570,20 @@ function visualizerJs() {
 
   function animate() {
     if (!window.gsap) return;
-    gsap.fromTo(canvas.querySelectorAll(".viz-cell,.viz-node,.viz-token,.viz-bucket,.viz-count,.viz-block,.viz-bar,.svg-node"),
-      { opacity: 0, y: 12 },
-      { opacity: 1, y: 0, duration: .36, stagger: .025, ease: "power2.out" }
+    const tl = gsap.timeline();
+    tl.fromTo(canvas.querySelectorAll(".svg-edge,.viz-link"),
+      { opacity: 0, scaleX: .65 },
+      { opacity: 1, scaleX: 1, duration: .28, stagger: .02, ease: "power2.out", transformOrigin: "left center" }
     );
-    gsap.fromTo(canvas.querySelectorAll(".is-active,.svg-node.active,.svg-edge.active"),
-      { scale: .92 },
-      { scale: 1, duration: .48, ease: "back.out(1.8)", transformOrigin: "center" }
+    tl.fromTo(canvas.querySelectorAll(".viz-cell,.viz-node,.viz-token,.viz-bucket,.viz-count,.viz-block,.viz-bar,.svg-node"),
+      { opacity: 0, y: 14, scale: .96 },
+      { opacity: 1, y: 0, scale: 1, duration: .42, stagger: .028, ease: "power3.out" },
+      "-=.12"
+    );
+    tl.fromTo(canvas.querySelectorAll(".is-active,.svg-node.active,.svg-edge.active"),
+      { scale: .9, filter: "brightness(1.08)" },
+      { scale: 1, filter: "brightness(1)", duration: .55, ease: "back.out(1.9)", transformOrigin: "center" },
+      "-=.18"
     );
   }
 
@@ -4027,7 +4594,9 @@ function visualizerJs() {
     stepTitle.textContent = step.title;
     stepText.textContent = step.text;
     stepMeta.innerHTML = '<span>' + demo.shortTitle + '</span><span>' + demo.kind + '</span>';
-    progressBar.style.width = ((index + 1) / demo.steps.length * 100) + "%";
+    const progress = ((index + 1) / demo.steps.length * 100) + "%";
+    if (window.gsap) gsap.to(progressBar, { width: progress, duration: .34, ease: "power2.out" });
+    else progressBar.style.width = progress;
     animate();
   }
 
@@ -4139,7 +4708,7 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site
-          cp -R index.html README.md assets onlineweb test tools week* _site/
+          cp -R index.html README.md .editorconfig assets onlineweb test tools week* _site/
           if [ -f LICENSE ]; then cp LICENSE _site/; fi
           touch _site/.nojekyll
 
@@ -4182,6 +4751,7 @@ Thumbs.db
 function generate() {
   writeFile("index.html", rootIndexContent());
   writeFile(".gitignore", gitignoreContent());
+  writeFile(".editorconfig", editorconfigContent());
   writeFile(".nojekyll", "");
   writeFile(".github/workflows/pages.yml", pagesWorkflowContent());
   writeFile("assets/course-visualizer.css", visualizerCss());
@@ -4207,6 +4777,9 @@ function generate() {
   writeFile("onlineweb/styles.css", onlineStyles());
   writeFile("onlineweb/data.js", onlineData());
   writeFile("onlineweb/app.js", onlineApp());
+  writeFile("onlineweb/viewer.html", viewerHtml());
+  writeFile("onlineweb/viewer.css", viewerCss());
+  writeFile("onlineweb/viewer.js", viewerJs());
 }
 
 generate();

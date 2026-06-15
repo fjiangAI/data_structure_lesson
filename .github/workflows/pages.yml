@@ -34,7 +34,7 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site
-          cp -R index.html README.md assets onlineweb test tools week* _site/
+          cp -R index.html README.md .editorconfig assets onlineweb test tools week* _site/
           if [ -f LICENSE ]; then cp LICENSE _site/; fi
           touch _site/.nojekyll
 
