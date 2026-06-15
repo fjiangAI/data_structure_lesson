@@ -118,8 +118,8 @@ def verify_page(rel_path, screenshot_name, site_port):
     title: document.title,
     hasDemo: !!document.querySelector('#visualCanvas, #labCanvas, #weekGrid, #docContent'),
     readerLoaded: !!document.querySelector('#docContent') && !document.querySelector('#docContent .loading'),
-    visualItems: visible('.viz-cell, .viz-node, .viz-token, .viz-bucket, .viz-count, .viz-block, .viz-bar, .svg-node, .week-card'),
-    activeItems: visible('.is-active, .viz-active, .svg-node.active'),
+    visualItems: visible('.viz-cell, .viz-node, .viz-token, .viz-bucket, .viz-count, .viz-block, .viz-bar, .svg-node, .week-card, .evolution-card, .linked-node, .ring-slot, .algorithm-badge'),
+    activeItems: visible('.is-active, .viz-active, .svg-node.active, .evolution-card.active, .linked-node.active, .ring-active'),
     stepText: (document.querySelector('#stepText, #labExplain') || {}).textContent || '',
     cards: document.querySelectorAll('.week-card').length,
     bodyLength: document.body.innerText.length

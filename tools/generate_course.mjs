@@ -23,7 +23,7 @@ const weeks = [
       ["递归分治", "T(n)=aT(n/b)+f(n)", "依递推式而定"]
     ],
     codeFile: "complexity_demo.c",
-    visual: "complexity"
+    visual: "evolution"
   },
   {
     id: 2,
@@ -1751,6 +1751,10 @@ function studyGuideFor(week) {
   const opLines = week.operations.map((op, i) => `${i + 1}. **${op[0]}**：${op[1]}。分析时先找会重复执行的语句，再判断重复次数，所以复杂度为 ${op[2]}。`).join("\n");
   const stepLines = demo.steps.map((step, i) => `${i + 1}. **${step.title}**：${step.text}`).join("\n");
   const kindNotes = {
+    evolution: {
+      representation: "本周演示不是某一个具体 ADT，而是展示数据组织方式如何从零散变量演进到数组、结构体、链式关系、树、图和索引结构。重点是理解“关系”一旦被组织起来，操作才有明确的对象和边界。",
+      code: "阅读 Week 1 示例代码时，把 `linear_sum`、`binary_search`、`pair_count_less_than` 和 `fibonacci_calls` 看成后续课程的操作预告：同样是行动，数据组织方式不同，代价也不同。"
+    },
     complexity: {
       representation: "本周没有单一结构体，重点是把代码片段转化为增长函数：顺序语句看常数，循环看迭代次数，递归看子问题规模和递归层数。",
       code: "阅读示例代码时，把 `linear_sum`、`binary_search`、`pair_count_less_than` 和 `fibonacci_calls` 分别标注为线性、对数、平方和递归增长。不要只看函数名，要数循环和递归调用。"
@@ -2006,14 +2010,91 @@ function demoFor(week) {
     operations: week.operations.map((op) => ({ name: op[0], action: op[1], cost: op[2] }))
   };
   const demos = {
-    complexity: {
-      kind: "complexity",
-      scenario: "比较 n 从 8 增长到 32 时，不同复杂度函数的增长速度。",
-      invariant: "复杂度分析关注增长趋势，不关注机器、语言和常数级差异。",
+    evolution: {
+      kind: "evolution",
+      scenario: "从零散变量逐步演进到数组、结构体、链表、树、图和索引，理解数据结构为什么是程序世界的“物质组织方式”。",
+      invariant: "数据结构的核心不是名字，而是对象之间的关系如何被稳定保存；算法只是在这种组织形式上执行行动。",
       steps: [
-        { title: "O(1)：固定工作量", n: 8, values: [["O(1)", 1], ["O(log n)", 3], ["O(n)", 8], ["O(n log n)", 24], ["O(n^2)", 64]], active: ["O(1)"], text: "无论 n 是多少，常数时间操作只执行固定次数，例如读取数组 a[i]。" },
-        { title: "O(log n)：每次缩小一半", n: 16, values: [["O(1)", 1], ["O(log n)", 4], ["O(n)", 16], ["O(n log n)", 64], ["O(n^2)", 256]], active: ["O(log n)"], text: "二分查找每轮排除一半元素，因此规模翻倍只多一次比较。" },
-        { title: "O(n)：逐个扫描", n: 32, values: [["O(1)", 1], ["O(log n)", 5], ["O(n)", 32], ["O(n log n)", 160], ["O(n^2)", 1024]], active: ["O(n)", "O(n^2)"], text: "线性扫描随元素个数等比例增长；平方复杂度在规模增加后会迅速变得不可接受。" }
+        {
+          title: "零散变量：只有值，没有组织",
+          items: [
+            { id: "scoreA", label: "scoreA=91", x: 18, y: 48 },
+            { id: "scoreB", label: "scoreB=86", x: 46, y: 28 },
+            { id: "scoreC", label: "scoreC=95", x: 74, y: 58 }
+          ],
+          links: [],
+          active: ["scoreA", "scoreB", "scoreC"],
+          caption: "变量",
+          text: "最开始只有几个独立的值。程序可以读写它们，但没有统一的顺序、关系和批量操作。"
+        },
+        {
+          title: "数组：用连续位置组织同类数据",
+          items: [
+            { id: "a0", label: "91", x: 22, y: 48 },
+            { id: "a1", label: "86", x: 38, y: 48 },
+            { id: "a2", label: "95", x: 54, y: 48 },
+            { id: "a3", label: "78", x: 70, y: 48 }
+          ],
+          links: [["a0", "a1"], ["a1", "a2"], ["a2", "a3"]],
+          active: ["a0", "a1", "a2", "a3"],
+          caption: "顺序表 / 数组",
+          text: "连续存储让下标访问和遍历变得自然，后续的顺序表、查找和排序都从这里出发。"
+        },
+        {
+          title: "结构体：把一个对象的多个字段聚合",
+          items: [
+            { id: "stu", label: "Student", x: 50, y: 30 },
+            { id: "id", label: "id", x: 26, y: 64 },
+            { id: "name", label: "name", x: 50, y: 64 },
+            { id: "score", label: "score", x: 74, y: 64 }
+          ],
+          links: [["stu", "id"], ["stu", "name"], ["stu", "score"]],
+          active: ["stu"],
+          caption: "struct",
+          text: "结构体把同一个对象的字段放在一起。抽象数据类型开始有了清晰的对象边界。"
+        },
+        {
+          title: "指针关系：对象可以不连续，但关系仍然明确",
+          items: [
+            { id: "head", label: "head", x: 18, y: 48 },
+            { id: "n1", label: "10", x: 38, y: 48 },
+            { id: "n2", label: "20", x: 58, y: 48 },
+            { id: "n3", label: "30", x: 78, y: 48 }
+          ],
+          links: [["head", "n1"], ["n1", "n2"], ["n2", "n3"]],
+          active: ["n2"],
+          caption: "链表",
+          text: "链表把线性关系放进指针里。物理位置不连续，但 next 关系决定逻辑顺序。"
+        },
+        {
+          title: "层次关系：树把一对多关系组织起来",
+          items: [
+            { id: "root", label: "A", x: 50, y: 18 },
+            { id: "left", label: "B", x: 32, y: 48 },
+            { id: "right", label: "C", x: 68, y: 48 },
+            { id: "leaf1", label: "D", x: 22, y: 76 },
+            { id: "leaf2", label: "E", x: 42, y: 76 },
+            { id: "leaf3", label: "F", x: 78, y: 76 }
+          ],
+          links: [["root", "left"], ["root", "right"], ["left", "leaf1"], ["left", "leaf2"], ["right", "leaf3"]],
+          active: ["root", "left", "right"],
+          caption: "树 / 二叉树",
+          text: "树让递归、查找、堆和表达式结构都有了统一语言：根、孩子、子树。"
+        },
+        {
+          title: "多对多与索引：图和哈希支持更复杂的定位",
+          items: [
+            { id: "A", label: "A", x: 24, y: 28 },
+            { id: "B", label: "B", x: 52, y: 22 },
+            { id: "C", label: "C", x: 38, y: 58 },
+            { id: "D", label: "D", x: 72, y: 58 },
+            { id: "hash", label: "id -> index", x: 76, y: 24 }
+          ],
+          links: [["A", "B"], ["A", "C"], ["B", "D"], ["C", "D"], ["hash", "D"]],
+          active: ["hash", "D"],
+          caption: "图 / 哈希索引",
+          text: "真实系统往往同时存在多对多关系和快速定位需求。数据结构就是选择合适的组织方式服务高频操作。"
+        }
       ]
     },
     array: {
@@ -2028,14 +2109,79 @@ function demoFor(week) {
       ]
     },
     list: {
-      kind: "list",
-      scenario: "在带头结点单链表中，把 20 插入到 10 和 30 之间。",
-      invariant: "每个结点只知道自己的 next；插入和删除的关键是先找到前驱结点。",
+      kind: "linked",
+      scenario: "在带头结点单链表中，把 20 插入到 10 和 30 之间，并观察为什么指针赋值顺序不能写反。",
+      invariant: "每个结点只知道自己的 next；插入必须先让新结点接住后继，再让前驱指向新结点。",
       steps: [
-        { title: "找到前驱", nodes: ["head", "10", "30", "NULL"], active: [1], text: "要在 10 后插入 20，必须先保存前驱结点 p=10。" },
-        { title: "分配新结点", nodes: ["head", "10", "20", "30", "NULL"], active: [2], dashed: [[2, 3]], text: "创建新结点 s。此时先让 s->next 指向原来的 p->next，也就是 30。" },
-        { title: "接入链表", nodes: ["head", "10", "20", "30", "NULL"], active: [1, 2], text: "再令 p->next = s。顺序不能反，否则会丢失 30 之后的链。" },
-        { title: "删除结点的本质", nodes: ["head", "10", "30", "NULL"], active: [1, 2], text: "删除 20 时，让前驱 10 的 next 越过 20 指向 30，然后释放 20。" }
+        {
+          title: "原链表与前驱 p",
+          nodes: [
+            { id: "head", label: "head", x: 12, y: 48 },
+            { id: "p", label: "10", x: 34, y: 48 },
+            { id: "q", label: "30", x: 58, y: 48 },
+            { id: "null", label: "NULL", x: 82, y: 48, null: true }
+          ],
+          links: [["head", "p"], ["p", "q"], ["q", "null"]],
+          active: ["p"],
+          meta: ["p 指向前驱 10", "p->next 指向 30"],
+          text: "要在 10 后插入 20，必须先找到前驱结点 p。单链表不能从后继直接找到前驱。"
+        },
+        {
+          title: "分配新结点 s",
+          nodes: [
+            { id: "head", label: "head", x: 12, y: 48 },
+            { id: "p", label: "10", x: 34, y: 48 },
+            { id: "q", label: "30", x: 66, y: 48 },
+            { id: "null", label: "NULL", x: 88, y: 48, null: true },
+            { id: "s", label: "20", x: 50, y: 76, ghost: true }
+          ],
+          links: [["head", "p"], ["p", "q"], ["q", "null"]],
+          active: ["s"],
+          meta: ["s 尚未接入主链", "不能覆盖 p->next"],
+          text: "新结点 s 还没有接入链表。此时如果立刻写 p->next=s，就会暂时失去原后继 30 的入口。"
+        },
+        {
+          title: "先写 s->next = p->next",
+          nodes: [
+            { id: "head", label: "head", x: 12, y: 48 },
+            { id: "p", label: "10", x: 34, y: 48 },
+            { id: "q", label: "30", x: 66, y: 48 },
+            { id: "null", label: "NULL", x: 88, y: 48, null: true },
+            { id: "s", label: "20", x: 50, y: 76 }
+          ],
+          links: [["head", "p"], ["p", "q"], ["q", "null"], ["s", "q", "new"]],
+          active: ["s", "q"],
+          meta: ["新结点先接住 30", "后继链不会丢"],
+          text: "第一条赋值让 s->next 指向 30。这样新结点已经接住原来的后继链。"
+        },
+        {
+          title: "再写 p->next = s",
+          nodes: [
+            { id: "head", label: "head", x: 12, y: 48 },
+            { id: "p", label: "10", x: 34, y: 48 },
+            { id: "s", label: "20", x: 58, y: 48 },
+            { id: "q", label: "30", x: 82, y: 48 },
+            { id: "null", label: "NULL", x: 96, y: 48, null: true }
+          ],
+          links: [["head", "p"], ["p", "s", "new"], ["s", "q"], ["q", "null"]],
+          active: ["p", "s"],
+          meta: ["主链变为 head -> 10 -> 20 -> 30", "插入 O(1)"],
+          text: "第二条赋值让前驱 p 指向 s。现在 20 正式进入主链，且 30 之后的链没有丢失。"
+        },
+        {
+          title: "删除时越过目标结点",
+          nodes: [
+            { id: "head", label: "head", x: 12, y: 48 },
+            { id: "p", label: "10", x: 34, y: 48 },
+            { id: "s", label: "20", x: 58, y: 76, ghost: true },
+            { id: "q", label: "30", x: 70, y: 48 },
+            { id: "null", label: "NULL", x: 92, y: 48, null: true }
+          ],
+          links: [["head", "p"], ["p", "q", "new"], ["q", "null"]],
+          active: ["p", "s", "q"],
+          meta: ["p->next = s->next", "free(s)"],
+          text: "删除 20 时，让 10 的 next 越过目标指向 30，然后释放目标结点。链表操作本质上就是维护箭头。"
+        }
       ]
     },
     stack: {
@@ -2050,14 +2196,17 @@ function demoFor(week) {
       ]
     },
     queue: {
-      kind: "queue",
+      kind: "cqueue",
       scenario: "循环队列容量为 6，观察 rear 和 front 如何取模移动。",
       invariant: "front 指向队头元素；rear 指向下一个可写位置；牺牲一个单元区分队空和队满。",
       steps: [
-        { title: "初始入队", cells: [10, 20, 30, "_", "_", "_"], front: 0, rear: 3, active: [0, 1, 2], text: "元素从 rear 写入，rear 每次加 1 并对 capacity 取模。" },
-        { title: "出队两次", cells: ["_", "_", 30, "_", "_", "_"], front: 2, rear: 3, active: [2], text: "出队只移动 front，不移动数组中的所有元素，所以是 O(1)。" },
-        { title: "尾部继续入队", cells: ["_", "_", 30, 40, 50, "_"], front: 2, rear: 5, active: [3, 4], text: "rear 继续向后写入，空出来的前两个位置暂时不搬移。" },
-        { title: "rear 回绕", cells: [70, "_", 30, 40, 50, 60], front: 2, rear: 1, active: [5, 0], text: "写到数组末尾后 rear 回到 0，这就是循环队列避免整体搬移的关键。" }
+        { title: "空队列", cells: ["_", "_", "_", "_", "_", "_"], front: 0, rear: 0, active: [0], op: "front == rear", text: "front 与 rear 指向同一个槽时队列为空。rear 表示下一个可写位置。" },
+        { title: "enqueue 10", cells: [10, "_", "_", "_", "_", "_"], front: 0, rear: 1, active: [0, 1], op: "写入 0，rear=(0+1)%6", text: "10 写入 rear 原来的位置 0，然后 rear 取模后移到 1。" },
+        { title: "enqueue 20,30,40", cells: [10, 20, 30, 40, "_", "_"], front: 0, rear: 4, active: [1, 2, 3, 4], op: "连续入队", text: "队列的逻辑顺序是从 front 出发沿圆环走到 rear 前一个位置。" },
+        { title: "dequeue 两次", cells: ["_", "_", 30, 40, "_", "_"], front: 2, rear: 4, active: [0, 1, 2], op: "front=(front+2)%6", text: "出队只移动 front，不搬移数组元素。0、1 号槽被释放，后面可以再次使用。" },
+        { title: "enqueue 50,60", cells: ["_", "_", 30, 40, 50, 60], front: 2, rear: 0, active: [4, 5, 0], op: "rear 从 5 回到 0", text: "写到下标 5 后，rear 通过取模回到 0，线性数组被当成圆环使用。" },
+        { title: "enqueue 70", cells: [70, "_", 30, 40, 50, 60], front: 2, rear: 1, active: [0, 1], op: "继续使用释放的槽", text: "70 写入 0 号槽，rear 到 1。此时虽然物理位置跨过数组边界，逻辑队列仍是 30,40,50,60,70。" },
+        { title: "队满判定", cells: [70, "_", 30, 40, 50, 60], front: 2, rear: 1, active: [1, 2], op: "(rear + 1) % 6 == front", text: "如果 rear 的下一个位置等于 front，就判定队满。牺牲一个槽可以区分队空和队满。" }
       ]
     },
     string: {
@@ -2072,25 +2221,89 @@ function demoFor(week) {
       ]
     },
     tree: {
-      kind: "tree",
-      scenario: "对二叉树执行前序遍历，理解递归为什么天然适合树。",
-      invariant: "每个子树仍然是一棵二叉树；遍历规则对根、左子树、右子树递归适用。",
+      kind: "traversal",
+      scenario: "对同一棵二叉树执行前序遍历，观察当前结点、递归调用栈和访问序列如何同步变化。",
+      invariant: "每个子树仍然是一棵二叉树；遍历时必须明确当前访问的是根、左子树还是右子树。",
       steps: [
-        { title: "访问根 A", active: ["A"], visited: ["A"], text: "前序遍历规则是根、左、右。先访问根结点 A。" },
-        { title: "进入左子树 B", active: ["B"], visited: ["A", "B"], text: "对左子树重复同样规则，访问 B。" },
-        { title: "访问 B 的孩子", active: ["D", "E"], visited: ["A", "B", "D", "E"], text: "左子树处理完 D，再处理右孩子 E。" },
-        { title: "进入右子树 C", active: ["C", "F"], visited: ["A", "B", "D", "E", "C", "F"], text: "最后处理 A 的右子树 C，再访问 C 的右孩子 F。" }
+        { title: "调用 preorder(A)", active: ["A"], visited: [], stack: ["preorder(A)"], phase: "进入根", text: "递归从根 A 开始。前序规则是先访问根，再递归左子树，最后递归右子树。" },
+        { title: "访问 A", active: ["A"], visited: ["A"], stack: ["preorder(A)"], phase: "visit(root)", text: "前序遍历第一步访问根结点 A，把 A 加入访问序列。" },
+        { title: "递归到左子树 B", active: ["B"], visited: ["A", "B"], stack: ["preorder(A)", "preorder(B)"], phase: "go left", text: "进入 A 的左子树，对 B 重复同样的根、左、右规则。" },
+        { title: "访问 B 的左孩子 D", active: ["D"], visited: ["A", "B", "D"], stack: ["preorder(A)", "preorder(B)", "preorder(D)"], phase: "go left", text: "B 的左孩子是 D。访问 D 后，它没有孩子，递归返回到 B。" },
+        { title: "访问 B 的右孩子 E", active: ["E"], visited: ["A", "B", "D", "E"], stack: ["preorder(A)", "preorder(B)", "preorder(E)"], phase: "go right", text: "B 的左子树处理完，再处理右孩子 E。随后 B 子树遍历完成。" },
+        { title: "回到 A，进入右子树 C", active: ["C"], visited: ["A", "B", "D", "E", "C"], stack: ["preorder(A)", "preorder(C)"], phase: "go right", text: "A 的左子树全部完成后，递归进入右子树 C。" },
+        { title: "访问 C 的右孩子 F", active: ["F"], visited: ["A", "B", "D", "E", "C", "F"], stack: ["preorder(A)", "preorder(C)", "preorder(F)"], phase: "go right", text: "C 没有左孩子，继续访问右孩子 F。前序遍历得到 A, B, D, E, C, F。" }
       ]
     },
     bst: {
-      kind: "rotation",
-      scenario: "AVL 插入 30、20、10 后出现 LL 失衡，观察右旋如何恢复高度。",
-      invariant: "AVL 要求每个结点左右子树高度差不超过 1；旋转只改变局部父子关系，不破坏中序有序。",
+      kind: "avl",
+      scenario: "观察 AVL 插入后如何根据平衡因子识别 LL 与 LR 失衡，并通过单旋或双旋恢复有序且平衡的结构。",
+      invariant: "AVL 要求每个结点左右子树高度差不超过 1；旋转只改变局部父子关系，不破坏中序有序序列。",
       steps: [
-        { title: "插入 30", nodes: [{ id: "30", x: 50, y: 15 }], active: ["30"], text: "第一 个关键字成为根结点。" },
-        { title: "插入 20", nodes: [{ id: "30", x: 50, y: 15 }, { id: "20", x: 32, y: 45, parent: "30" }], active: ["20"], text: "20 小于 30，插入到左子树。此时仍然平衡。" },
-        { title: "插入 10 后失衡", nodes: [{ id: "30", x: 50, y: 15 }, { id: "20", x: 32, y: 45, parent: "30" }, { id: "10", x: 18, y: 75, parent: "20" }], active: ["30"], text: "30 的左子树高度比右子树高 2，这是 LL 型失衡。" },
-        { title: "对 30 右旋", nodes: [{ id: "20", x: 50, y: 15 }, { id: "10", x: 32, y: 45, parent: "20" }, { id: "30", x: 68, y: 45, parent: "20" }], active: ["20"], text: "20 成为新的局部根，10 和 30 分别成为左右孩子，中序序列仍是 10,20,30。" }
+        {
+          title: "按 BST 规则插入 30,20",
+          nodes: [
+            { id: "30", label: "30\nbf=+1", x: 50, y: 18 },
+            { id: "20", label: "20\nbf=0", x: 32, y: 52, parent: "30" }
+          ],
+          active: ["20"],
+          meta: ["中序：20,30", "所有 bf 在 [-1,1]"],
+          text: "AVL 首先仍按 BST 规则插入。20 小于 30，成为左孩子，此时 30 的平衡因子为 +1。"
+        },
+        {
+          title: "插入 10 触发 LL 失衡",
+          nodes: [
+            { id: "30", label: "30\nbf=+2", x: 50, y: 14 },
+            { id: "20", label: "20\nbf=+1", x: 32, y: 46, parent: "30" },
+            { id: "10", label: "10\nbf=0", x: 18, y: 76, parent: "20" }
+          ],
+          active: ["30", "20", "10"],
+          meta: ["失衡点：30", "插入路径：左-左"],
+          text: "从插入点向上更新高度，发现 30 的 bf=+2。新结点落在左孩子的左子树，这是 LL 型失衡。"
+        },
+        {
+          title: "LL 型：对 30 右旋",
+          nodes: [
+            { id: "20", label: "20\nbf=0", x: 50, y: 18 },
+            { id: "10", label: "10\nbf=0", x: 32, y: 54, parent: "20" },
+            { id: "30", label: "30\nbf=0", x: 68, y: 54, parent: "20" }
+          ],
+          active: ["20"],
+          meta: ["局部根从 30 变为 20", "中序仍是 10,20,30"],
+          text: "右旋后 20 成为局部根，10 和 30 分别在左右两侧。旋转恢复高度，同时保持 BST 的中序有序。"
+        },
+        {
+          title: "LR 型：先形成折线",
+          nodes: [
+            { id: "30", label: "30\nbf=+2", x: 50, y: 14 },
+            { id: "10", label: "10\nbf=-1", x: 30, y: 46, parent: "30" },
+            { id: "20", label: "20\nbf=0", x: 42, y: 76, parent: "10" }
+          ],
+          active: ["30", "10", "20"],
+          meta: ["插入路径：左-右", "需要双旋"],
+          text: "如果插入序列是 30,10,20，新结点落在左孩子的右子树。路径出现折线，单纯右旋不能直接解决。"
+        },
+        {
+          title: "LR 型第一步：对 10 左旋",
+          nodes: [
+            { id: "30", label: "30\nbf=+2", x: 50, y: 14 },
+            { id: "20", label: "20\nbf=+1", x: 32, y: 46, parent: "30" },
+            { id: "10", label: "10\nbf=0", x: 20, y: 76, parent: "20" }
+          ],
+          active: ["10", "20"],
+          meta: ["先把折线变直线", "LR -> LL"],
+          text: "先对失衡结点的左孩子 10 做左旋，把 LR 折线转换成 LL 直线。"
+        },
+        {
+          title: "LR 型第二步：对 30 右旋",
+          nodes: [
+            { id: "20", label: "20\nbf=0", x: 50, y: 18 },
+            { id: "10", label: "10\nbf=0", x: 32, y: 54, parent: "20" },
+            { id: "30", label: "30\nbf=0", x: 68, y: 54, parent: "20" }
+          ],
+          active: ["20"],
+          meta: ["双旋完成", "四种失衡都可归结为局部重排"],
+          text: "再对 30 右旋。AVL 的规律是：先按插入路径判断 LL/RR/LR/RL，再用单旋或双旋恢复平衡。"
+        }
       ]
     },
     heap: {
@@ -2116,24 +2329,159 @@ function demoFor(week) {
     },
     path: {
       kind: "path",
-      scenario: "Dijkstra 从 A 出发，观察 dist 数组如何通过松弛变小。",
-      invariant: "每轮选择 dist 最小的未确定顶点；一旦确定，该顶点最短距离不再改变。",
+      scenario: "Dijkstra 从 A 出发，逐轮选择 dist 最小的未确定顶点，并用松弛操作更新 dist 与 prev。",
+      invariant: "每轮只能确定当前 dist 最小的未确定顶点；一旦顶点进入 settled 集合，它的最短距离不再改变。",
       steps: [
-        { title: "初始化", activeNodes: ["A"], settled: [], dist: { A: 0, B: "∞", C: "∞", D: "∞", E: "∞" }, activeEdges: [], text: "源点 A 的距离为 0，其余未知为无穷大。" },
-        { title: "确定 A 并松弛", activeNodes: ["B", "C"], settled: ["A"], dist: { A: 0, B: 10, C: 3, D: "∞", E: "∞" }, activeEdges: ["A-B", "A-C"], text: "通过 A 可以到达 B 和 C，更新 dist[B]=10，dist[C]=3。" },
-        { title: "选择 C", activeNodes: ["B", "E"], settled: ["A", "C"], dist: { A: 0, B: 7, C: 3, D: 11, E: 5 }, activeEdges: ["C-B", "C-E"], text: "未确定顶点中 C 最近。经 C 到 B 的距离 3+4=7，比 10 更短。" },
-        { title: "继续确定最短路", activeNodes: ["E", "B"], settled: ["A", "C", "E", "B"], dist: { A: 0, B: 7, C: 3, D: 9, E: 5 }, activeEdges: ["B-D"], text: "每次选择当前最小 dist 的未确定顶点，最终得到从 A 到各点的最短距离。" }
+        {
+          title: "初始化 dist 与 prev",
+          activeNodes: ["A"],
+          settled: [],
+          frontier: ["A"],
+          dist: { A: 0, B: "∞", C: "∞", D: "∞", E: "∞" },
+          prev: { A: "-", B: "-", C: "-", D: "-", E: "-" },
+          activeEdges: [],
+          text: "源点 A 的 dist 为 0，其余顶点为无穷大。prev 用来记录最短路径上的前驱。"
+        },
+        {
+          title: "选择 A，松弛 A 的出边",
+          activeNodes: ["B", "C"],
+          settled: ["A"],
+          frontier: ["B", "C"],
+          dist: { A: 0, B: 10, C: 3, D: "∞", E: "∞" },
+          prev: { A: "-", B: "A", C: "A", D: "-", E: "-" },
+          activeEdges: ["A-B", "A-C"],
+          text: "A 是当前最小未确定顶点。松弛 A->B 和 A->C 后，B 的距离为 10，C 的距离为 3。"
+        },
+        {
+          title: "选择 C，发现更短路径",
+          activeNodes: ["B", "D", "E"],
+          settled: ["A", "C"],
+          frontier: ["E", "B", "D"],
+          dist: { A: 0, B: 7, C: 3, D: 11, E: 5 },
+          prev: { A: "-", B: "C", C: "A", D: "C", E: "C" },
+          activeEdges: ["C-B", "C-D", "C-E"],
+          text: "未确定顶点中 C 的 dist=3 最小。经 C 到 B 的距离 3+4=7，小于原来的 10，所以更新 B 的 dist 和 prev。"
+        },
+        {
+          title: "选择 E，尝试松弛 D",
+          activeNodes: ["E", "D"],
+          settled: ["A", "C", "E"],
+          frontier: ["B", "D"],
+          dist: { A: 0, B: 7, C: 3, D: 11, E: 5 },
+          prev: { A: "-", B: "C", C: "A", D: "C", E: "C" },
+          activeEdges: ["E-D"],
+          text: "E 的 dist=5，比 B 和 D 小，因此先确定 E。经 E 到 D 的距离是 5+9=14，没有优于 11，不更新。"
+        },
+        {
+          title: "选择 B，更新 D",
+          activeNodes: ["B", "D"],
+          settled: ["A", "C", "E", "B"],
+          frontier: ["D"],
+          dist: { A: 0, B: 7, C: 3, D: 9, E: 5 },
+          prev: { A: "-", B: "C", C: "A", D: "B", E: "C" },
+          activeEdges: ["B-D"],
+          text: "B 的 dist=7。经 B 到 D 的距离是 7+2=9，小于 11，因此把 D 的前驱从 C 改为 B。"
+        },
+        {
+          title: "确定 D，算法结束",
+          activeNodes: ["D"],
+          settled: ["A", "C", "E", "B", "D"],
+          frontier: [],
+          dist: { A: 0, B: 7, C: 3, D: 9, E: 5 },
+          prev: { A: "-", B: "C", C: "A", D: "B", E: "C" },
+          activeEdges: [],
+          text: "最后确定 D。最短路可以通过 prev 恢复，例如 A 到 D 是 A -> C -> B -> D，距离 9。"
+        }
       ]
     },
     hash: {
-      kind: "search",
-      scenario: "先看二分查找的边界收缩，再看哈希表线性探测如何处理冲突。",
-      invariant: "二分查找依赖有序数组；线性探测查找必须沿插入时同一条探测序列前进。",
+      kind: "search_lab",
+      scenario: "比较顺序查找、二分查找和哈希表线性探测：同样是定位关键字，组织形式不同，查找路径完全不同。",
+      invariant: "顺序查找不要求有序但可能看完全部；二分查找依赖有序和随机访问；哈希查找依赖哈希函数与冲突处理策略。",
       steps: [
-        { title: "二分：检查中点", array: [3, 8, 12, 19, 24, 31, 44], low: 0, mid: 3, high: 6, target: 24, text: "mid=3，对应 19。目标 24 更大，因此左边界移动到 mid+1。" },
-        { title: "二分：缩小区间", array: [3, 8, 12, 19, 24, 31, 44], low: 4, mid: 5, high: 6, target: 24, text: "现在只需在下标 4 到 6 中查找。31 大于 24，右边界左移。" },
-        { title: "二分：找到目标", array: [3, 8, 12, 19, 24, 31, 44], low: 4, mid: 4, high: 4, target: 24, text: "mid=4，找到目标。二分的高效来自每轮排除一半。" },
-        { title: "哈希：线性探测", buckets: [22, "", 13, 46, "", 30, 41, "", 53, "", 1], active: [2, 3], target: 46, text: "查找 46 从 hash(46)=2 开始。2 号槽被 13 占用，继续探测到 3 号槽找到 46。" }
+        {
+          title: "顺序查找：从头比较",
+          mode: "sequential",
+          array: [31, 12, 24, 9, 46, 18, 7],
+          target: 46,
+          active: [0],
+          checked: [0],
+          probe: ["a[0]=31"],
+          text: "顺序查找不需要数据有序。它从第一个元素开始比较，31 不是目标 46。"
+        },
+        {
+          title: "顺序查找：逐个推进",
+          mode: "sequential",
+          array: [31, 12, 24, 9, 46, 18, 7],
+          target: 46,
+          active: [4],
+          checked: [0, 1, 2, 3, 4],
+          probe: ["31", "12", "24", "9", "46"],
+          text: "直到下标 4 才找到 46。最坏情况下要比较 n 次。"
+        },
+        {
+          title: "二分查找：检查中点",
+          mode: "binary",
+          array: [3, 8, 12, 19, 24, 31, 44],
+          low: 0,
+          mid: 3,
+          high: 6,
+          target: 24,
+          discarded: [],
+          text: "有序数组支持比较大小后排除一半。mid=3，对应 19，目标 24 更大。"
+        },
+        {
+          title: "二分查找：左边界右移",
+          mode: "binary",
+          array: [3, 8, 12, 19, 24, 31, 44],
+          low: 4,
+          mid: 5,
+          high: 6,
+          target: 24,
+          discarded: [0, 1, 2, 3],
+          text: "low 移到 4，左半段被排除。mid=5 时 31 大于 24，所以 high 要左移。"
+        },
+        {
+          title: "二分查找：命中目标",
+          mode: "binary",
+          array: [3, 8, 12, 19, 24, 31, 44],
+          low: 4,
+          mid: 4,
+          high: 4,
+          target: 24,
+          discarded: [0, 1, 2, 3, 5, 6],
+          text: "区间缩小到一个元素，mid=4 命中 24。二分的关键是有序和随机访问。"
+        },
+        {
+          title: "哈希查找：计算桶位置",
+          mode: "hash",
+          buckets: [22, "", 13, 46, "", 30, 41, "", 53, "", 1],
+          target: 46,
+          active: [2],
+          probe: [2],
+          hashValue: "46 % 11 = 2",
+          text: "查找 46 先计算 hash(46)=2。2 号槽不是 46，说明发生了冲突。"
+        },
+        {
+          title: "哈希查找：线性探测",
+          mode: "hash",
+          buckets: [22, "", 13, 46, "", 30, 41, "", 53, "", 1],
+          target: 46,
+          active: [2, 3],
+          probe: [2, 3],
+          hashValue: "2 -> 3",
+          text: "线性探测沿同一探测序列继续看 3 号槽，找到 46。查找必须和插入使用同一条路径。"
+        },
+        {
+          title: "哈希查找失败：遇到空槽停止",
+          mode: "hash",
+          buckets: [22, "", 13, 46, "", 30, 41, "", 53, "", 1],
+          target: 35,
+          active: [2, 3, 4],
+          probe: [2, 3, 4],
+          hashValue: "35 % 11 = 2",
+          text: "查找 35 时沿 2、3 继续探测，遇到 4 号空槽才可以断定不存在。"
+        }
       ]
     },
     sort_simple: {
@@ -2141,11 +2489,16 @@ function demoFor(week) {
       scenario: "对同一组数据观察插入、选择、冒泡三种简单排序的关键动作差异。",
       invariant: "简单排序都在原数组中逐步减少无序关系，但它们移动元素的方式不同：插入维护有序前缀，选择固定最小值位置，冒泡通过相邻交换推进最大值。",
       steps: [
-        { title: "插入排序：取出 key", values: [29, 10, 14, 37, 14, 3], active: [1], sorted: 1, text: "已排序前缀是 [29]。插入排序取出 key=10，准备把它插入前缀中的正确位置。" },
-        { title: "插入排序：移动并插入", values: [10, 29, 14, 37, 14, 3], active: [0, 1], sorted: 2, text: "29 > 10，所以 29 后移，10 放到下标 0。插入排序的移动是为了维护有序前缀。" },
-        { title: "选择排序：选择最小值", values: [3, 10, 14, 37, 14, 29], active: [0, 5], sorted: 1, text: "选择排序在未排序区间中找到最小值 3，并与区间首元素交换。它每轮只确定一个最终位置。" },
-        { title: "冒泡排序：相邻交换", values: [10, 14, 29, 14, 3, 37], active: [4, 5], sorted: 0, text: "冒泡排序只比较相邻元素，逆序就交换。一趟扫描后，最大值 37 被推到末尾。" },
-        { title: "三者对比", values: [3, 10, 14, 14, 29, 37], active: [0, 5], sorted: 6, text: "三种算法最终都得到有序序列，但比较次数、移动次数和稳定性不同。" }
+        { title: "插入排序：初始有序前缀", algorithm: "插入排序", values: [29, 10, 14, 37, 14, 3], active: [0], sortedPrefix: 1, note: "key=10", text: "插入排序把左侧看作有序前缀。当前前缀只有 [29]，准备把 10 插进去。" },
+        { title: "插入排序：29 后移", algorithm: "插入排序", values: [29, 29, 14, 37, 14, 3], active: [0, 1], sortedPrefix: 1, note: "29 > 10", text: "比较 29 和 key=10，29 更大，向后移动一格，为 key 腾位置。" },
+        { title: "插入排序：key 写入", algorithm: "插入排序", values: [10, 29, 14, 37, 14, 3], active: [0], sortedPrefix: 2, note: "前缀 [10,29]", text: "把 key=10 写入下标 0。现在前两个元素有序。" },
+        { title: "插入排序：插入 14", algorithm: "插入排序", values: [10, 14, 29, 37, 14, 3], active: [1, 2], sortedPrefix: 3, note: "14 插入 10 和 29 之间", text: "处理 14 时，只移动比 14 大的 29。插入排序适合近似有序数据。" },
+        { title: "选择排序：扫描最小值", algorithm: "选择排序", values: [29, 10, 14, 37, 14, 3], active: [0, 5], sortedPrefix: 0, note: "min=3", text: "选择排序在整个未排序区间中扫描最小值。第一轮找到 3。" },
+        { title: "选择排序：交换到前端", algorithm: "选择排序", values: [3, 10, 14, 37, 14, 29], active: [0, 5], sortedPrefix: 1, note: "位置 0 确定", text: "把最小值 3 与未排序区间首元素交换。选择排序每轮确定一个最终位置。" },
+        { title: "选择排序：第二轮", algorithm: "选择排序", values: [3, 10, 14, 37, 14, 29], active: [1], sortedPrefix: 2, note: "min=10", text: "第二轮只在下标 1 之后扫描。最小值 10 已在正确位置，移动次数少但比较次数仍多。" },
+        { title: "冒泡排序：相邻逆序交换", algorithm: "冒泡排序", values: [10, 29, 14, 37, 14, 3], active: [0, 1], sortedSuffix: 0, note: "29 与 10 交换后继续", text: "冒泡排序只看相邻元素。若左边大于右边，就交换，让大元素逐步向右移动。" },
+        { title: "冒泡排序：一趟推进最大值", algorithm: "冒泡排序", values: [10, 14, 29, 14, 3, 37], active: [4, 5], sortedSuffix: 1, note: "37 到达末尾", text: "第一趟结束时，最大值 37 被推到最右端，成为后缀有序区。" },
+        { title: "冒泡排序：无交换提前结束", algorithm: "冒泡排序", values: [3, 10, 14, 14, 29, 37], active: [0, 5], sortedSuffix: 6, note: "swapped=false", text: "如果某一趟没有交换，说明数组已经整体有序，可以提前结束。" }
       ]
     },
     sort_fast: {
@@ -2153,11 +2506,17 @@ function demoFor(week) {
       scenario: "比较快速排序、归并排序和堆排序的核心状态变化。",
       invariant: "高效排序都把 O(n^2) 的无效比较压缩掉：快排靠划分，归并靠有序子段合并，堆排序靠堆序性质反复选出最大值。",
       steps: [
-        { title: "快速排序：选择枢轴", values: [38, 27, 43, 3, 9, 82, 10], active: [6], pivot: 10, text: "快排选末尾 10 作为 pivot，扫描数组，把不大于 pivot 的元素放到左侧。" },
-        { title: "快速排序：枢轴归位", values: [3, 9, 10, 38, 27, 82, 43], active: [2], pivot: 10, text: "划分结束后，10 的最终位置已经确定，左右两侧再递归排序。" },
-        { title: "归并排序：两个有序段", values: [3, 27, 38, 43, 9, 10, 82], active: [0, 4], sorted: 4, text: "归并排序先把区间拆到足够小，再得到两个有序段：[3,27,38,43] 和 [9,10,82]。" },
-        { title: "归并排序：线性合并", values: [3, 9, 10, 27, 38, 43, 82], active: [1, 2, 3], sorted: 7, text: "合并两个有序段时，每次取较小者放入辅助数组，整个合并过程是 O(n)。" },
-        { title: "堆排序：堆顶最大值归位", values: [3, 9, 10, 27, 38, 43, 82], active: [6], sorted: 7, text: "堆排序先建最大堆，再不断把堆顶最大值交换到末尾，末尾有序区逐步扩大。" }
+        { title: "快速排序：选择 pivot=10", algorithm: "快速排序", values: [38, 27, 43, 3, 9, 82, 10], active: [6], pivot: 10, note: "i 指向小区间边界", text: "快速排序选择 10 为枢轴，扫描前面的元素，把小于等于 10 的元素交换到左侧。" },
+        { title: "快速排序：发现 3", algorithm: "快速排序", values: [3, 27, 43, 38, 9, 82, 10], active: [0, 3], pivot: 10, note: "3 进入左区间", text: "扫描到 3 时，它小于 pivot，于是和小区间之后的第一个元素交换。" },
+        { title: "快速排序：发现 9", algorithm: "快速排序", values: [3, 9, 43, 38, 27, 82, 10], active: [1, 4], pivot: 10, note: "9 进入左区间", text: "继续扫描到 9，也放到左区间。此时左区间是 [3,9]。" },
+        { title: "快速排序：pivot 归位", algorithm: "快速排序", values: [3, 9, 10, 38, 27, 82, 43], active: [2], pivot: 10, sortedPrefix: 3, note: "10 最终位置确定", text: "扫描结束后把 pivot 放到左右区间中间。10 的最终位置已经确定，递归处理两侧。" },
+        { title: "归并排序：拆分为有序段", algorithm: "归并排序", values: [3, 27, 38, 43, 9, 10, 82], active: [0, 4], note: "[3,27,38,43] + [9,10,82]", text: "归并排序先递归拆分，直到小段有序，再开始合并相邻有序段。" },
+        { title: "归并排序：比较段首", algorithm: "归并排序", values: [3, 27, 38, 43, 9, 10, 82], active: [1, 4], note: "27 与 9 比较", text: "合并时只比较两个有序段的段首。9 更小，所以它进入辅助数组。" },
+        { title: "归并排序：完成合并", algorithm: "归并排序", values: [3, 9, 10, 27, 38, 43, 82], active: [1, 2, 3], sortedPrefix: 7, note: "辅助数组拷回原数组", text: "每个元素只被搬入辅助数组一次，因此一次合并是 O(n)，整体是 O(n log n)。" },
+        { title: "堆排序：建最大堆", algorithm: "堆排序", values: [82, 43, 38, 27, 9, 3, 10], active: [0], note: "堆顶是最大值 82", text: "堆排序先把数组调整为最大堆。堆只保证父结点不小于孩子，不保证整体有序。" },
+        { title: "堆排序：堆顶交换到末尾", algorithm: "堆排序", values: [10, 43, 38, 27, 9, 3, 82], active: [0, 6], sortedSuffix: 1, note: "82 进入有序区", text: "把堆顶最大值 82 与末尾交换，末尾成为有序区，然后对根执行下滤。" },
+        { title: "堆排序：下滤恢复堆", algorithm: "堆排序", values: [43, 27, 38, 10, 9, 3, 82], active: [0, 1, 3], sortedSuffix: 1, note: "根与更大孩子交换", text: "10 破坏了堆序，通过下滤与较大的孩子交换，恢复剩余区间的最大堆。" },
+        { title: "堆排序：有序区扩大", algorithm: "堆排序", values: [3, 9, 10, 27, 38, 43, 82], active: [4, 5, 6], sortedSuffix: 7, note: "排序完成", text: "重复取堆顶，右侧有序区不断扩大。堆排序时间 O(n log n)，额外空间 O(1)。" }
       ]
     },
     radix: {
@@ -2165,11 +2524,14 @@ function demoFor(week) {
       scenario: "比较计数排序、桶排序和基数排序为什么可以不靠元素两两比较。",
       invariant: "线性时间排序用关键字范围、分布或位数换取速度；它们必须满足数据范围或分布前提，并通常需要额外空间。",
       steps: [
-        { title: "计数排序：统计次数", input: [4, 2, 2, 8, 3, 3, 1], counts: { 1: 1, 2: 2, 3: 2, 4: 1, 8: 1 }, output: [], active: ["2", "3"], text: "计数排序扫描原数组，记录每个关键字出现多少次，适合关键字范围较小的整数。" },
-        { title: "计数排序：稳定放置", input: [4, 2, 2, 8, 3, 3, 1], counts: { 1: 0, 2: 1, 3: 3, 4: 5, 8: 6 }, output: [1, 2, 2, 3, 3, 4, 8], active: ["output"], text: "通过前缀和确定位置，从后向前填入输出数组，可以保持稳定性。" },
-        { title: "桶排序：按区间分桶", input: [0.12, 0.42, 0.31, 0.78, 0.66, 0.25], buckets: [["0.12", "0.25"], ["0.31", "0.42"], ["0.66", "0.78"]], output: [], active: ["bucket"], text: "桶排序按数据分布把元素放进不同区间的桶里，桶内再排序或插入。" },
-        { title: "基数排序：个位稳定分配", input: [170, 45, 75, 90, 802, 24, 2, 66], buckets: [["170", "90"], ["802", "2"], ["24"], ["45", "75"], ["66"]], output: [170, 90, 802, 2, 24, 45, 75, 66], active: ["bucket"], text: "基数排序按位处理。先按个位稳定分配，再按十位、百位重复。" },
-        { title: "基数排序：多轮后有序", input: [170, 45, 75, 90, 802, 24, 2, 66], counts: { ones: "完成", tens: "完成", hundreds: "完成" }, output: [2, 24, 45, 66, 75, 90, 170, 802], active: ["output"], text: "每一轮按位排序都必须稳定，低位顺序才能被高位排序正确保留。" }
+        { title: "计数排序：扫描输入", algorithm: "计数排序", input: [4, 2, 2, 8, 3, 3, 1], counts: { 1: 1, 2: 2, 3: 2, 4: 1, 8: 1 }, output: [], active: ["2", "3"], note: "count[x] 记录 x 出现次数", text: "计数排序不比较元素大小，而是统计每个关键字出现多少次。它适合关键字范围较小的整数。" },
+        { title: "计数排序：前缀和定位", algorithm: "计数排序", input: [4, 2, 2, 8, 3, 3, 1], counts: { 1: 1, 2: 3, 3: 5, 4: 6, 8: 7 }, output: [], active: ["3", "4"], note: "count[x] 变成 <=x 的个数", text: "把计数数组改成前缀和后，就能知道每个关键字在输出数组中的最后位置。" },
+        { title: "计数排序：从后向前稳定放置", algorithm: "计数排序", input: [4, 2, 2, 8, 3, 3, 1], counts: { 1: 0, 2: 1, 3: 3, 4: 5, 8: 6 }, output: [1, 2, 2, 3, 3, 4, 8], active: ["output"], note: "稳定性来自反向扫描", text: "从输入数组末尾向前放置元素，可以保持相同关键字的相对次序。" },
+        { title: "桶排序：按区间分桶", algorithm: "桶排序", input: [0.12, 0.42, 0.31, 0.78, 0.66, 0.25], buckets: [["0.12", "0.25"], ["0.31", "0.42"], ["0.66", "0.78"]], output: [], active: ["bucket"], note: "区间 [0,.33), [.33,.66), [.66,1)", text: "桶排序把数据按分布放入不同桶。若数据分布较均匀，每个桶内部规模会较小。" },
+        { title: "桶排序：桶内排序后串接", algorithm: "桶排序", input: [0.12, 0.42, 0.31, 0.78, 0.66, 0.25], buckets: [["0.12", "0.25"], ["0.31", "0.42"], ["0.66", "0.78"]], output: [0.12, 0.25, 0.31, 0.42, 0.66, 0.78], active: ["output"], note: "桶内可用插入排序", text: "每个桶内部排序，再按桶编号依次连接，就得到整体有序序列。" },
+        { title: "基数排序：个位稳定分配", algorithm: "基数排序", input: [170, 45, 75, 90, 802, 24, 2, 66], buckets: [["170", "90"], ["802", "2"], ["24"], ["45", "75"], ["66"]], output: [170, 90, 802, 2, 24, 45, 75, 66], active: ["bucket"], note: "按个位", text: "基数排序第一轮按个位分配。桶内必须保持原来的相对次序。" },
+        { title: "基数排序：十位稳定分配", algorithm: "基数排序", input: [170, 90, 802, 2, 24, 45, 75, 66], buckets: [["802", "2"], ["24"], ["45"], ["66"], ["170", "75"], ["90"]], output: [802, 2, 24, 45, 66, 170, 75, 90], active: ["bucket"], note: "按十位", text: "第二轮按十位分配。因为上一轮是稳定的，个位信息不会被破坏。" },
+        { title: "基数排序：百位后完成", algorithm: "基数排序", input: [802, 2, 24, 45, 66, 170, 75, 90], counts: { ones: "完成", tens: "完成", hundreds: "完成" }, output: [2, 24, 45, 66, 75, 90, 170, 802], active: ["output"], note: "LSD radix sort", text: "最后按百位稳定分配，得到完整有序序列。多轮稳定排序是基数排序成立的关键。" }
       ]
     },
     review: {
@@ -4282,15 +4644,177 @@ button {
 }
 .viz-index { margin-top: 8px; color: var(--muted); font-size: 12px; text-align: center; }
 .marker { display: block; margin-top: 4px; color: var(--rust); font-size: 12px; min-height: 18px; }
-.queue-wrap, .kmp-wrap, .counting-wrap, .complexity-wrap { width: 100%; display: grid; gap: 18px; }
+.queue-wrap, .kmp-wrap, .counting-wrap, .complexity-wrap, .evolution-wrap, .linked-wrap, .search-wrap, .traversal-wrap, .avl-wrap { width: 100%; display: grid; gap: 18px; }
 .queue-cells { display: grid; grid-template-columns: repeat(6, minmax(46px, 1fr)); gap: 10px; }
 .queue-labels { display: grid; grid-template-columns: repeat(6, minmax(46px, 1fr)); gap: 10px; color: var(--muted); font-size: 13px; text-align: center; }
+.evolution-svg, .linked-svg { width: 100%; height: 340px; }
+.evolution-card {
+  min-height: 44px;
+  fill: #ffffff;
+  stroke: #8fb6ac;
+  stroke-width: .8;
+  filter: drop-shadow(0 7px 9px rgba(31,41,55,.12));
+}
+.evolution-card.active { fill: #ffefb0; stroke: var(--rust); stroke-width: 1.2; }
+.evolution-label { text-anchor: middle; dominant-baseline: middle; font-weight: 900; fill: var(--ink); font-size: 4.3px; }
+.evolution-link, .linked-arrow {
+  stroke: #8094a8;
+  stroke-width: 1.5;
+  marker-end: url(#arrowHead);
+}
+.linked-arrow.new, .evolution-link.new { stroke: var(--rust); stroke-width: 2.2; }
+.linked-node {
+  fill: #ffffff;
+  stroke: var(--green);
+  stroke-width: 1.4;
+  filter: drop-shadow(0 7px 8px rgba(31,41,55,.12));
+}
+.linked-node.ghost {
+  fill: #f8fafc;
+  stroke: #a8b5c4;
+  stroke-dasharray: 3 2;
+}
+.linked-node.active { fill: #ffefb0; stroke: var(--rust); stroke-width: 1.8; }
+.linked-label { text-anchor: middle; dominant-baseline: middle; font-weight: 900; fill: var(--ink); font-size: 4.5px; }
+.queue-ring {
+  position: relative;
+  width: min(100%, 430px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+.ring-slot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 74px;
+  min-height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 2px solid #8fb6ac;
+  background: linear-gradient(180deg, #ffffff, #f5faf8);
+  color: var(--ink);
+  font-weight: 900;
+  box-shadow: 0 12px 26px rgba(31, 41, 55, .09);
+  transform:
+    rotate(var(--angle))
+    translate(0, -150px)
+    rotate(calc(-1 * var(--angle)))
+    translate(-50%, -50%);
+}
+.ring-slot.ring-active { border-color: var(--rust); background: #ffefb0; box-shadow: 0 18px 30px rgba(180, 83, 9, .20); }
+.ring-index {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  transform:
+    rotate(var(--angle))
+    translate(0, -195px)
+    rotate(calc(-1 * var(--angle)))
+    translate(-50%, -50%);
+}
+.ring-pointer {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--soft-rust);
+  color: #8a3d08;
+  border: 1px solid #f0c49b;
+  font-size: 12px;
+  font-weight: 900;
+  transform:
+    rotate(var(--angle))
+    translate(0, -104px)
+    rotate(calc(-1 * var(--angle)))
+    translate(-50%, -50%);
+}
+.ring-pointer.rear { background: var(--soft-blue); color: var(--blue); border-color: #a8c2d8; }
+.ring-op {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 150px;
+  min-height: 72px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.92);
+  color: var(--blue);
+  font-weight: 900;
+}
+.traversal-layout, .search-panels {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(220px, .9fr);
+  gap: 14px;
+  align-items: stretch;
+}
+.side-panel {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255,255,255,.9);
+  padding: 14px;
+}
+.side-panel strong { display: block; margin-bottom: 8px; color: var(--blue); }
+.sequence { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0 12px; }
+.sequence span {
+  min-width: 34px;
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  border: 1px solid #b8d8cf;
+  background: var(--soft-green);
+  font-weight: 900;
+}
+.call-stack { display: grid; gap: 6px; }
+.call-stack span {
+  padding: 7px 8px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 13px;
+}
+.search-note {
+  padding: 10px;
+  border-left: 4px solid var(--green);
+  background: #f4faf8;
+  color: #46566a;
+  border-radius: 0 8px 8px 0;
+}
+.is-discarded {
+  opacity: .34;
+  filter: grayscale(.4);
+}
+.is-checked {
+  background: #eef5fb !important;
+  border-color: #a8c2d8 !important;
+}
 .input-line { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
 .viz-token { min-width: 38px; min-height: 38px; border-color: #bdc9d6; }
 .pattern-row { margin-left: var(--offset, 0); }
 .next-row, .dist-table, .count-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .viz-count { min-width: 64px; min-height: 44px; font-size: 13px; background: var(--soft-blue); border-color: #a8c2d8; }
 .viz-bars { align-items: end; min-height: 260px; }
+.sort-wrap { width: 100%; display: grid; gap: 12px; }
+.algorithm-badge {
+  justify-self: center;
+  border: 1px solid #b8d8cf;
+  background: var(--soft-green);
+  color: var(--green);
+  border-radius: 999px;
+  padding: 5px 10px;
+  font-weight: 900;
+}
 .viz-bar {
   width: 52px;
   min-height: 34px;
@@ -4307,6 +4831,14 @@ button {
   transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
 }
 .bar-label { color: var(--muted); font-size: 12px; text-align: center; margin-top: 6px; max-width: 78px; }
+.bar-note {
+  margin-top: 4px;
+  color: var(--rust);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+  min-height: 18px;
+}
 .tree-svg, .graph-svg { width: 100%; height: 340px; }
 .svg-edge {
   stroke: #8da2b5;
@@ -4323,7 +4855,7 @@ button {
 }
 .svg-node.active { fill: #ffefb0; stroke: var(--rust); stroke-width: 4; }
 .svg-node.settled { fill: var(--soft-green); stroke: var(--green); }
-.svg-label { text-anchor: middle; dominant-baseline: middle; font-weight: 900; fill: var(--ink); }
+.svg-label { text-anchor: middle; dominant-baseline: middle; font-weight: 900; fill: var(--ink); font-size: 5px; }
 .operation-section { margin-top: 18px; padding: 18px; }
 .ops { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin-top: 14px; }
 .op-card { padding: 12px; text-align: left; min-height: 84px; }
@@ -4353,9 +4885,33 @@ button {
   font-weight: 900;
 }
 @media (max-width: 920px) {
-  .week-hero-grid, .stage-grid { grid-template-columns: 1fr; }
+  .week-hero-grid, .stage-grid, .traversal-layout, .search-panels { grid-template-columns: 1fr; }
   .stage-header { flex-direction: column; }
   .visual-canvas { min-height: 360px; }
+  .queue-ring { width: min(100%, 340px); }
+  .ring-slot {
+    width: 62px;
+    min-height: 50px;
+    transform:
+      rotate(var(--angle))
+      translate(0, -118px)
+      rotate(calc(-1 * var(--angle)))
+      translate(-50%, -50%);
+  }
+  .ring-index {
+    transform:
+      rotate(var(--angle))
+      translate(0, -154px)
+      rotate(calc(-1 * var(--angle)))
+      translate(-50%, -50%);
+  }
+  .ring-pointer {
+    transform:
+      rotate(var(--angle))
+      translate(0, -82px)
+      rotate(calc(-1 * var(--angle)))
+      translate(-50%, -50%);
+  }
 }
 `;
 }
@@ -4406,6 +4962,54 @@ function visualizerJs() {
     }).join("") + '</div>';
   }
 
+  function svgDefs() {
+    return '<defs><marker id="arrowHead" viewBox="0 0 4 4" refX="3.6" refY="2" markerWidth="4" markerHeight="4" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M 0 0 L 4 2 L 0 4 z" fill="#8094a8"></path></marker></defs>';
+  }
+
+  function labelLines(label) {
+    return String(label).split("\\n");
+  }
+
+  function svgLabel(cls, label, x, y, lineHeight = 5) {
+    const lines = labelLines(label);
+    const start = y - ((lines.length - 1) * lineHeight) / 2;
+    return '<text class="' + cls + '" x="' + x + '" y="' + start + '">' + lines.map((line, i) => '<tspan x="' + x + '" dy="' + (i === 0 ? 0 : lineHeight) + '">' + esc(line) + '</tspan>').join("") + '</text>';
+  }
+
+  function renderEvolution(step) {
+    const byId = Object.fromEntries(step.items.map((item) => [item.id, item]));
+    let svg = '<svg class="evolution-svg" viewBox="0 0 100 92" preserveAspectRatio="xMidYMid meet">' + svgDefs();
+    step.links.forEach(([from, to, kind]) => {
+      if (!byId[from] || !byId[to]) return;
+      svg += '<line class="evolution-link ' + (kind === "new" ? "new" : "") + '" x1="' + byId[from].x + '" y1="' + byId[from].y + '" x2="' + byId[to].x + '" y2="' + byId[to].y + '"></line>';
+    });
+    step.items.forEach((item) => {
+      const active = isActive(step.active, item.id);
+      svg += '<rect class="evolution-card ' + (active ? "active" : "") + '" x="' + (item.x - 8) + '" y="' + (item.y - 6) + '" width="16" height="12" rx="2"></rect>';
+      svg += svgLabel("evolution-label", item.label, item.x, item.y);
+    });
+    svg += '</svg>';
+    return '<div class="evolution-wrap">' + svg + '<div class="step-meta"><span>' + esc(step.caption) + '</span></div></div>';
+  }
+
+  function renderLinked(step) {
+    const byId = Object.fromEntries(step.nodes.map((item) => [item.id, item]));
+    let svg = '<svg class="linked-svg" viewBox="0 0 104 92" preserveAspectRatio="xMidYMid meet">' + svgDefs();
+    step.links.forEach(([from, to, kind]) => {
+      if (!byId[from] || !byId[to]) return;
+      svg += '<line class="linked-arrow ' + (kind === "new" ? "new" : "") + '" x1="' + byId[from].x + '" y1="' + byId[from].y + '" x2="' + byId[to].x + '" y2="' + byId[to].y + '"></line>';
+    });
+    step.nodes.forEach((item) => {
+      const active = isActive(step.active, item.id);
+      const cls = (active ? "active " : "") + (item.ghost ? "ghost " : "") + (item.null ? "ghost " : "");
+      svg += '<rect class="linked-node ' + cls + '" x="' + (item.x - 7.5) + '" y="' + (item.y - 6) + '" width="15" height="12" rx="2"></rect>';
+      svg += svgLabel("linked-label", item.label, item.x, item.y);
+    });
+    svg += '</svg>';
+    const meta = step.meta ? '<div class="step-meta">' + step.meta.map((m) => '<span>' + esc(m) + '</span>').join("") + '</div>' : "";
+    return '<div class="linked-wrap">' + svg + meta + '</div>';
+  }
+
   function renderStack(step) {
     const tokens = step.input ? '<div class="input-line">' + step.input.split("").map((ch, i) => '<div class="viz-token ' + (i === step.cursor ? "is-active" : "") + '">' + esc(ch) + '</div>').join("") + '</div>' : "";
     const stack = '<div class="viz-stack">' + step.stack.map((v, i) => cell(v, isActive(step.active, i))).join("") + '</div>';
@@ -4421,6 +5025,22 @@ function visualizerJs() {
       return '<div>' + tags.join(" / ") + '</div>';
     }).join("");
     return '<div class="queue-wrap"><div class="queue-cells">' + cells + '</div><div class="queue-labels">' + labels + '</div></div>';
+  }
+
+  function renderCircularQueue(step) {
+    const n = step.cells.length;
+    const slots = step.cells.map((value, i) => {
+      const angle = (i * 360 / n) + "deg";
+      const blank = value === "_" || value === "";
+      return '<div class="ring-slot ' + (isActive(step.active, i) ? "ring-active" : "") + (blank ? " viz-null" : "") + '" style="--angle:' + angle + '">' + esc(blank ? "空" : value) + '</div><div class="ring-index" style="--angle:' + angle + '">' + i + '</div>';
+    }).join("");
+    const frontAngle = (step.front * 360 / n) + "deg";
+    const rearAngle = (step.rear * 360 / n) + "deg";
+    return '<div class="queue-wrap"><div class="queue-ring">' + slots +
+      '<div class="ring-pointer front" style="--angle:' + frontAngle + '">front</div>' +
+      '<div class="ring-pointer rear" style="--angle:' + rearAngle + '">rear</div>' +
+      '<div class="ring-op">' + esc(step.op || "") + '</div></div>' +
+      '<div class="step-meta"><span>front=' + step.front + '</span><span>rear=' + step.rear + '</span><span>capacity=' + n + '</span></div></div>';
   }
 
   function renderKmp(step) {
@@ -4469,6 +5089,37 @@ function visualizerJs() {
     return svg;
   }
 
+  function renderTraversal(step) {
+    const tree = renderTreeLike("tree", step);
+    const visited = step.visited && step.visited.length
+      ? step.visited.map((v) => '<span>' + esc(v) + '</span>').join("")
+      : '<span>尚未访问</span>';
+    const stack = step.stack && step.stack.length
+      ? step.stack.map((v) => '<span>' + esc(v) + '</span>').join("")
+      : '<span>调用栈为空</span>';
+    return '<div class="traversal-wrap"><div class="traversal-layout"><div>' + tree + '</div><aside class="side-panel"><strong>访问序列</strong><div class="sequence">' + visited + '</div><strong>递归调用栈</strong><div class="call-stack">' + stack + '</div><div class="step-meta"><span>' + esc(step.phase || "traverse") + '</span></div></aside></div></div>';
+  }
+
+  function renderAvl(step) {
+    const nodes = step.nodes || [];
+    const byId = Object.fromEntries(nodes.map((n) => [n.id, n]));
+    let svg = '<svg class="tree-svg" viewBox="0 0 100 90" preserveAspectRatio="xMidYMid meet">' + svgDefs();
+    nodes.forEach((n) => {
+      const parent = n.parent;
+      if (parent && byId[parent]) {
+        svg += '<line class="svg-edge ' + (isActive(step.active, n.id) ? "active" : "") + '" x1="' + byId[parent].x + '" y1="' + byId[parent].y + '" x2="' + n.x + '" y2="' + n.y + '"></line>';
+      }
+    });
+    nodes.forEach((n) => {
+      const active = isActive(step.active, n.id);
+      svg += '<circle class="svg-node ' + (active ? "active " : "") + '" cx="' + n.x + '" cy="' + n.y + '" r="8"></circle>';
+      svg += svgLabel("svg-label", n.label || n.id, n.x, n.y - 1, 4.2);
+    });
+    svg += '</svg>';
+    const meta = step.meta ? '<div class="step-meta">' + step.meta.map((m) => '<span>' + esc(m) + '</span>').join("") + '</div>' : "";
+    return '<div class="avl-wrap">' + svg + meta + '</div>';
+  }
+
   function graphModel() {
     const nodes = [
       ["A", 16, 24], ["B", 40, 15], ["C", 42, 54], ["D", 68, 29], ["E", 78, 68]
@@ -4480,11 +5131,11 @@ function visualizerJs() {
   function renderGraph(step, withDist) {
     const model = graphModel();
     const byId = Object.fromEntries(model.nodes.map((n) => [n[0], n]));
-    let svg = '<svg class="graph-svg" viewBox="0 0 100 84" preserveAspectRatio="xMidYMid meet">';
+    let svg = '<svg class="graph-svg" viewBox="0 0 100 84" preserveAspectRatio="xMidYMid meet">' + svgDefs();
     model.edges.forEach(([a, b, w]) => {
       const edgeId = a + "-" + b;
       const active = isActive(step.activeEdges, edgeId);
-      svg += '<line class="svg-edge ' + (active ? "active" : "") + '" x1="' + byId[a][1] + '" y1="' + byId[a][2] + '" x2="' + byId[b][1] + '" y2="' + byId[b][2] + '"></line>';
+      svg += '<line class="svg-edge ' + (active ? "active" : "") + '" marker-end="url(#arrowHead)" x1="' + byId[a][1] + '" y1="' + byId[a][2] + '" x2="' + byId[b][1] + '" y2="' + byId[b][2] + '"></line>';
       if (withDist) svg += '<text class="svg-label" x="' + ((byId[a][1] + byId[b][1]) / 2) + '" y="' + ((byId[a][2] + byId[b][2]) / 2 - 2) + '" font-size="4">' + w + '</text>';
     });
     model.nodes.forEach(([id, x, y]) => {
@@ -4495,7 +5146,7 @@ function visualizerJs() {
     });
     svg += '</svg>';
     const extra = withDist
-      ? '<div class="dist-table">' + Object.entries(step.dist).map(([k, v]) => '<div class="viz-count">dist[' + k + ']=' + v + '</div>').join("") + '</div>'
+      ? '<div class="dist-table">' + Object.entries(step.dist).map(([k, v]) => '<div class="viz-count">dist[' + k + ']=' + v + '<br>prev=' + esc((step.prev || {})[k] || "-") + '</div>').join("") + '</div><div class="step-meta"><span>settled: ' + (step.settled || []).join(", ") + '</span><span>frontier: ' + (step.frontier || []).join(", ") + '</span></div>'
       : '<div class="step-meta"><span>visited: ' + (step.visited || []).join(", ") + '</span><span>queue: ' + (step.queue || []).join(" -> ") + '</span></div>';
     return '<div class="counting-wrap">' + svg + extra + '</div>';
   }
@@ -4513,14 +5164,48 @@ function visualizerJs() {
     }).join("") + '</div>';
   }
 
+  function renderSearchLab(step) {
+    if (step.mode === "hash") {
+      const buckets = '<div class="viz-buckets">' + step.buckets.map((v, i) => {
+        const cls = (isActive(step.active, i) ? "is-active " : "") + (isActive(step.probe, i) ? "is-checked " : "");
+        return '<div><div class="viz-bucket ' + cls + '">' + esc(v === "" ? "空" : v) + '</div><div class="viz-index">' + i + '</div></div>';
+      }).join("") + '</div>';
+      const probe = '<div class="sequence">' + (step.probe || []).map((p) => '<span>' + p + '</span>').join("") + '</div>';
+      return '<div class="search-wrap"><div class="search-panels"><div>' + buckets + '</div><aside class="side-panel"><strong>目标 key=' + esc(step.target) + '</strong><div class="search-note">' + esc(step.hashValue || "") + '</div><strong>探测路径</strong>' + probe + '</aside></div></div>';
+    }
+    const cells = step.array.map((v, i) => {
+      let cls = "";
+      if (isActive(step.discarded, i)) cls += "is-discarded ";
+      if (isActive(step.checked, i)) cls += "is-checked ";
+      const active = isActive(step.active, i) || i === step.mid;
+      const tags = [];
+      if (i === step.low) tags.push("low");
+      if (i === step.mid) tags.push("mid");
+      if (i === step.high) tags.push("high");
+      if (v === step.target) tags.push("target");
+      return '<div>' + cell(v, active, cls) + '<span class="marker">' + tags.join("/") + '</span></div>';
+    }).join("");
+    const probe = step.probe ? '<div class="sequence">' + step.probe.map((p) => '<span>' + esc(p) + '</span>').join("") + '</div>' : "";
+    const mode = step.mode === "binary" ? "二分查找区间" : "顺序查找路径";
+    return '<div class="search-wrap"><div class="search-panels"><div><div class="viz-row">' + cells + '</div></div><aside class="side-panel"><strong>' + mode + '</strong><div class="search-note">目标 key=' + esc(step.target) + '</div>' + probe + '</aside></div></div>';
+  }
+
   function renderSort(step) {
     const max = Math.max(...step.values);
-    return '<div class="viz-bars">' + step.values.map((v, i) => {
+    const bars = '<div class="viz-bars">' + step.values.map((v, i) => {
       const h = 54 + Math.round((v / max) * 190);
-      const cls = (isActive(step.active, i) ? "is-active " : "") + (i < (step.sorted || 0) ? "is-sorted " : "");
-      const pivot = step.pivot === v ? '<div class="bar-label">pivot</div>' : '<div class="bar-label">' + i + '</div>';
-      return '<div><div class="viz-bar ' + cls + '" style="height:' + h + 'px">' + v + '</div>' + pivot + '</div>';
+      const prefix = step.sortedPrefix !== undefined ? i < step.sortedPrefix : i < (step.sorted || 0);
+      const suffix = step.sortedSuffix !== undefined ? i >= step.values.length - step.sortedSuffix : false;
+      const cls = (isActive(step.active, i) ? "is-active " : "") + (prefix || suffix ? "is-sorted " : "");
+      let label = String(i);
+      if (step.pivot === v) label = "pivot";
+      else if (prefix) label = "有序前缀";
+      else if (suffix) label = "有序后缀";
+      return '<div><div class="viz-bar ' + cls + '" style="height:' + h + 'px">' + v + '</div><div class="bar-label">' + esc(label) + '</div></div>';
     }).join("") + '</div>';
+    const badge = step.algorithm ? '<div class="algorithm-badge">' + esc(step.algorithm) + '</div>' : "";
+    const note = step.note ? '<div class="bar-note">' + esc(step.note) + '</div>' : "";
+    return '<div class="sort-wrap">' + badge + bars + note + '</div>';
   }
 
   function renderCounting(step) {
@@ -4531,8 +5216,10 @@ function visualizerJs() {
     const counts = step.counts
       ? '<div class="count-row">' + Object.entries(step.counts).map(([k, v]) => '<div class="viz-count ' + (isActive(step.active, k) ? "is-active" : "") + '">' + k + ': ' + v + '</div>').join("") + '</div>'
       : "";
-    const output = step.output && step.output.length ? '<div class="viz-row">' + step.output.map((v) => cell(v, true)).join("") + '</div>' : '<div class="viz-row">' + cell("输出数组待填充", false) + '</div>';
-    return '<div class="counting-wrap">' + input + counts + buckets + output + '</div>';
+    const output = step.output && step.output.length ? '<div class="viz-row">' + step.output.map((v) => cell(v, isActive(step.active, "output"))).join("") + '</div>' : '<div class="viz-row">' + cell("输出数组待填充", false) + '</div>';
+    const badge = step.algorithm ? '<div class="algorithm-badge">' + esc(step.algorithm) + '</div>' : "";
+    const note = step.note ? '<div class="bar-note">' + esc(step.note) + '</div>' : "";
+    return '<div class="counting-wrap">' + badge + input + counts + buckets + output + note + '</div>';
   }
 
   function renderComplexity(step) {
@@ -4549,17 +5236,23 @@ function visualizerJs() {
 
   function renderVisual(step) {
     switch (demo.kind) {
+      case "evolution": return renderEvolution(step);
       case "complexity": return renderComplexity(step);
       case "array": return renderArray(step);
+      case "linked": return renderLinked(step);
       case "list": return renderList(step);
       case "stack": return renderStack(step);
+      case "cqueue": return renderCircularQueue(step);
       case "queue": return renderQueue(step);
       case "kmp": return renderKmp(step);
+      case "traversal": return renderTraversal(step);
+      case "avl": return renderAvl(step);
       case "tree": return renderTreeLike("tree", step);
       case "rotation": return renderTreeLike("rotation", step);
       case "heap": return renderTreeLike("heap", step);
       case "graph": return renderGraph(step, false);
       case "path": return renderGraph(step, true);
+      case "search_lab": return renderSearchLab(step);
       case "search": return renderSearch(step);
       case "sort": return renderSort(step);
       case "counting": return renderCounting(step);
@@ -4571,16 +5264,21 @@ function visualizerJs() {
   function animate() {
     if (!window.gsap) return;
     const tl = gsap.timeline();
-    tl.fromTo(canvas.querySelectorAll(".svg-edge,.viz-link"),
+    tl.fromTo(canvas.querySelectorAll(".svg-edge,.viz-link,.evolution-link,.linked-arrow"),
       { opacity: 0, scaleX: .65 },
       { opacity: 1, scaleX: 1, duration: .28, stagger: .02, ease: "power2.out", transformOrigin: "left center" }
     );
-    tl.fromTo(canvas.querySelectorAll(".viz-cell,.viz-node,.viz-token,.viz-bucket,.viz-count,.viz-block,.viz-bar,.svg-node"),
+    tl.fromTo(canvas.querySelectorAll(".viz-cell,.viz-node,.viz-token,.viz-bucket,.viz-count,.viz-block,.viz-bar"),
       { opacity: 0, y: 14, scale: .96 },
       { opacity: 1, y: 0, scale: 1, duration: .42, stagger: .028, ease: "power3.out" },
       "-=.12"
     );
-    tl.fromTo(canvas.querySelectorAll(".is-active,.svg-node.active,.svg-edge.active"),
+    tl.fromTo(canvas.querySelectorAll(".tree-svg,.graph-svg,.evolution-svg,.linked-svg"),
+      { opacity: 0 },
+      { opacity: 1, duration: .32, ease: "power2.out" },
+      "-=.34"
+    );
+    tl.fromTo(canvas.querySelectorAll(".is-active,.svg-edge.active"),
       { scale: .9, filter: "brightness(1.08)" },
       { scale: 1, filter: "brightness(1)", duration: .55, ease: "back.out(1.9)", transformOrigin: "center" },
       "-=.18"

@@ -23,7 +23,7 @@
       </div>
       <aside class="principle-panel">
         <strong>本演示要验证的结构不变量</strong>
-        <p>每个结点只知道自己的 next；插入和删除的关键是先找到前驱结点。</p>
+        <p>每个结点只知道自己的 next；插入必须先让新结点接住后继，再让前驱指向新结点。</p>
       </aside>
     </div>
   </header>
@@ -32,7 +32,7 @@
       <div class="stage-header">
         <div>
           <p class="eyebrow">Scenario</p>
-          <h2>在带头结点单链表中，把 20 插入到 10 和 30 之间。</h2>
+          <h2>在带头结点单链表中，把 20 插入到 10 和 30 之间，并观察为什么指针赋值顺序不能写反。</h2>
         </div>
         <div class="stage-actions">
           <button id="prevStep" class="icon-btn" aria-label="上一步" title="上一步">←</button>
@@ -124,71 +124,310 @@
       "cost": "O(n)"
     }
   ],
-  "kind": "list",
-  "scenario": "在带头结点单链表中，把 20 插入到 10 和 30 之间。",
-  "invariant": "每个结点只知道自己的 next；插入和删除的关键是先找到前驱结点。",
+  "kind": "linked",
+  "scenario": "在带头结点单链表中，把 20 插入到 10 和 30 之间，并观察为什么指针赋值顺序不能写反。",
+  "invariant": "每个结点只知道自己的 next；插入必须先让新结点接住后继，再让前驱指向新结点。",
   "steps": [
     {
-      "title": "找到前驱",
+      "title": "原链表与前驱 p",
       "nodes": [
-        "head",
-        "10",
-        "30",
-        "NULL"
+        {
+          "id": "head",
+          "label": "head",
+          "x": 12,
+          "y": 48
+        },
+        {
+          "id": "p",
+          "label": "10",
+          "x": 34,
+          "y": 48
+        },
+        {
+          "id": "q",
+          "label": "30",
+          "x": 58,
+          "y": 48
+        },
+        {
+          "id": "null",
+          "label": "NULL",
+          "x": 82,
+          "y": 48,
+          "null": true
+        }
       ],
-      "active": [
-        1
-      ],
-      "text": "要在 10 后插入 20，必须先保存前驱结点 p=10。"
-    },
-    {
-      "title": "分配新结点",
-      "nodes": [
-        "head",
-        "10",
-        "20",
-        "30",
-        "NULL"
-      ],
-      "active": [
-        2
-      ],
-      "dashed": [
+      "links": [
         [
-          2,
-          3
+          "head",
+          "p"
+        ],
+        [
+          "p",
+          "q"
+        ],
+        [
+          "q",
+          "null"
         ]
       ],
-      "text": "创建新结点 s。此时先让 s->next 指向原来的 p->next，也就是 30。"
+      "active": [
+        "p"
+      ],
+      "meta": [
+        "p 指向前驱 10",
+        "p->next 指向 30"
+      ],
+      "text": "要在 10 后插入 20，必须先找到前驱结点 p。单链表不能从后继直接找到前驱。"
     },
     {
-      "title": "接入链表",
+      "title": "分配新结点 s",
       "nodes": [
-        "head",
-        "10",
-        "20",
-        "30",
-        "NULL"
+        {
+          "id": "head",
+          "label": "head",
+          "x": 12,
+          "y": 48
+        },
+        {
+          "id": "p",
+          "label": "10",
+          "x": 34,
+          "y": 48
+        },
+        {
+          "id": "q",
+          "label": "30",
+          "x": 66,
+          "y": 48
+        },
+        {
+          "id": "null",
+          "label": "NULL",
+          "x": 88,
+          "y": 48,
+          "null": true
+        },
+        {
+          "id": "s",
+          "label": "20",
+          "x": 50,
+          "y": 76,
+          "ghost": true
+        }
+      ],
+      "links": [
+        [
+          "head",
+          "p"
+        ],
+        [
+          "p",
+          "q"
+        ],
+        [
+          "q",
+          "null"
+        ]
       ],
       "active": [
-        1,
-        2
+        "s"
       ],
-      "text": "再令 p->next = s。顺序不能反，否则会丢失 30 之后的链。"
+      "meta": [
+        "s 尚未接入主链",
+        "不能覆盖 p->next"
+      ],
+      "text": "新结点 s 还没有接入链表。此时如果立刻写 p->next=s，就会暂时失去原后继 30 的入口。"
     },
     {
-      "title": "删除结点的本质",
+      "title": "先写 s->next = p->next",
       "nodes": [
-        "head",
-        "10",
-        "30",
-        "NULL"
+        {
+          "id": "head",
+          "label": "head",
+          "x": 12,
+          "y": 48
+        },
+        {
+          "id": "p",
+          "label": "10",
+          "x": 34,
+          "y": 48
+        },
+        {
+          "id": "q",
+          "label": "30",
+          "x": 66,
+          "y": 48
+        },
+        {
+          "id": "null",
+          "label": "NULL",
+          "x": 88,
+          "y": 48,
+          "null": true
+        },
+        {
+          "id": "s",
+          "label": "20",
+          "x": 50,
+          "y": 76
+        }
+      ],
+      "links": [
+        [
+          "head",
+          "p"
+        ],
+        [
+          "p",
+          "q"
+        ],
+        [
+          "q",
+          "null"
+        ],
+        [
+          "s",
+          "q",
+          "new"
+        ]
       ],
       "active": [
-        1,
-        2
+        "s",
+        "q"
       ],
-      "text": "删除 20 时，让前驱 10 的 next 越过 20 指向 30，然后释放 20。"
+      "meta": [
+        "新结点先接住 30",
+        "后继链不会丢"
+      ],
+      "text": "第一条赋值让 s->next 指向 30。这样新结点已经接住原来的后继链。"
+    },
+    {
+      "title": "再写 p->next = s",
+      "nodes": [
+        {
+          "id": "head",
+          "label": "head",
+          "x": 12,
+          "y": 48
+        },
+        {
+          "id": "p",
+          "label": "10",
+          "x": 34,
+          "y": 48
+        },
+        {
+          "id": "s",
+          "label": "20",
+          "x": 58,
+          "y": 48
+        },
+        {
+          "id": "q",
+          "label": "30",
+          "x": 82,
+          "y": 48
+        },
+        {
+          "id": "null",
+          "label": "NULL",
+          "x": 96,
+          "y": 48,
+          "null": true
+        }
+      ],
+      "links": [
+        [
+          "head",
+          "p"
+        ],
+        [
+          "p",
+          "s",
+          "new"
+        ],
+        [
+          "s",
+          "q"
+        ],
+        [
+          "q",
+          "null"
+        ]
+      ],
+      "active": [
+        "p",
+        "s"
+      ],
+      "meta": [
+        "主链变为 head -> 10 -> 20 -> 30",
+        "插入 O(1)"
+      ],
+      "text": "第二条赋值让前驱 p 指向 s。现在 20 正式进入主链，且 30 之后的链没有丢失。"
+    },
+    {
+      "title": "删除时越过目标结点",
+      "nodes": [
+        {
+          "id": "head",
+          "label": "head",
+          "x": 12,
+          "y": 48
+        },
+        {
+          "id": "p",
+          "label": "10",
+          "x": 34,
+          "y": 48
+        },
+        {
+          "id": "s",
+          "label": "20",
+          "x": 58,
+          "y": 76,
+          "ghost": true
+        },
+        {
+          "id": "q",
+          "label": "30",
+          "x": 70,
+          "y": 48
+        },
+        {
+          "id": "null",
+          "label": "NULL",
+          "x": 92,
+          "y": 48,
+          "null": true
+        }
+      ],
+      "links": [
+        [
+          "head",
+          "p"
+        ],
+        [
+          "p",
+          "q",
+          "new"
+        ],
+        [
+          "q",
+          "null"
+        ]
+      ],
+      "active": [
+        "p",
+        "s",
+        "q"
+      ],
+      "meta": [
+        "p->next = s->next",
+        "free(s)"
+      ],
+      "text": "删除 20 时，让 10 的 next 越过目标指向 30，然后释放目标结点。链表操作本质上就是维护箭头。"
     }
   ]
 };

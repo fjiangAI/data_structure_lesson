@@ -23,7 +23,7 @@
       </div>
       <aside class="principle-panel">
         <strong>本演示要验证的结构不变量</strong>
-        <p>每轮选择 dist 最小的未确定顶点；一旦确定，该顶点最短距离不再改变。</p>
+        <p>每轮只能确定当前 dist 最小的未确定顶点；一旦顶点进入 settled 集合，它的最短距离不再改变。</p>
       </aside>
     </div>
   </header>
@@ -32,7 +32,7 @@
       <div class="stage-header">
         <div>
           <p class="eyebrow">Scenario</p>
-          <h2>Dijkstra 从 A 出发，观察 dist 数组如何通过松弛变小。</h2>
+          <h2>Dijkstra 从 A 出发，逐轮选择 dist 最小的未确定顶点，并用松弛操作更新 dist 与 prev。</h2>
         </div>
         <div class="stage-actions">
           <button id="prevStep" class="icon-btn" aria-label="上一步" title="上一步">←</button>
@@ -125,15 +125,18 @@
     }
   ],
   "kind": "path",
-  "scenario": "Dijkstra 从 A 出发，观察 dist 数组如何通过松弛变小。",
-  "invariant": "每轮选择 dist 最小的未确定顶点；一旦确定，该顶点最短距离不再改变。",
+  "scenario": "Dijkstra 从 A 出发，逐轮选择 dist 最小的未确定顶点，并用松弛操作更新 dist 与 prev。",
+  "invariant": "每轮只能确定当前 dist 最小的未确定顶点；一旦顶点进入 settled 集合，它的最短距离不再改变。",
   "steps": [
     {
-      "title": "初始化",
+      "title": "初始化 dist 与 prev",
       "activeNodes": [
         "A"
       ],
       "settled": [],
+      "frontier": [
+        "A"
+      ],
       "dist": {
         "A": 0,
         "B": "∞",
@@ -141,17 +144,28 @@
         "D": "∞",
         "E": "∞"
       },
+      "prev": {
+        "A": "-",
+        "B": "-",
+        "C": "-",
+        "D": "-",
+        "E": "-"
+      },
       "activeEdges": [],
-      "text": "源点 A 的距离为 0，其余未知为无穷大。"
+      "text": "源点 A 的 dist 为 0，其余顶点为无穷大。prev 用来记录最短路径上的前驱。"
     },
     {
-      "title": "确定 A 并松弛",
+      "title": "选择 A，松弛 A 的出边",
       "activeNodes": [
         "B",
         "C"
       ],
       "settled": [
         "A"
+      ],
+      "frontier": [
+        "B",
+        "C"
       ],
       "dist": {
         "A": 0,
@@ -160,21 +174,34 @@
         "D": "∞",
         "E": "∞"
       },
+      "prev": {
+        "A": "-",
+        "B": "A",
+        "C": "A",
+        "D": "-",
+        "E": "-"
+      },
       "activeEdges": [
         "A-B",
         "A-C"
       ],
-      "text": "通过 A 可以到达 B 和 C，更新 dist[B]=10，dist[C]=3。"
+      "text": "A 是当前最小未确定顶点。松弛 A->B 和 A->C 后，B 的距离为 10，C 的距离为 3。"
     },
     {
-      "title": "选择 C",
+      "title": "选择 C，发现更短路径",
       "activeNodes": [
         "B",
+        "D",
         "E"
       ],
       "settled": [
         "A",
         "C"
+      ],
+      "frontier": [
+        "E",
+        "B",
+        "D"
       ],
       "dist": {
         "A": 0,
@@ -183,23 +210,68 @@
         "D": 11,
         "E": 5
       },
+      "prev": {
+        "A": "-",
+        "B": "C",
+        "C": "A",
+        "D": "C",
+        "E": "C"
+      },
       "activeEdges": [
         "C-B",
+        "C-D",
         "C-E"
       ],
-      "text": "未确定顶点中 C 最近。经 C 到 B 的距离 3+4=7，比 10 更短。"
+      "text": "未确定顶点中 C 的 dist=3 最小。经 C 到 B 的距离 3+4=7，小于原来的 10，所以更新 B 的 dist 和 prev。"
     },
     {
-      "title": "继续确定最短路",
+      "title": "选择 E，尝试松弛 D",
       "activeNodes": [
         "E",
-        "B"
+        "D"
+      ],
+      "settled": [
+        "A",
+        "C",
+        "E"
+      ],
+      "frontier": [
+        "B",
+        "D"
+      ],
+      "dist": {
+        "A": 0,
+        "B": 7,
+        "C": 3,
+        "D": 11,
+        "E": 5
+      },
+      "prev": {
+        "A": "-",
+        "B": "C",
+        "C": "A",
+        "D": "C",
+        "E": "C"
+      },
+      "activeEdges": [
+        "E-D"
+      ],
+      "text": "E 的 dist=5，比 B 和 D 小，因此先确定 E。经 E 到 D 的距离是 5+9=14，没有优于 11，不更新。"
+    },
+    {
+      "title": "选择 B，更新 D",
+      "activeNodes": [
+        "B",
+        "D"
       ],
       "settled": [
         "A",
         "C",
         "E",
         "B"
+      ],
+      "frontier": [
+        "D"
       ],
       "dist": {
         "A": 0,
@@ -208,10 +280,47 @@
         "D": 9,
         "E": 5
       },
+      "prev": {
+        "A": "-",
+        "B": "C",
+        "C": "A",
+        "D": "B",
+        "E": "C"
+      },
       "activeEdges": [
         "B-D"
       ],
-      "text": "每次选择当前最小 dist 的未确定顶点，最终得到从 A 到各点的最短距离。"
+      "text": "B 的 dist=7。经 B 到 D 的距离是 7+2=9，小于 11，因此把 D 的前驱从 C 改为 B。"
+    },
+    {
+      "title": "确定 D，算法结束",
+      "activeNodes": [
+        "D"
+      ],
+      "settled": [
+        "A",
+        "C",
+        "E",
+        "B",
+        "D"
+      ],
+      "frontier": [],
+      "dist": {
+        "A": 0,
+        "B": 7,
+        "C": 3,
+        "D": 9,
+        "E": 5
+      },
+      "prev": {
+        "A": "-",
+        "B": "C",
+        "C": "A",
+        "D": "B",
+        "E": "C"
+      },
+      "activeEdges": [],
+      "text": "最后确定 D。最短路可以通过 prev 恢复，例如 A 到 D 是 A -> C -> B -> D，距离 9。"
     }
   ]
 };

@@ -23,7 +23,7 @@
       </div>
       <aside class="principle-panel">
         <strong>本演示要验证的结构不变量</strong>
-        <p>每个子树仍然是一棵二叉树；遍历规则对根、左子树、右子树递归适用。</p>
+        <p>每个子树仍然是一棵二叉树；遍历时必须明确当前访问的是根、左子树还是右子树。</p>
       </aside>
     </div>
   </header>
@@ -32,7 +32,7 @@
       <div class="stage-header">
         <div>
           <p class="eyebrow">Scenario</p>
-          <h2>对二叉树执行前序遍历，理解递归为什么天然适合树。</h2>
+          <h2>对同一棵二叉树执行前序遍历，观察当前结点、递归调用栈和访问序列如何同步变化。</h2>
         </div>
         <div class="stage-actions">
           <button id="prevStep" class="icon-btn" aria-label="上一步" title="上一步">←</button>
@@ -124,22 +124,38 @@
       "cost": "O(n)"
     }
   ],
-  "kind": "tree",
-  "scenario": "对二叉树执行前序遍历，理解递归为什么天然适合树。",
-  "invariant": "每个子树仍然是一棵二叉树；遍历规则对根、左子树、右子树递归适用。",
+  "kind": "traversal",
+  "scenario": "对同一棵二叉树执行前序遍历，观察当前结点、递归调用栈和访问序列如何同步变化。",
+  "invariant": "每个子树仍然是一棵二叉树；遍历时必须明确当前访问的是根、左子树还是右子树。",
   "steps": [
     {
-      "title": "访问根 A",
+      "title": "调用 preorder(A)",
+      "active": [
+        "A"
+      ],
+      "visited": [],
+      "stack": [
+        "preorder(A)"
+      ],
+      "phase": "进入根",
+      "text": "递归从根 A 开始。前序规则是先访问根，再递归左子树，最后递归右子树。"
+    },
+    {
+      "title": "访问 A",
       "active": [
         "A"
       ],
       "visited": [
         "A"
       ],
-      "text": "前序遍历规则是根、左、右。先访问根结点 A。"
+      "stack": [
+        "preorder(A)"
+      ],
+      "phase": "visit(root)",
+      "text": "前序遍历第一步访问根结点 A，把 A 加入访问序列。"
     },
     {
-      "title": "进入左子树 B",
+      "title": "递归到左子树 B",
       "active": [
         "B"
       ],
@@ -147,12 +163,34 @@
         "A",
         "B"
       ],
-      "text": "对左子树重复同样规则，访问 B。"
+      "stack": [
+        "preorder(A)",
+        "preorder(B)"
+      ],
+      "phase": "go left",
+      "text": "进入 A 的左子树，对 B 重复同样的根、左、右规则。"
     },
     {
-      "title": "访问 B 的孩子",
+      "title": "访问 B 的左孩子 D",
       "active": [
-        "D",
+        "D"
+      ],
+      "visited": [
+        "A",
+        "B",
+        "D"
+      ],
+      "stack": [
+        "preorder(A)",
+        "preorder(B)",
+        "preorder(D)"
+      ],
+      "phase": "go left",
+      "text": "B 的左孩子是 D。访问 D 后，它没有孩子，递归返回到 B。"
+    },
+    {
+      "title": "访问 B 的右孩子 E",
+      "active": [
         "E"
       ],
       "visited": [
@@ -161,12 +199,36 @@
         "D",
         "E"
       ],
-      "text": "左子树处理完 D，再处理右孩子 E。"
+      "stack": [
+        "preorder(A)",
+        "preorder(B)",
+        "preorder(E)"
+      ],
+      "phase": "go right",
+      "text": "B 的左子树处理完，再处理右孩子 E。随后 B 子树遍历完成。"
     },
     {
-      "title": "进入右子树 C",
+      "title": "回到 A，进入右子树 C",
       "active": [
-        "C",
+        "C"
+      ],
+      "visited": [
+        "A",
+        "B",
+        "D",
+        "E",
+        "C"
+      ],
+      "stack": [
+        "preorder(A)",
+        "preorder(C)"
+      ],
+      "phase": "go right",
+      "text": "A 的左子树全部完成后，递归进入右子树 C。"
+    },
+    {
+      "title": "访问 C 的右孩子 F",
+      "active": [
         "F"
       ],
       "visited": [
@@ -177,7 +239,13 @@
         "C",
         "F"
       ],
-      "text": "最后处理 A 的右子树 C，再访问 C 的右孩子 F。"
+      "stack": [
+        "preorder(A)",
+        "preorder(C)",
+        "preorder(F)"
+      ],
+      "phase": "go right",
+      "text": "C 没有左孩子，继续访问右孩子 F。前序遍历得到 A, B, D, E, C, F。"
     }
   ]
 };
