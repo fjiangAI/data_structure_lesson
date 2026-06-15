@@ -29,6 +29,7 @@ def main():
         "index.html",
         "onlineweb/index.html",
         "onlineweb/viewer.html",
+        "onlineweb/exam.html",
         "assets/course-visualizer.css",
         "assets/course-visualizer.js",
         "AI_LEARNING_GUIDE.md",
@@ -95,10 +96,17 @@ def main():
     lesson_plan_files = sorted((ROOT / "teacher_guide" / "lesson_plans").glob("week??_lesson_plan.md"))
     if len(lesson_plan_files) != 16:
         fail(f"Expected 16 teacher lesson plans, found {len(lesson_plan_files)}")
+    solution_files = sorted((ROOT / "teacher_guide" / "lab_solutions").glob("lab??_*/solution_notes.md"))
+    hidden_templates = sorted((ROOT / "teacher_guide" / "lab_solutions").glob("lab??_*/hidden_tests_template.py"))
+    if len(solution_files) != 6 or len(hidden_templates) != 6:
+        fail("Expected 6 lab solution notes and 6 hidden test templates")
 
     review_files = sorted((ROOT / "review").glob("*.md"))
     if len(review_files) < 5:
         fail("Expected review markdown files")
+    exam_files = sorted((ROOT / "test" / "exams").glob("*.md"))
+    if len(exam_files) < 3:
+        fail("Expected online exam markdown files")
 
     print("Course structure check passed.")
 

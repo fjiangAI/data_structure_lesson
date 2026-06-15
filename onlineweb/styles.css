@@ -102,7 +102,7 @@ h3 { margin: 0 0 14px; font-size: 22px; }
 main { max-width: 1180px; margin: 0 auto; padding: 0 18px 48px; }
 .band {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin: 18px 0 42px;
 }
@@ -201,6 +201,31 @@ input { flex: 1 1 280px; }
   border: 1px solid #e0e6ed;
   border-radius: 999px;
   padding: 3px 7px;
+}
+.progress-checks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(58px, 1fr));
+  gap: 6px;
+}
+.progress-checks label {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #425466;
+  font-size: 12px;
+  font-weight: 800;
+}
+.progress-checks input {
+  flex: none;
+  min-height: auto;
+  width: 14px;
+  height: 14px;
+  padding: 0;
 }
 .card-links { display: flex; gap: 8px; flex-wrap: wrap; align-self: end; }
 .card-links a, .mark-btn {
@@ -325,7 +350,7 @@ footer {
 }
 @media (max-width: 860px) {
   .hero, .lab-layout, .practice-layout { grid-template-columns: 1fr; }
-  .band { grid-template-columns: 1fr; }
+  .band { grid-template-columns: repeat(2, 1fr); }
   .board-row { grid-template-columns: 84px repeat(2, minmax(54px, 1fr)); }
 }
 

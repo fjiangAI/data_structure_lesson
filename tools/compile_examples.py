@@ -3,10 +3,15 @@ import os
 import platform
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
 def find_compiler():
@@ -59,17 +64,27 @@ def main():
 
     for source in sources:
         output = build_dir / output_name(source)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        source_arg = source.relative_to(ROOT).as_posix()
+        output_arg = output.relative_to(ROOT).as_posix()
         command = [
             compiler,
             "-std=c11",
             "-Wall",
             "-Wextra",
-            str(source),
+            source_arg,
             "-o",
-            str(output),
+            output_arg,
         ]
         print("Compiling", source.relative_to(ROOT).as_posix())
-        result = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+        result = subprocess.run(
+            command,
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+        )
         if result.returncode != 0:
             failures.append((source, result.stdout, result.stderr))
             print(result.stdout)

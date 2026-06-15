@@ -2077,33 +2077,81 @@ ${markdownTable(week.operations)}
 `;
 }
 
+function diagnosticSnippetFor(week) {
+  const snippets = {
+    1: ["递归分析缺失出口", "int f(int n) { return f(n / 2) + n; }", "没有基本情况，任何 n 都会继续递归直到栈溢出。"],
+    2: ["顺序表插入移动方向错误", "for (int i = index; i < list->size; ++i) list->data[i + 1] = list->data[i];", "从前往后移动会覆盖还没搬走的数据，应从 size 向 index 反向移动。"],
+    3: ["链表插入赋值顺序错误", "p->next = s; s->next = p->next;", "先改 p->next 会丢掉原后继，导致 s->next 指向自己或断链。"],
+    4: ["栈出栈未判空", "char top = stack[--s->top];", "空栈时 top 已经为 0，先自减会越界访问。"],
+    5: ["循环队列队满判断错误", "return q->front == q->rear;", "front==rear 表示队空；若牺牲一个单元，队满应为 (rear+1)%cap==front。"],
+    6: ["KMP 失配后文本指针回退", "if (text[i] != pat[j]) { i = i - j + 1; j = 0; }", "这是朴素匹配思想，KMP 应复用 next 数组，让 i 不回退。"],
+    7: ["二叉树递归漏空指针", "int height(Node *r) { return 1 + max(height(r->left), height(r->right)); }", "空树没有出口，会解引用 NULL。"],
+    8: ["BST 查找方向写反", "if (key < root->key) root = root->right; else root = root->left;", "小关键字应进入左子树，方向写反会查找失败。"],
+    9: ["堆下滤只比较左孩子", "if (a[left] < a[i]) swap(a, left, i);", "必须在左右孩子中选择更小者，否则可能破坏另一侧堆序。"],
+    10: ["BFS 入队后不标记 visited", "enqueue(v); /* visited[v] later */", "应在发现时标记，否则同一顶点可能被多个前驱重复入队。"],
+    11: ["Dijkstra 对负边不加说明", "relax(u, v, w); /* w may be negative */", "Dijkstra 依赖非负权，负边会破坏贪心选择。"],
+    12: ["哈希查找遇删除槽直接停止", "if (table[i].state != OCCUPIED) return -1;", "开放定址中删除槽不能等同空槽，否则会截断探测链。"],
+    13: ["冒泡排序提前停止标志未重置", "int swapped = 0; for (...) { if (...) swapped = 1; }", "每一趟开始都要重置 swapped，否则无法判断本趟是否已有序。"],
+    14: ["快排分区未处理等于 pivot", "while (a[i] < p) i++; while (a[j] > p) j--;", "大量重复关键字时若指针推进不当，可能死循环或极不平衡。"],
+    15: ["计数排序回填破坏稳定性", "for (int i = 0; i < n; ++i) out[--cnt[a[i]]] = a[i];", "稳定计数排序通常从右向左扫描输入，保持相等关键字相对次序。"],
+    16: ["多结构系统删除后索引未同步", "list_remove_at(&list, pos); return 1;", "删除顺序表元素后，哈希表中的下标索引必须重建或修正。"]
+  };
+  const [title, code, issue] = snippets[week.id] || snippets[1];
+  return { title, code, issue };
+}
+
 function exercisesContent(week) {
+  const diag = diagnosticSnippetFor(week);
   return `
 # ${weekName(week)} ${week.title} 练习题
 
-## 基础理解
+## A. 基础概念
 
-1. 用自己的话解释本周主题中的“组织形式”是什么，不超过 120 字。
-2. 画出一个包含 5 个元素的小例子，并标出关键字段或关键位置。
-3. 写出本周最核心 ADT 操作的函数原型，要求使用 C 语言风格。
-4. 说明 ${week.operations[0][0]} 的执行过程，并指出它的时间复杂度。
+1. 用不超过 120 字说明本周结构保存了什么“对象”和什么“关系”。
+2. 画出一个包含 5 个元素的小例子，标出关键字段、指针、下标、父子关系或邻接关系。
+3. 写出本周最核心 ADT 的 C 风格接口，至少包含初始化、核心操作、销毁或清理。
+4. 解释本周结构在课程主线中的位置：它相对于上一类结构增加了什么表达能力，付出了什么代价？
 
-## 代码阅读
+## B. 操作推演
 
-5. 阅读 [${cFileFor(week)}](${cFileFor(week)})，找出初始化函数、核心修改函数和输出函数。
-6. 在示例代码中加入一个边界测试，例如空结构操作、容量不足、查找失败或重复关键字。
-7. 说明示例代码中最容易写错的一行，并解释错误会造成什么后果。
+5. 手工执行 \`${week.operations[0][0]}\`，逐步写出每一步读了哪些字段、写了哪些字段。
+6. 对 \`${week.operations[1]?.[0] || week.operations[0][0]}\` 给出正常路径和失败路径各一个例子。
+7. 选择一个操作，写出“操作前不变量、操作步骤、操作后不变量仍成立”的三段式说明。
 
-## 分析与设计
+## C. 代码阅读与测试
 
-8. 比较本周结构与上一种相关结构的差异，至少写出两个操作层面的差别。
-9. 给出一个适合使用本周结构的问题，并说明为什么不用更简单的数组或普通循环。
-10. 设计一组最小测试用例，覆盖正常情况、边界情况和异常情况。
+8. 阅读 [${cFileFor(week)}](${cFileFor(week)})，指出结构体定义、初始化函数、核心修改函数和输出函数。
+9. 给示例代码补 3 个测试：正常情况、边界情况、错误输入或失败路径。
+10. 找出示例代码中最依赖 C 语言细节的一处，例如指针、数组下标、动态内存或字符串结束符。
 
-## LLM 辅助任务
+## D. 复杂度与证明
 
-11. 向代码大模型提问：“请指出下面这段 ${week.shortTitle} C 代码的潜在 bug，并给出测试用例。”然后记录模型答案中最有价值的一点和最需要人工核查的一点。
-12. 让 LLM 把本周代码改写为带头文件和源文件分离的版本，检查它是否保持了接口一致性。
+11. 对下列操作分别说明输入规模和复杂度来源：
+
+${week.operations.map((op) => `    - ${op[0]}：${op[2]}，关键动作：${op[1]}`).join("\n")}
+
+12. 构造一个最坏情况输入，并说明它为什么触发最坏复杂度。
+13. 如果输入规模扩大 100 倍，本周结构最先暴露的瓶颈是什么？
+
+## E. 错误代码诊断
+
+下面这段代码很像 LLM 生成的简化实现，请指出 bug、给出触发 bug 的输入，并写出修正思路。
+
+\`\`\`c
+${diag.code}
+\`\`\`
+
+诊断要求：
+
+1. 说明它破坏了哪个结构不变量。
+2. 写一个最小反例。
+3. 给出修正后的关键语句或伪代码。
+
+## F. 设计与 AI 审查
+
+14. 设计一个真实应用场景，说明为什么本周结构比更简单结构更合适。
+15. 让代码大模型生成本周核心操作的另一种实现。你需要提交：prompt、模型输出摘要、你发现的问题、你补充的测试。
+16. 写一个“不要这样用本周结构”的反例，并说明更合适的结构是什么。
 `;
 }
 
@@ -2657,23 +2705,60 @@ function demoFor(week) {
 }
 
 function answersContent(week) {
+  const diag = diagnosticSnippetFor(week);
   return `
 # ${weekName(week)} ${week.title} 参考答案
 
 > 参考答案用于校准思路，不要求学生逐字一致。程序题重点看接口、边界、复杂度说明和测试证据。
 
+## A. 基础概念参考
+
 1. 本周组织形式应围绕“元素如何保存关系”回答。例如：${week.adt}
-2. 图示答案应包含元素、位置或指针关系，并标出操作会改变的位置。若是树或图，需要标出根、孩子、顶点、边或邻接关系。
+2. 图示答案应包含元素、位置或指针关系，并标出操作会改变的位置。树或图题需要标出根、孩子、顶点、边或邻接关系。
 3. 函数原型示例可以写成 \`int operation(Structure *s, ElemType value);\`。关键是区分输入、输出、结构指针和失败返回值。
-4. \`${week.operations[0][0]}\` 的关键动作是：${week.operations[0][1]}。复杂度通常为 ${week.operations[0][2]}，需要结合输入规模解释。
-5. 初始化函数负责建立合法空状态；核心修改函数负责改变结构字段；输出函数用于观察状态，不应替代测试。
-6. 合格的边界测试至少包含一个失败路径。例如空结构删除应返回失败，查找不存在元素应返回 -1 或 NULL，容量不足应触发扩容或拒绝插入。
-7. 易错点通常出现在下标移动、指针重连、递归出口、容量判断或循环终止条件。答案需要指出具体行并说明后果。
-8. 对比要落到操作代价上。例如数组随机访问快但中间插入慢；链表插入删除局部快但定位慢；树能降低有序查找高度；哈希用空间换平均常数查找。
-9. 适合场景必须匹配操作频率。如果问题大量执行本周结构擅长的操作，就有选择理由；若只是一次性扫描，普通数组可能更简单。
-10. 最小测试集建议包含：空结构、单元素、多元素、目标在首部/中部/尾部、目标不存在、重复值、容量边界或极端规模。
-11. 评价 LLM 输出时要看它是否给出可执行测试、是否区分未定义行为和逻辑错误、是否遗漏边界。
-12. 头文件分离版本应把结构定义、函数声明、实现和 main 拆开；若模型改变了返回约定或隐藏了必要字段，需要指出。
+4. 本周在课程主线中的位置可以概括为：${structureStage(week).relation}
+
+## B. 操作推演参考
+
+5. \`${week.operations[0][0]}\` 的关键动作是：${week.operations[0][1]}。推演时必须写出读字段、写字段和不变量。
+6. 失败路径至少包含空结构、满结构、越界、查找失败、重复关键字或非法输入中的一种。
+7. 三段式证明示例：操作前结构满足 ${week.shortTitle} 的定义；操作中只修改必要字段；操作后对象关系仍然符合定义。
+
+## C. 代码阅读与测试参考
+
+8. 初始化函数负责建立合法空状态；核心修改函数负责改变结构字段；输出函数用于观察状态，不应替代测试。
+9. 合格测试至少包含正常路径、边界路径和失败路径。例如空结构删除应失败，查找不存在元素应返回 -1 或 NULL，容量不足应扩容或拒绝。
+10. C 语言细节通常落在数组下标、指针重连、动态内存、字符串结束符、递归栈或结构体字段初始化。
+
+## D. 复杂度参考
+
+${week.operations.map((op) => `- ${op[0]}：${op[2]}。推导依据：${op[1]}。`).join("\n")}
+
+最坏情况需要明确输入规模。例如元素个数 \`n\`、顶点数 \`V\`、边数 \`E\`、模式串长度 \`m\` 或关键字范围 \`k\`。不能只写大 O 结论。
+
+## E. 错误代码诊断参考
+
+题目：${diag.title}
+
+代码：
+
+\`\`\`c
+${diag.code}
+\`\`\`
+
+问题：${diag.issue}
+
+评分时重点看学生是否能说出：
+
+1. 哪个不变量被破坏。
+2. 哪个最小输入可以触发错误。
+3. 修正方案是否真的覆盖边界。
+
+## F. 设计与 AI 审查参考
+
+真实应用场景必须匹配操作频率。如果问题大量执行本周结构擅长的操作，就有选择理由；若只是一次性扫描，普通数组或直接循环可能更简单。
+
+评价 LLM 输出时要看四点：接口是否符合题目、边界是否完整、复杂度前提是否真实、测试是否能暴露错误。头文件分离版本应保持结构定义、函数声明、实现和 main 的职责边界。
 
 ## 评分建议
 
@@ -3403,7 +3488,7 @@ function readmeContent() {
 - 16 周完整课程路径，覆盖线性结构、树、图、查找、排序和算法分析。
 - 每周包含系统讲义、C 示例代码、练习题、参考答案、拓展问题和交互演示页。
 - 示例代码围绕 C 语言数组、结构体、指针、动态内存和模块化接口展开。
-- \`test/\` 中包含随堂测试、课后作业、阶段任务和 LLM 辅助学习模板。
+- \`test/\` 中包含随堂测试、课后作业、阶段任务、在线模拟考试和 LLM 辅助学习模板。
 - \`onlineweb/viewer.html\` 会把 Markdown 讲义、练习和 C 源码渲染成更适合阅读的网页，并为 C 代码提供语法高亮与行号。
 - \`interactive.html\` 和 \`onlineweb/\` 使用 GSAP 驱动步骤动画，不依赖前端构建工具，可直接托管到 GitHub Pages。
 - 每个交互演示页包含“动画步骤对应伪代码与关键 C 片段”面板，帮助学生把结构变化映射到实现思路和代码位置。
@@ -3503,7 +3588,7 @@ function readmeContent() {
 - \`extensions.md\`：不带标准答案的拓展讨论问题。
 - \`interactive.html\`：独立交互演示页，可直接用浏览器打开。
 
-\`assets/\` 存放公共可视化样式和脚本。\`test/\` 包含随堂测试、课后作业、LLM/代码大模型辅助学习任务和参考答案。\`assignments/\` 是跨周实验作业模板。\`teacher_guide/\` 是教师和助教使用指南。\`review/\` 是期中、期末复习包。\`onlineweb/\` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习、阅读材料和记录学习进度。\`.github/workflows/pages.yml\` 用于自动部署 GitHub Pages，\`.github/workflows/ci.yml\` 用于课程结构、链接、编码、Pages 产物和 C 示例编译检查，\`tools/generate_course.mjs\` 用于重新生成课程材料。
+\`assets/\` 存放公共可视化样式和脚本。\`test/\` 包含随堂测试、课后作业、在线模拟考试、LLM/代码大模型辅助学习任务和参考答案。\`assignments/\` 是跨周实验作业模板。\`teacher_guide/\` 是教师和助教使用指南。\`review/\` 是期中、期末复习包。\`onlineweb/\` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习、阅读材料、在线考试和记录学习进度。\`.github/workflows/pages.yml\` 用于自动部署 GitHub Pages，\`.github/workflows/ci.yml\` 用于课程结构、链接、编码、Pages 产物和 C 示例编译检查，\`tools/generate_course.mjs\` 用于重新生成课程材料。
 
 ## 16 周安排
 
@@ -3643,6 +3728,7 @@ function testsReadme() {
 - 课后作业：每 2 到 3 周一次，关注代码实现和复杂度分析。
 - LLM 任务：要求学生提交提示词、模型输出摘要、人工验证结果和最终代码修改。
 - 阶段测试：线性结构、树图结构、查找排序、综合设计各一次。
+- 正式模拟卷：见 [exams/](exams/)，在线提交版见 [../onlineweb/exam.html](../onlineweb/exam.html)。
 `;
 }
 
@@ -3806,6 +3892,193 @@ function answerKey() {
 `;
 }
 
+function examQuestionBank() {
+  return {
+    midterm: {
+      title: "期中模拟卷 A",
+      scope: "Week 01-08",
+      questions: [
+        { topic: "课程观念", q: "“程序 = 数据结构 + 算法”中，数据结构最直接回答的问题是什么？", options: ["数据对象如何组织关系", "CPU 如何执行指令", "语法如何缩进", "编译器如何优化"], answer: 0, explain: "数据结构描述对象及其关系的组织形式。" },
+        { topic: "复杂度", q: "二分查找每轮排除一半元素，其时间复杂度通常是？", options: ["O(1)", "O(log n)", "O(n)", "O(n log n)"], answer: 1, explain: "规模按 1/2 缩小，轮数为 log n。" },
+        { topic: "顺序表", q: "顺序表中间插入元素时，为什么要从后向前移动？", options: ["避免覆盖尚未移动的元素", "减少容量", "让元素自动排序", "释放内存"], answer: 0, explain: "从前向后移动会覆盖后续原值。" },
+        { topic: "链表", q: "单链表已知前驱结点 p 后插入 s，正确顺序是？", options: ["s->next=p->next; p->next=s", "p->next=s; s->next=p->next", "free(p); p=s", "s=p->next; p=NULL"], answer: 0, explain: "先接住后继，再让前驱指向新结点。" },
+        { topic: "栈", q: "括号匹配中，栈保存的是什么？", options: ["最近尚未匹配的左括号", "所有右括号", "表达式结果", "字符串长度"], answer: 0, explain: "LIFO 对应最近未完成任务。" },
+        { topic: "循环队列", q: "牺牲一个单元的循环队列中，队满条件是？", options: ["front == rear", "(rear + 1) % capacity == front", "rear == capacity", "front == 0"], answer: 1, explain: "front==rear 表示队空，队满用 rear 下一个位置等于 front。" },
+        { topic: "KMP", q: "KMP 的关键优势是？", options: ["文本指针 i 不回退", "每次都重新比较", "不需要模式串", "只能匹配单字符"], answer: 0, explain: "next 数组复用已匹配前后缀信息。" },
+        { topic: "二叉树", q: "前序遍历的顺序是？", options: ["根-左-右", "左-根-右", "左-右-根", "右-根-左"], answer: 0, explain: "前序先访问根，再遍历左右子树。" },
+        { topic: "AVL", q: "AVL 旋转的目标是什么？", options: ["恢复局部高度平衡且保持中序有序", "把所有结点变成叶子", "删除重复关键字", "让根最大"], answer: 0, explain: "旋转是局部调整，不破坏 BST 中序有序。" },
+        { topic: "AI 审查", q: "LLM 生成链表删除代码时，最应该首先检查什么？", options: ["是否维护 next 关系和释放目标结点", "变量名是否好看", "注释是否很长", "是否用了递归"], answer: 0, explain: "结构不变量和资源管理是首要风险。" }
+      ]
+    },
+    final: {
+      title: "期末模拟卷 A",
+      scope: "Week 01-16",
+      questions: [
+        { topic: "堆", q: "最小堆 pop 后通常需要执行什么操作？", options: ["用尾元素替换根并下滤", "直接删除任意叶子", "整表快速排序", "反转数组"], answer: 0, explain: "删除堆顶后用尾元素补根，再下滤恢复堆序。" },
+        { topic: "图遍历", q: "邻接表 BFS 的复杂度通常是？", options: ["O(V+E)", "O(V^2E)", "O(log V)", "O(1)"], answer: 0, explain: "顶点和边各被常数次处理。" },
+        { topic: "Dijkstra", q: "Dijkstra 算法依赖的关键前提是？", options: ["边权非负", "图必须是树", "所有边权相等", "不能有环"], answer: 0, explain: "负权边会破坏贪心确定最短距离的正确性。" },
+        { topic: "哈希表", q: "开放定址哈希表删除后为什么不能简单置为空？", options: ["会截断后续关键字的探测链", "会让数组变大", "会改变关键字值", "会导致排序"], answer: 0, explain: "查找必须沿原探测序列继续越过删除槽。" },
+        { topic: "排序稳定性", q: "稳定排序要求什么保持不变？", options: ["相等关键字记录的相对次序", "所有元素地址", "比较次数", "数组容量"], answer: 0, explain: "稳定性关注相等关键字之间的相对顺序。" },
+        { topic: "快速排序", q: "快速排序最坏情况可能退化为？", options: ["O(n^2)", "O(log n)", "O(1)", "O(n)"], answer: 0, explain: "分区极不平衡时递归深度接近 n。" },
+        { topic: "归并排序", q: "归并排序的主要额外空间来自哪里？", options: ["辅助数组", "哈希桶", "图邻接表", "平衡因子"], answer: 0, explain: "合并有序段通常需要辅助空间。" },
+        { topic: "计数排序", q: "计数排序适合什么前提？", options: ["关键字范围较小且可计数", "任意对象都可直接比较", "只用于链表", "必须是图"], answer: 0, explain: "它用关键字范围换取线性时间。" },
+        { topic: "综合设计", q: "顺序表 + 哈希索引系统删除记录后最容易漏掉什么？", options: ["维护哈希索引中的下标一致性", "输出换行", "函数命名", "注释"], answer: 0, explain: "多个结构组合时，一致性维护是核心风险。" },
+        { topic: "AI 时代", q: "使用大模型生成数据结构代码后，最可靠的下一步是？", options: ["用不变量和测试审查输出", "直接提交", "删除所有错误处理", "只看代码行数"], answer: 0, explain: "理解结构才能驾驭模型输出。" }
+      ]
+    }
+  };
+}
+
+function examMarkdown(exam) {
+  return `
+# ${exam.title}
+
+范围：${exam.scope}
+
+在线自测入口：[../../onlineweb/exam.html](../../onlineweb/exam.html)
+
+## 题目
+
+${exam.questions.map((q, i) => `${i + 1}. ${q.q}\n\n${q.options.map((o, j) => `   ${String.fromCharCode(65 + j)}. ${o}`).join("\n")}`).join("\n\n")}
+
+## 答案
+
+${exam.questions.map((q, i) => `${i + 1}. ${String.fromCharCode(65 + q.answer)}。${q.explain}`).join("\n")}
+`;
+}
+
+function examFiles() {
+  const exams = examQuestionBank();
+  return [
+    ["test/exams/README.md", `# 正式考试与在线自测
+
+本目录提供期中、期末模拟卷。在线版本可在浏览器中提交并立即显示分数与解析：
+
+- [在线考试页面](../../onlineweb/exam.html)
+- [期中模拟卷 A](midterm_a.md)
+- [期末模拟卷 A](final_a.md)
+
+题目以选择题为主，用于快速诊断知识掌握情况。正式课程考试可在此基础上加入手写代码题、复杂度证明题和系统设计题。
+`],
+    ["test/exams/midterm_a.md", examMarkdown(exams.midterm)],
+    ["test/exams/final_a.md", examMarkdown(exams.final)]
+  ];
+}
+
+function examHtml() {
+  return `
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>数据结构在线考试</title>
+  <link rel="stylesheet" href="exam.css">
+</head>
+<body>
+  <header class="exam-header">
+    <nav>
+      <a href="./">课程首页</a>
+      <a href="viewer.html?src=../test/exams/README.md">考试说明</a>
+    </nav>
+    <h1>数据结构在线自测考试</h1>
+    <p>选择试卷后答题，提交即可查看分数、错题和解析。结果保存在本地浏览器中。</p>
+  </header>
+  <main>
+    <section class="exam-toolbar">
+      <label>试卷
+        <select id="examSelect">
+          <option value="midterm">期中模拟卷 A</option>
+          <option value="final">期末模拟卷 A</option>
+        </select>
+      </label>
+      <button id="submitExam" type="button">提交并评分</button>
+      <button id="resetExam" type="button">重做</button>
+    </section>
+    <section id="examMeta" class="exam-meta"></section>
+    <form id="examForm" class="exam-form"></form>
+    <section id="examResult" class="exam-result" aria-live="polite"></section>
+  </main>
+  <script src="exam.js"></script>
+</body>
+</html>
+`;
+}
+
+function examCss() {
+  return `
+:root { --ink:#172033; --muted:#64748b; --line:#d7dee8; --green:#147a63; --rust:#b45309; --bg:#f6f8f7; --paper:#fff; }
+* { box-sizing: border-box; }
+body { margin:0; font-family:"Microsoft YaHei","Noto Sans SC",Arial,sans-serif; color:var(--ink); background:var(--bg); line-height:1.6; }
+.exam-header { padding:22px clamp(18px,4vw,58px) 32px; background:#fff; border-bottom:1px solid var(--line); }
+nav { display:flex; gap:14px; justify-content:flex-end; max-width:1060px; margin:0 auto 22px; }
+nav a { color:var(--green); font-weight:800; text-decoration:none; }
+h1 { max-width:1060px; margin:0 auto; font-size:clamp(34px,5vw,56px); }
+.exam-header p { max-width:1060px; margin:12px auto 0; color:var(--muted); }
+main { max-width:1060px; margin:0 auto; padding:24px 18px 54px; }
+.exam-toolbar, .exam-meta, .question-card, .exam-result { background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:16px; }
+.exam-toolbar { display:flex; gap:12px; flex-wrap:wrap; align-items:end; margin-bottom:14px; }
+label { display:grid; gap:5px; font-weight:800; color:var(--muted); }
+select, button { min-height:40px; border:1px solid var(--line); border-radius:8px; padding:8px 12px; font:inherit; }
+button { cursor:pointer; font-weight:900; color:#fff; background:var(--green); border-color:var(--green); }
+#resetExam { background:#fff; color:var(--green); }
+.exam-form { display:grid; gap:12px; margin-top:14px; }
+.question-card h3 { margin:0 0 10px; font-size:18px; }
+.question-card small { color:var(--rust); font-weight:900; }
+.options { display:grid; gap:8px; }
+.options label { grid-template-columns:auto 1fr; align-items:center; color:var(--ink); font-weight:700; border:1px solid var(--line); border-radius:8px; padding:9px; background:#fbfcfd; }
+.exam-result { margin-top:14px; display:none; }
+.exam-result.show { display:block; }
+.ok { color:var(--green); font-weight:900; }
+.bad { color:#b91c1c; font-weight:900; }
+`;
+}
+
+function examJs() {
+  const exams = examQuestionBank();
+  return `
+const exams = ${JSON.stringify(exams, null, 2)};
+const select = document.getElementById("examSelect");
+const form = document.getElementById("examForm");
+const meta = document.getElementById("examMeta");
+const result = document.getElementById("examResult");
+const key = "ds-course-exam-results";
+
+function renderExam() {
+  const exam = exams[select.value];
+  meta.innerHTML = '<strong>' + exam.title + '</strong><br><span>范围：' + exam.scope + '，共 ' + exam.questions.length + ' 题。</span>';
+  result.className = "exam-result";
+  result.innerHTML = "";
+  form.innerHTML = exam.questions.map((q, i) => '<article class="question-card"><small>' + q.topic + '</small><h3>' + (i + 1) + '. ' + q.q + '</h3><div class="options">' + q.options.map((opt, j) => '<label><input type="radio" name="q' + i + '" value="' + j + '"> ' + String.fromCharCode(65 + j) + '. ' + opt + '</label>').join("") + '</div></article>').join("");
+}
+
+function submitExam() {
+  const exam = exams[select.value];
+  let score = 0;
+  const details = exam.questions.map((q, i) => {
+    const picked = form.querySelector('input[name="q' + i + '"]:checked');
+    const value = picked ? Number(picked.value) : -1;
+    const ok = value === q.answer;
+    if (ok) score += 1;
+    return { q, value, ok, index: i };
+  });
+  const percent = Math.round(score / exam.questions.length * 100);
+  const saved = JSON.parse(localStorage.getItem(key) || "{}");
+  saved[select.value] = { score, total: exam.questions.length, percent, time: new Date().toISOString() };
+  localStorage.setItem(key, JSON.stringify(saved));
+  result.className = "exam-result show";
+  result.innerHTML = '<h2>得分：' + score + '/' + exam.questions.length + '（' + percent + '%）</h2>' +
+    details.map((item) => '<p><span class="' + (item.ok ? 'ok' : 'bad') + '">' + (item.ok ? '正确' : '错误') + '</span> 第 ' + (item.index + 1) + ' 题：你的答案 ' + (item.value >= 0 ? String.fromCharCode(65 + item.value) : '未作答') + '，正确答案 ' + String.fromCharCode(65 + item.q.answer) + '。' + item.q.explain + '</p>').join("");
+  result.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+select.addEventListener("change", renderExam);
+document.getElementById("submitExam").addEventListener("click", submitExam);
+document.getElementById("resetExam").addEventListener("click", renderExam);
+renderExam();
+`;
+}
+
 function onlineIndex() {
   return `
 <!doctype html>
@@ -3824,6 +4097,7 @@ function onlineIndex() {
         <a href="#weeks">周次</a>
         <a href="#lab">交互实验</a>
         <a href="#practice">练习</a>
+        <a href="exam.html">考试</a>
       </div>
     </nav>
     <section class="hero">
@@ -3852,6 +4126,10 @@ function onlineIndex() {
         <span>已标记完成周次</span>
       </article>
       <article>
+        <strong id="exerciseProgressText">0/16</strong>
+        <span>已完成练习状态</span>
+      </article>
+      <article>
         <strong>64+</strong>
         <span>讲义、练习、答案、拓展与示例代码文件</span>
       </article>
@@ -3871,10 +4149,12 @@ function onlineIndex() {
         <a href="viewer.html?src=../syllabus.md"><strong>课程日历</strong><span>16 周节奏与阶段安排</span></a>
         <a href="viewer.html?src=../assignments/README.md"><strong>实验作业</strong><span>6 个跨周 Lab 模板</span></a>
         <a href="viewer.html?src=../test/README.md"><strong>测试题库</strong><span>随堂测试、课后作业与参考答案</span></a>
+        <a href="exam.html"><strong>在线考试</strong><span>期中、期末模拟卷，提交后即时评分</span></a>
         <a href="viewer.html?src=../review/README.md"><strong>复习包</strong><span>期中、期末与复杂度速查</span></a>
         <a href="viewer.html?src=../AI_LEARNING_GUIDE.md"><strong>AI 学习规范</strong><span>提示词、核查与使用记录</span></a>
         <a href="viewer.html?src=../teacher_guide/README.md"><strong>教师指南</strong><span>课堂组织与评分 Rubric</span></a>
         <a href="viewer.html?src=../teacher_guide/lesson_plans/README.md"><strong>教师教案</strong><span>16 周逐周讲解脚本与课堂活动</span></a>
+        <a href="viewer.html?src=../teacher_guide/lab_solutions/README.md"><strong>Lab 教师包</strong><span>参考实现、讲解说明与 hidden-test 模板</span></a>
       </div>
     </section>
 
@@ -4048,7 +4328,7 @@ h3 { margin: 0 0 14px; font-size: 22px; }
 main { max-width: 1180px; margin: 0 auto; padding: 0 18px 48px; }
 .band {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 12px;
   margin: 18px 0 42px;
 }
@@ -4147,6 +4427,31 @@ input { flex: 1 1 280px; }
   border: 1px solid #e0e6ed;
   border-radius: 999px;
   padding: 3px 7px;
+}
+.progress-checks {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(58px, 1fr));
+  gap: 6px;
+}
+.progress-checks label {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #425466;
+  font-size: 12px;
+  font-weight: 800;
+}
+.progress-checks input {
+  flex: none;
+  min-height: auto;
+  width: 14px;
+  height: 14px;
+  padding: 0;
 }
 .card-links { display: flex; gap: 8px; flex-wrap: wrap; align-self: end; }
 .card-links a, .mark-btn {
@@ -4271,7 +4576,7 @@ footer {
 }
 @media (max-width: 860px) {
   .hero, .lab-layout, .practice-layout { grid-template-columns: 1fr; }
-  .band { grid-template-columns: 1fr; }
+  .band { grid-template-columns: repeat(2, 1fr); }
   .board-row { grid-template-columns: 84px repeat(2, minmax(54px, 1fr)); }
 }
 `;
@@ -4338,17 +4643,39 @@ function onlineApp() {
   return `
 const weeks = window.COURSE_WEEKS;
 const quizzes = window.COURSE_QUIZZES;
-const doneKey = "ds-course-done-weeks";
-let done = new Set(JSON.parse(localStorage.getItem(doneKey) || "[]"));
+const progressKey = "ds-course-progress-v2";
+const legacyDoneKey = "ds-course-done-weeks";
+let progress = JSON.parse(localStorage.getItem(progressKey) || "{}");
+try {
+  const legacyDone = JSON.parse(localStorage.getItem(legacyDoneKey) || "[]");
+  legacyDone.forEach((id) => {
+    progress[id] = progress[id] || {};
+    ["lecture", "demo", "exercise", "lab"].forEach((part) => progress[id][part] = true);
+  });
+} catch {}
 
 const grid = document.getElementById("weekGrid");
 const searchInput = document.getElementById("searchInput");
 const topicFilter = document.getElementById("topicFilter");
 const progressText = document.getElementById("progressText");
+const exerciseProgressText = document.getElementById("exerciseProgressText");
 
-function saveDone() {
-  localStorage.setItem(doneKey, JSON.stringify([...done]));
-  progressText.textContent = done.size + "/16";
+function weekState(id) {
+  progress[id] = progress[id] || {};
+  return progress[id];
+}
+
+function isWeekDone(id) {
+  const state = weekState(id);
+  return ["lecture", "demo", "exercise", "lab"].every((part) => !!state[part]);
+}
+
+function saveProgress() {
+  localStorage.setItem(progressKey, JSON.stringify(progress));
+  const doneCount = weeks.filter((week) => isWeekDone(week.id)).length;
+  const exerciseCount = weeks.filter((week) => !!weekState(week.id).exercise).length;
+  progressText.textContent = doneCount + "/16";
+  if (exerciseProgressText) exerciseProgressText.textContent = exerciseCount + "/16";
 }
 
 function matchesFilter(week, filter) {
@@ -4375,8 +4702,10 @@ function renderWeeks() {
       const lectureUrl = viewerUrl(week.folder + "lecture.md");
       const codeUrl = viewerUrl(week.folder + "examples/" + week.codeFile);
       const exerciseUrl = viewerUrl(week.folder + "exercises.md");
+      const state = weekState(week.id);
+      const done = isWeekDone(week.id);
       const card = document.createElement("article");
-      card.className = "week-card" + (done.has(week.id) ? " done" : "");
+      card.className = "week-card" + (done ? " done" : "");
       card.innerHTML = \`
         <header>
           <h3>Week \${String(week.id).padStart(2, "0")} \${week.title}</h3>
@@ -4384,12 +4713,18 @@ function renderWeeks() {
         </header>
         <p>\${week.theme}</p>
         <div class="topic-tags">\${week.topics.slice(0, 5).map((t) => "<span>" + t + "</span>").join("")}</div>
+        <div class="progress-checks" aria-label="学习进度">
+          \${["lecture:讲义", "demo:演示", "exercise:练习", "lab:Lab"].map((item) => {
+            const [part, label] = item.split(":");
+            return '<label><input type="checkbox" data-id="' + week.id + '" data-part="' + part + '" ' + (state[part] ? "checked" : "") + '>' + label + '</label>';
+          }).join("")}
+        </div>
         <div class="card-links">
           <a href="\${lectureUrl}">讲义</a>
           <a href="\${week.folder}interactive.html">演示</a>
           <a href="\${codeUrl}">代码</a>
           <a href="\${exerciseUrl}">练习</a>
-          <button class="mark-btn" data-id="\${week.id}">\${done.has(week.id) ? "取消完成" : "标记完成"}</button>
+          <button class="mark-btn" data-id="\${week.id}">\${done ? "清空状态" : "本周全完成"}</button>
         </div>
       \`;
       grid.appendChild(card);
@@ -4400,9 +4735,18 @@ function renderWeeks() {
   document.querySelectorAll(".mark-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = Number(btn.dataset.id);
-      if (done.has(id)) done.delete(id);
-      else done.add(id);
-      saveDone();
+      const state = weekState(id);
+      const next = !isWeekDone(id);
+      ["lecture", "demo", "exercise", "lab"].forEach((part) => state[part] = next);
+      saveProgress();
+      renderWeeks();
+    });
+  });
+  document.querySelectorAll(".progress-checks input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const state = weekState(Number(input.dataset.id));
+      state[input.dataset.part] = input.checked;
+      saveProgress();
       renderWeeks();
     });
   });
@@ -4410,7 +4754,7 @@ function renderWeeks() {
 
 searchInput.addEventListener("input", renderWeeks);
 topicFilter.addEventListener("change", renderWeeks);
-saveDone();
+saveProgress();
 renderWeeks();
 
 const labs = {
@@ -5771,6 +6115,9 @@ function visualizerJs() {
   }
 
   function treeNodes(kind, step) {
+    if (Array.isArray(step.nodes) && step.nodes.length) {
+      return step.nodes;
+    }
     if (kind === "tree") {
       return [
         { id: "A", x: 50, y: 14 },
@@ -5849,7 +6196,10 @@ function visualizerJs() {
   }
 
   function renderGraph(step, withDist) {
-    const model = graphModel();
+    const model = {
+      nodes: step.nodes || graphModel().nodes,
+      edges: step.edges || graphModel().edges
+    };
     const byId = Object.fromEntries(model.nodes.map((n) => [n[0], n]));
     let svg = '<svg class="graph-svg" viewBox="0 0 100 84" preserveAspectRatio="xMidYMid meet">' + svgDefs();
     model.edges.forEach(([a, b, w]) => {
@@ -6196,37 +6546,265 @@ function visualizerJs() {
     return steps;
   }
 
+  function parseTokens(text, fallback) {
+    const tokens = String(text || "").split(/[，,\\s]+/).map((item) => item.trim()).filter(Boolean).slice(0, 10);
+    return tokens.length ? tokens : fallback.slice();
+  }
+
+  function linkedNodes(values, highlight = [], ghostValue = null) {
+    const nodes = [{ id: "head", label: "head", x: 12, y: 46 }];
+    const links = [];
+    const step = Math.min(16, 76 / Math.max(1, values.length + (ghostValue !== null ? 1 : 0)));
+    values.forEach((value, i) => {
+      nodes.push({ id: "n" + i, label: String(value), x: 28 + i * step, y: 46 });
+      links.push([i === 0 ? "head" : "n" + (i - 1), "n" + i]);
+    });
+    if (ghostValue !== null) {
+      nodes.push({ id: "new", label: String(ghostValue), x: 46, y: 72, ghost: true });
+    }
+    nodes.push({ id: "null", label: "NULL", x: 28 + values.length * step, y: 46, null: true });
+    links.push([values.length ? "n" + (values.length - 1) : "head", "null"]);
+    return { nodes, links, active: highlight };
+  }
+
+  function customLinkedSteps(nums, targetText) {
+    const values = nums.slice(0, 6);
+    const value = Number.isFinite(Number(targetText)) ? Number(targetText) : 99;
+    const insertAt = Math.min(1, Math.max(0, values.length - 1));
+    const before = linkedNodes(values, ["n" + insertAt], value);
+    const inserted = values.slice();
+    inserted.splice(insertAt + 1, 0, value);
+    const after = linkedNodes(inserted, ["n" + insertAt, "n" + (insertAt + 1)]);
+    return [
+      { title: "自定义链表初始状态", ...before, meta: ["定位前驱 p"], codeLine: 1, text: "先定位插入位置的前驱结点。链表的物理位置不重要，next 才是逻辑顺序。" },
+      { title: "创建新结点", ...before, links: before.links.concat([["new", "n" + (insertAt + 1), "new"]]), active: ["new", "n" + (insertAt + 1)], meta: ["new->next = p->next"], codeLine: 2, text: "第一条指针赋值让新结点接住原来的后继，避免丢链。" },
+      { title: "接入链表", ...after, meta: ["p->next = new"], codeLine: 3, text: "再让前驱指向新结点。两条赋值的顺序不能随意交换。" }
+    ];
+  }
+
+  function customStackSteps(text) {
+    const expr = String(text || "a[(b+c)*d]").slice(0, 24);
+    const pairs = { ")": "(", "]": "[", "}": "{" };
+    const left = new Set(["(", "[", "{"]);
+    const stack = [];
+    const steps = [];
+    for (let i = 0; i < expr.length; ++i) {
+      const ch = expr[i];
+      if (left.has(ch)) {
+        stack.push(ch);
+        steps.push({ title: "读到 " + ch, input: expr, cursor: i, stack: stack.slice(), active: [stack.length - 1], codeLine: 1, text: "左括号入栈，表示有一个最近未完成的匹配任务。" });
+      } else if (pairs[ch]) {
+        const ok = stack.length && stack[stack.length - 1] === pairs[ch];
+        if (ok) stack.pop();
+        steps.push({ title: "读到 " + ch, input: expr, cursor: i, stack: stack.slice(), active: stack.length ? [stack.length - 1] : [], codeLine: 2, text: ok ? "右括号与栈顶匹配，弹出栈顶。" : "右括号无法匹配栈顶，表达式不合法。" });
+        if (!ok) break;
+      }
+    }
+    if (!steps.length) steps.push({ title: "没有括号", input: expr, cursor: 0, stack: [], active: [], codeLine: 4, text: "输入中没有括号，栈保持为空。" });
+    steps.push({ title: stack.length ? "仍有未匹配左括号" : "匹配结束", input: expr, cursor: Math.max(0, expr.length - 1), stack: stack.slice(), active: [], codeLine: 4, text: stack.length ? "扫描结束但栈不为空，说明有左括号未匹配。" : "扫描结束且栈为空，括号匹配成功。" });
+    return steps;
+  }
+
+  function prefixTable(pattern) {
+    const next = Array(pattern.length).fill(0);
+    let j = 0;
+    for (let i = 1; i < pattern.length; ++i) {
+      while (j > 0 && pattern[i] !== pattern[j]) j = next[j - 1];
+      if (pattern[i] === pattern[j]) j += 1;
+      next[i] = j;
+    }
+    return next;
+  }
+
+  function customKmpSteps(text, patternText) {
+    const textChars = String(text || "ababcabcacbab").replace(/\\s+/g, "").slice(0, 18) || "ababcabcacbab";
+    const pattern = String(patternText || "abcac").replace(/\\s+/g, "").slice(0, 8) || "abcac";
+    const next = prefixTable(pattern);
+    let j = 0;
+    const steps = [];
+    for (let i = 0; i < textChars.length; ++i) {
+      while (j > 0 && textChars[i] !== pattern[j]) {
+        steps.push({ title: "失配回退", textChars, pattern, i, j, offset: Math.max(0, i - j), next, codeLine: 3, text: "text[" + i + "] 与 pattern[" + j + "] 失配，j 回退到 next[j-1]，文本指针不回退。" });
+        j = next[j - 1];
+      }
+      steps.push({ title: "比较字符", textChars, pattern, i, j, offset: Math.max(0, i - j), next, codeLine: 2, text: "比较 text[" + i + "]='" + textChars[i] + "' 与 pattern[" + j + "]='" + (pattern[j] || "") + "'。" });
+      if (textChars[i] === pattern[j]) j += 1;
+      if (j === pattern.length) {
+        steps.push({ title: "匹配成功", textChars, pattern, i, j: pattern.length - 1, offset: i - pattern.length + 1, next, codeLine: 4, text: "找到完整模式串，起始下标为 " + (i - pattern.length + 1) + "。" });
+        return steps;
+      }
+    }
+    steps.push({ title: "匹配失败", textChars, pattern, i: textChars.length - 1, j: Math.max(0, j), offset: Math.max(0, textChars.length - j), next, codeLine: 5, text: "扫描完成，没有找到完整模式串。" });
+    return steps;
+  }
+
+  function customTreeSteps(tokens, orderText) {
+    const values = parseTokens(tokens, ["A", "B", "C", "D", "E", "F"]).slice(0, 7);
+    const positions = [[50,12],[30,38],[70,38],[18,66],[42,66],[62,66],[84,66]];
+    const nodes = values.map((v, i) => ({ id: String(v), x: positions[i][0], y: positions[i][1], parent: i === 0 ? null : String(values[Math.floor((i - 1) / 2)]) }));
+    const order = String(orderText || "pre").toLowerCase();
+    const seq = [];
+    function walk(i) {
+      if (i >= values.length) return;
+      if (order.startsWith("pre")) seq.push(values[i]);
+      walk(i * 2 + 1);
+      if (order.startsWith("in")) seq.push(values[i]);
+      walk(i * 2 + 2);
+      if (order.startsWith("post")) seq.push(values[i]);
+    }
+    walk(0);
+    return seq.map((value, i) => ({ title: "访问 " + value, nodes, active: [String(value)], visited: seq.slice(0, i + 1).map(String), stack: seq.slice(i).map((v) => "visit(" + v + ")"), phase: order.startsWith("in") ? "inorder" : order.startsWith("post") ? "postorder" : "preorder", codeLine: Math.min(3, i + 1), text: "按照 " + (order || "pre") + " 遍历规则访问 " + value + "。" }));
+  }
+
+  function layoutBst(values) {
+    const root = { value: values[0], left: null, right: null, parent: null };
+    const nodes = [root];
+    for (let i = 1; i < values.length; ++i) {
+      let cur = root;
+      while (true) {
+        const dir = values[i] < cur.value ? "left" : "right";
+        if (!cur[dir]) {
+          cur[dir] = { value: values[i], left: null, right: null, parent: cur };
+          nodes.push(cur[dir]);
+          break;
+        }
+        cur = cur[dir];
+      }
+    }
+    const ordered = [];
+    function inorder(n, depth) {
+      if (!n) return;
+      inorder(n.left, depth + 1);
+      n.rank = ordered.length;
+      n.depth = depth;
+      ordered.push(n);
+      inorder(n.right, depth + 1);
+    }
+    inorder(root, 0);
+    return nodes.map((n) => ({ id: String(n.value), label: String(n.value) + "\\nh=" + (n.depth + 1), x: 12 + (n.rank * 76 / Math.max(1, ordered.length - 1)), y: 14 + n.depth * 22, parent: n.parent ? String(n.parent.value) : null }));
+  }
+
+  function customAvlSteps(nums) {
+    const values = nums.slice(0, 7).map((n) => Math.floor(n));
+    const inserted = [];
+    return values.map((value, i) => {
+      inserted.push(value);
+      const nodes = layoutBst(inserted);
+      return { title: "插入 " + value, nodes, active: [String(value)], meta: ["按 BST 规则定位", "检查高度差"], codeLine: i < 2 ? 1 : 3, text: "插入后从新结点向上检查高度。若高度差超过 1，就需要旋转恢复平衡。" };
+    });
+  }
+
+  function customHeapSteps(nums) {
+    const heap = [];
+    const steps = [];
+    nums.slice(0, 7).forEach((value) => {
+      heap.push(value);
+      let i = heap.length - 1;
+      steps.push({ title: "插入 " + value, values: heap.slice(), active: [i], codeLine: 1, text: "新元素先放到完全二叉树的最后一个位置。" });
+      while (i > 0) {
+        const p = Math.floor((i - 1) / 2);
+        if (heap[p] <= heap[i]) break;
+        const tmp = heap[p]; heap[p] = heap[i]; heap[i] = tmp;
+        steps.push({ title: "上滤交换", values: heap.slice(), active: [p, i], codeLine: 2, text: "孩子小于父结点，交换以维护最小堆堆序。" });
+        i = p;
+      }
+    });
+    return steps;
+  }
+
+  function customGraphSteps(nums, weighted) {
+    const baseNodes = [["A",16,24],["B",40,15],["C",42,54],["D",68,29],["E",78,68]];
+    const weights = nums.length ? nums : [2, 4, 3, 6, 5, 7];
+    const edges = [["A","B",weights[0] || 2],["A","C",weights[1] || 4],["B","D",weights[2] || 3],["C","D",weights[3] || 6],["C","E",weights[4] || 5],["D","E",weights[5] || 7]];
+    if (!weighted) {
+      return [
+        { title: "自定义图：从 A 开始", nodes: baseNodes, edges, activeNodes: ["A"], activeEdges: [], visited: ["A"], queue: ["A"], codeLine: 1, text: "把起点 A 入队，visited 防止重复访问。" },
+        { title: "扩展 A 的邻接点", nodes: baseNodes, edges, activeNodes: ["B","C"], activeEdges: ["A-B","A-C"], visited: ["A","B","C"], queue: ["B","C"], codeLine: 2, text: "沿邻接边发现 B 和 C，BFS 队列保存下一层。" },
+        { title: "继续扩展到 D/E", nodes: baseNodes, edges, activeNodes: ["D","E"], activeEdges: ["B-D","C-E"], visited: ["A","B","C","D","E"], queue: ["D","E"], codeLine: 3, text: "图遍历的关键是记录哪些顶点已经被发现。" }
+      ];
+    }
+    return [
+      { title: "初始化 dist", nodes: baseNodes, edges, activeNodes: ["A"], settled: [], activeEdges: [], dist: { A: 0, B: "INF", C: "INF", D: "INF", E: "INF" }, prev: {}, frontier: ["A"], codeLine: 1, text: "起点 A 的距离为 0，其他顶点暂时不可达。" },
+      { title: "松弛 A 的边", nodes: baseNodes, edges, activeNodes: ["B","C"], settled: ["A"], activeEdges: ["A-B","A-C"], dist: { A: 0, B: edges[0][2], C: edges[1][2], D: "INF", E: "INF" }, prev: { B: "A", C: "A" }, frontier: ["B","C"], codeLine: 3, text: "用 A 改进 B 和 C 的当前最短距离。" },
+      { title: "继续选择最小 dist", nodes: baseNodes, edges, activeNodes: ["D"], settled: ["A","B"], activeEdges: ["B-D"], dist: { A: 0, B: edges[0][2], C: edges[1][2], D: edges[0][2] + edges[2][2], E: "INF" }, prev: { B: "A", C: "A", D: "B" }, frontier: ["C","D"], codeLine: 4, text: "每轮确定一个当前距离最小的未确定顶点，再继续松弛。" }
+    ];
+  }
+
+  function customEvolutionSteps(nums) {
+    const n = Math.max(3, Math.min(9, nums.length ? nums.length : 5));
+    return [
+      { title: "点：独立变量", items: Array.from({ length: Math.min(n, 5) }, (_, i) => ({ id: "v" + i, label: "x" + i, x: 18 + i * 16, y: 48 + (i % 2) * 12 })), links: [], active: ["v0"], caption: n + " 个点", codeLine: 1, text: "独立变量只有值，没有稳定关系。" },
+      { title: "线：连续组织", items: Array.from({ length: Math.min(n, 6) }, (_, i) => ({ id: "a" + i, label: String(i), x: 16 + i * 13, y: 50 })), links: Array.from({ length: Math.min(n, 6) - 1 }, (_, i) => ["a" + i, "a" + (i + 1)]), active: ["a0"], caption: "数组/顺序表", codeLine: 2, text: "连续位置表达线性关系，按下标访问变得高效。" },
+      { title: "树/图：复杂关系", items: [{id:"A",label:"A",x:50,y:16},{id:"B",label:"B",x:30,y:48},{id:"C",label:"C",x:70,y:48},{id:"D",label:"D",x:22,y:76},{id:"E",label:"E",x:78,y:76}], links: [["A","B"],["A","C"],["B","D"],["C","E"],["D","E","new"]], active: ["A","D","E"], caption: "树 + 图", codeLine: 4, text: "当关系从一对一走向一对多、多对多，就需要树和图。" }
+    ];
+  }
+
+  function customReviewSteps(nums) {
+    const labels = parseTokens(customInput.value, ["顺序表", "哈希索引", "成绩排序", "一致性检查"]).slice(0, 5);
+    return labels.map((label, i) => ({ title: "系统组件 " + label, blocks: labels, active: [i], codeLine: Math.min(i + 1, 5), text: "综合设计不是只选一个结构，而是让 " + label + " 与其他结构保持一致。" }));
+  }
+
   function setupCustomPanel() {
     if (!customPanel) return;
-    const supported = ["array", "cqueue", "search_lab", "sort", "counting"].includes(demo.kind);
     const hints = {
+      evolution: "数据填若干数字，演示会把对象数量映射到点、线、树/图的组织演进。",
       array: "数据填顺序表初始元素；参数填 index:value，例如 2:99。",
+      linked: "数据填链表元素；参数填要插入的新值。",
+      list: "数据填链表元素；参数填要插入的新值。",
+      stack: "数据填一个括号表达式，例如 a[(b+c)*d]。",
       cqueue: "数据填一串入队元素；演示会先入队、出队，再继续入队观察回绕。",
+      queue: "数据填一串入队元素；演示会先入队、出队，再继续入队观察回绕。",
+      kmp: "数据填文本串；参数填模式串，例如 abcac。",
+      traversal: "数据填二叉树层序结点；参数填 pre、in 或 post。",
+      tree: "数据填二叉树层序结点；参数填 pre、in 或 post。",
+      avl: "数据填插入序列；演示按搜索树插入并提示何时检查平衡。",
+      heap: "数据填堆插入序列；演示最小堆上滤过程。",
+      graph: "数据填 6 个边权；演示固定顶点上的 BFS 发现过程。",
+      path: "数据填 6 个边权；演示 Dijkstra 的 dist/prev 更新。",
       search_lab: "数据填数组，系统会排序后做二分；参数填要查找的目标。",
+      search: "数据填数组，系统会排序后做二分；参数填要查找的目标。",
       sort: "数据填待排序序列；演示使用插入排序逐步重放。",
-      counting: "数据填 0 到 9 的整数；演示计数排序的统计和回填。"
+      counting: "数据填 0 到 9 的整数；演示计数排序的统计和回填。",
+      review: "数据填系统组件名称；演示综合系统如何维护多结构一致性。"
     };
-    if (customHint) customHint.textContent = supported ? hints[demo.kind] : "本周结构不适合用简单数字序列参数化，建议使用默认演示理解不变量。";
-    customPanel.classList.toggle("is-disabled", !supported);
-    if (!supported) {
-      if (applyCustom) applyCustom.disabled = true;
-      if (customInput) customInput.disabled = true;
-      if (customTarget) customTarget.disabled = true;
-      return;
-    }
+    if (customHint) customHint.textContent = hints[demo.kind] || "输入小规模数据，观察本周结构的操作步骤如何变化。";
+    customPanel.classList.remove("is-disabled");
+    if (applyCustom) applyCustom.disabled = false;
+    if (customInput) customInput.disabled = false;
+    if (customTarget) customTarget.disabled = false;
+    if (demo.kind === "evolution") customInput.value = "1,2,3,4,5";
     if (demo.kind === "array") customTarget.value = "2:99";
+    if (demo.kind === "linked" || demo.kind === "list") { customInput.value = "10,20,30,40"; customTarget.value = "25"; }
+    if (demo.kind === "stack") { customInput.value = "a[(b+c)*d]"; customTarget.value = ""; }
     if (demo.kind === "cqueue") customInput.value = "10,20,30,40,50,60,70";
-    if (demo.kind === "search_lab") { customInput.value = "3,7,11,19,24,31,42"; customTarget.value = "24"; }
+    if (demo.kind === "queue") customInput.value = "10,20,30,40,50,60,70";
+    if (demo.kind === "kmp") { customInput.value = "ababcabcacbab"; customTarget.value = "abcac"; }
+    if (demo.kind === "traversal" || demo.kind === "tree") { customInput.value = "A,B,C,D,E,F"; customTarget.value = "pre"; }
+    if (demo.kind === "avl") customInput.value = "30,20,10,25,28";
+    if (demo.kind === "heap") customInput.value = "18,12,7,3,25,10";
+    if (demo.kind === "graph" || demo.kind === "path") customInput.value = "2,4,3,6,5,7";
+    if (demo.kind === "search_lab" || demo.kind === "search") { customInput.value = "3,7,11,19,24,31,42"; customTarget.value = "24"; }
     if (demo.kind === "sort") customInput.value = "29,10,14,37,14,3";
     if (demo.kind === "counting") customInput.value = "4,2,2,8,3,3,1";
+    if (demo.kind === "review") { customInput.value = "顺序表,哈希索引,排序,一致性检查"; customTarget.value = ""; }
     applyCustom.addEventListener("click", () => {
       const nums = parseNumbers(customInput.value, [12, 7, 4, 20, 15]);
       let steps = null;
+      if (demo.kind === "evolution") steps = customEvolutionSteps(nums);
       if (demo.kind === "array") steps = customArraySteps(nums, customTarget.value);
-      if (demo.kind === "cqueue") steps = customQueueSteps(nums);
-      if (demo.kind === "search_lab") steps = customSearchSteps(nums, customTarget.value);
+      if (demo.kind === "linked" || demo.kind === "list") steps = customLinkedSteps(nums, customTarget.value);
+      if (demo.kind === "stack") steps = customStackSteps(customInput.value);
+      if (demo.kind === "cqueue" || demo.kind === "queue") steps = customQueueSteps(nums);
+      if (demo.kind === "kmp") steps = customKmpSteps(customInput.value, customTarget.value);
+      if (demo.kind === "traversal" || demo.kind === "tree") steps = customTreeSteps(customInput.value, customTarget.value);
+      if (demo.kind === "avl") steps = customAvlSteps(nums);
+      if (demo.kind === "heap") steps = customHeapSteps(nums);
+      if (demo.kind === "graph") steps = customGraphSteps(nums, false);
+      if (demo.kind === "path") steps = customGraphSteps(nums, true);
+      if (demo.kind === "search_lab" || demo.kind === "search") steps = customSearchSteps(nums, customTarget.value);
       if (demo.kind === "sort") steps = customSortSteps(nums);
       if (demo.kind === "counting") steps = customCountingSteps(nums);
+      if (demo.kind === "review") steps = customReviewSteps(nums);
       setSteps(steps, "自定义输入实验：用学生输入的数据重新生成操作步骤。");
     });
     restoreDemo.addEventListener("click", () => setSteps(JSON.parse(JSON.stringify(originalSteps)), originalScenario));
@@ -6487,10 +7065,15 @@ import os
 import platform
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
 def find_compiler():
@@ -6543,17 +7126,27 @@ def main():
 
     for source in sources:
         output = build_dir / output_name(source)
+        output.parent.mkdir(parents=True, exist_ok=True)
+        source_arg = source.relative_to(ROOT).as_posix()
+        output_arg = output.relative_to(ROOT).as_posix()
         command = [
             compiler,
             "-std=c11",
             "-Wall",
             "-Wextra",
-            str(source),
+            source_arg,
             "-o",
-            str(output),
+            output_arg,
         ]
         print("Compiling", source.relative_to(ROOT).as_posix())
-        result = subprocess.run(command, cwd=ROOT, text=True, capture_output=True)
+        result = subprocess.run(
+            command,
+            cwd=ROOT,
+            text=True,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+        )
         if result.returncode != 0:
             failures.append((source, result.stdout, result.stderr))
             print(result.stdout)
@@ -6606,6 +7199,7 @@ def main():
         "index.html",
         "onlineweb/index.html",
         "onlineweb/viewer.html",
+        "onlineweb/exam.html",
         "assets/course-visualizer.css",
         "assets/course-visualizer.js",
         "AI_LEARNING_GUIDE.md",
@@ -6672,10 +7266,17 @@ def main():
     lesson_plan_files = sorted((ROOT / "teacher_guide" / "lesson_plans").glob("week??_lesson_plan.md"))
     if len(lesson_plan_files) != 16:
         fail(f"Expected 16 teacher lesson plans, found {len(lesson_plan_files)}")
+    solution_files = sorted((ROOT / "teacher_guide" / "lab_solutions").glob("lab??_*/solution_notes.md"))
+    hidden_templates = sorted((ROOT / "teacher_guide" / "lab_solutions").glob("lab??_*/hidden_tests_template.py"))
+    if len(solution_files) != 6 or len(hidden_templates) != 6:
+        fail("Expected 6 lab solution notes and 6 hidden test templates")
 
     review_files = sorted((ROOT / "review").glob("*.md"))
     if len(review_files) < 5:
         fail("Expected review markdown files")
+    exam_files = sorted((ROOT / "test" / "exams").glob("*.md"))
+    if len(exam_files) < 3:
+        fail("Expected online exam markdown files")
 
     print("Course structure check passed.")
 
@@ -6819,11 +7420,13 @@ REQUIRED = [
     "README.md",
     "onlineweb/index.html",
     "onlineweb/viewer.html",
+    "onlineweb/exam.html",
     "assets/course-visualizer.css",
     "assets/course-visualizer.js",
     "assignments/README.md",
     "teacher_guide/README.md",
     "teacher_guide/lesson_plans/README.md",
+    "teacher_guide/lab_solutions/README.md",
     "review/README.md",
     "AI_LEARNING_GUIDE.md",
     "STUDENT_GUIDE.md",
@@ -6947,7 +7550,8 @@ function teacherGuideReadme() {
 2. 课堂中使用 \`interactive.html\` 做状态演示，要求学生同步写出操作伪代码。
 3. 每 2 到 3 周布置一次 [assignments/](../assignments/) 中的实验。
 4. 批改编程题时参考 [rubrics.md](rubrics.md)。
-5. 对学生的 AI 使用记录参考 [../AI_LEARNING_GUIDE.md](../AI_LEARNING_GUIDE.md)。
+5. 参考 [lab_solutions/](lab_solutions/) 准备 public/hidden tests 和讲评。
+6. 对学生的 AI 使用记录参考 [../AI_LEARNING_GUIDE.md](../AI_LEARNING_GUIDE.md)。
 
 ## 教学重点
 
@@ -7331,7 +7935,7 @@ function labStarterC(id, title, outputLines, todos) {
  * Lab ${String(id).padStart(2, "0")} ${title}
  *
  * 使用方式：
- * 1. 先阅读 assignments/lab${String(id).padStart(2, "0")}_*/README.md。
+ * 1. 先阅读 assignments/lab${String(id).padStart(2, "0")}_.../README.md。
  * 2. 按 TODO 补全数据结构和核心操作。
  * 3. 运行 tests/test_lab.py，直到输出与 expected_output.txt 一致。
  */
@@ -7352,6 +7956,7 @@ import os
 import platform
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -7359,6 +7964,10 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = ROOT / "expected_output.txt"
 BUILD = ROOT / "build"
 EXE = BUILD / ("${cFile.replace(".c", "")}" + (".exe" if platform.system().lower().startswith("win") else ""))
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
 def main():
@@ -7374,9 +7983,21 @@ def main():
     if compiler is None:
         raise SystemExit(f"Compiler not found: {args.cc}. Install gcc/clang or set CC.")
     BUILD.mkdir(exist_ok=True)
-    compile_cmd = [compiler, "-std=c11", "-Wall", "-Wextra", str(source), "-o", str(EXE)]
-    subprocess.run(compile_cmd, check=True)
-    result = subprocess.run([str(EXE)], check=True, text=True, capture_output=True)
+    try:
+        source_arg = source.relative_to(ROOT).as_posix()
+    except ValueError:
+        source_arg = str(source)
+    output_arg = EXE.relative_to(ROOT).as_posix()
+    compile_cmd = [compiler, "-std=c11", "-Wall", "-Wextra", source_arg, "-o", output_arg]
+    subprocess.run(compile_cmd, check=True, cwd=ROOT)
+    result = subprocess.run(
+        [str(EXE)],
+        check=True,
+        text=True,
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+    )
     expected = EXPECTED.read_text(encoding="utf-8").strip()
     actual = result.stdout.strip()
     if actual != expected:
@@ -7597,6 +8218,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "assignments" / "labs.json"
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 def load_labs():
     return json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -7622,7 +8247,14 @@ def run_one(lab, source_root, expect_starter_fail):
     test = lab_dir / lab["test"]
     source = find_solution(lab, source_root)
     cmd = [sys.executable, str(test), "--source", str(source)]
-    result = subprocess.run(cmd, cwd=lab_dir, text=True, capture_output=True)
+    result = subprocess.run(
+        cmd,
+        cwd=lab_dir,
+        text=True,
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+    )
     starter_mode = source_root is None
     if result.returncode == 0:
         status = "PASS"
@@ -7636,8 +8268,8 @@ def run_one(lab, source_root, expect_starter_fail):
         "source": str(source.relative_to(ROOT) if source.is_relative_to(ROOT) else source),
         "status": status,
         "ok": ok,
-        "stdout": result.stdout.strip(),
-        "stderr": result.stderr.strip(),
+        "stdout": (result.stdout or "").strip(),
+        "stderr": (result.stderr or "").strip(),
     }
 
 
@@ -7672,6 +8304,148 @@ def main():
 if __name__ == "__main__":
     main()
 `;
+}
+
+function labReferenceSolutionC(lab) {
+  return `
+#include <stdio.h>
+
+/*
+ * Lab ${String(lab.id).padStart(2, "0")} ${lab.title} reference baseline.
+ *
+ * 这份文件用于教师侧核对 public output 和演示提交格式。正式课堂中建议
+ * 按 solution_notes.md 中的结构拆成 ADT 接口、核心操作和测试入口。
+ */
+
+int main(void) {
+${lab.expected.map((line) => `    puts("${line.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}");`).join("\n")}
+    return 0;
+}
+`;
+}
+
+function labSolutionNotes(lab) {
+  return `
+# Lab ${String(lab.id).padStart(2, "0")} ${lab.title} 参考讲解
+
+适用周次：${lab.weeks}
+
+难度：${lab.difficulty}
+
+覆盖概念：${lab.concepts.join("、")}
+
+## 教学意图
+
+本 Lab 的核心不是得到 public output，而是让学生证明自己维护了正确的数据结构不变量。批改时应优先检查结构设计、边界处理和测试证据。
+
+## Public 输出
+
+\`\`\`text
+${lab.expected.join("\n")}
+\`\`\`
+
+## 参考实现使用
+
+- [reference_solution.c](reference_solution.c) 是 public output baseline，可用于确认测试脚本工作正常。
+- 它不替代课堂中的完整 ADT 讲解。教师讲解时应把输出拆回对应结构和操作。
+
+## Hidden tests 建议
+
+${lab.concepts.map((concept) => `- ${concept}：补一个边界或反例测试，要求学生解释为什么能暴露错误。`).join("\n")}
+
+## 批改追问
+
+1. 你的结构体字段各自维护什么关系？
+2. 哪个操作最容易破坏不变量？
+3. 最坏输入是什么，复杂度如何变化？
+4. 如果 LLM 给出另一种实现，你如何用测试判断它是否可靠？
+`;
+}
+
+function hiddenTestTemplatePy(lab) {
+  return `import argparse
+import os
+import shutil
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+
+EXPECTED_PUBLIC = ${JSON.stringify(lab.expected, null, 4)}
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+
+def compile_and_run(source, compiler):
+    compiler_path = shutil.which(compiler)
+    if compiler_path is None:
+        raise SystemExit(f"Compiler not found: {compiler}")
+    source = Path(source).resolve()
+    with tempfile.TemporaryDirectory() as tmp:
+        exe = Path(tmp) / ("solution.exe" if os.name == "nt" else "solution")
+        subprocess.run(
+            [compiler_path, "-std=c11", "-Wall", "-Wextra", source.name, "-o", str(exe)],
+            check=True,
+            cwd=source.parent,
+        )
+        return subprocess.run(
+            [str(exe)],
+            check=True,
+            text=True,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+        ).stdout.strip().splitlines()
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Hidden test template for ${lab.title}.")
+    parser.add_argument("source", help="Student C source file.")
+    parser.add_argument("--cc", default=os.environ.get("CC", "gcc"))
+    args = parser.parse_args()
+
+    actual = compile_and_run(Path(args.source), args.cc)
+    if actual != EXPECTED_PUBLIC:
+        print("Public-output compatibility failed.")
+        print("Expected:", EXPECTED_PUBLIC)
+        print("Actual:", actual)
+        raise SystemExit(1)
+
+    # TODO: Replace or extend the check above with hidden cases.
+    # Recommended hidden dimensions:
+${lab.concepts.map((concept) => `    # - ${concept}: add one boundary, duplicate, empty, or stress case.`).join("\n")}
+    print("Hidden test template passed. Add real hidden cases before formal grading.")
+
+
+if __name__ == "__main__":
+    main()
+`;
+}
+
+function labSolutionFiles() {
+  const files = [[
+    "teacher_guide/lab_solutions/README.md",
+    `# Lab 参考实现与 Hidden Test 模板
+
+本目录面向教师和助教，不建议直接公开给学生。每个 Lab 子目录包含：
+
+- \`solution_notes.md\`：讲解重点、public output、hidden tests 建议。
+- \`reference_solution.c\`：public output baseline，用于确认测试脚本和提交格式。
+- \`hidden_tests_template.py\`：隐藏测试模板，可按课程要求扩展。
+
+正式批改时不要只看输出，应结合 Rubric 检查结构不变量、边界测试、复杂度说明和 AI 使用记录。
+`
+  ]];
+  for (const lab of labDefinitions()) {
+    const base = `teacher_guide/lab_solutions/lab${String(lab.id).padStart(2, "0")}_${lab.slug}`;
+    files.push([`${base}/solution_notes.md`, labSolutionNotes(lab)]);
+    files.push([`${base}/reference_solution.c`, labReferenceSolutionC(lab)]);
+    files.push([`${base}/hidden_tests_template.py`, hiddenTestTemplatePy(lab)]);
+  }
+  return files;
 }
 
 function syllabusContent() {
@@ -7951,10 +8725,12 @@ function generate() {
   writeFile("test/homework_sets.md", homeworkSets());
   writeFile("test/llm_code_model_tasks.md", llmTasks());
   writeFile("test/answer_key.md", answerKey());
+  examFiles().forEach(([rel, content]) => writeFile(rel, content));
   writeFile("teacher_guide/README.md", teacherGuideReadme());
   writeFile("teacher_guide/week_facilitation.md", teacherWeekFacilitation());
   writeFile("teacher_guide/rubrics.md", teacherRubrics());
   teacherLessonPlanFiles().forEach(([rel, content]) => writeFile(rel, content));
+  labSolutionFiles().forEach(([rel, content]) => writeFile(rel, content));
   assignmentFiles().forEach(([rel, content]) => writeFile(rel, content));
   writeFile("assignments/labs.json", labManifestJson());
   writeFile("assignments/lab_testing_guide.md", labTestingGuideContent());
@@ -7967,6 +8743,9 @@ function generate() {
   writeFile("onlineweb/viewer.html", viewerHtml());
   writeFile("onlineweb/viewer.css", viewerCss());
   writeFile("onlineweb/viewer.js", viewerJs());
+  writeFile("onlineweb/exam.html", examHtml());
+  writeFile("onlineweb/exam.css", examCss());
+  writeFile("onlineweb/exam.js", examJs());
 }
 
 generate();

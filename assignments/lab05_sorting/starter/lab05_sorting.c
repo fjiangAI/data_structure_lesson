@@ -5,7 +5,7 @@
  * Lab 05 排序算法实验
  *
  * 使用方式：
- * 1. 先阅读 assignments/lab05_*/README.md。
+ * 1. 先阅读 assignments/lab05_.../README.md。
  * 2. 按 TODO 补全数据结构和核心操作。
  * 3. 运行 tests/test_lab.py，直到输出与 expected_output.txt 一致。
  */

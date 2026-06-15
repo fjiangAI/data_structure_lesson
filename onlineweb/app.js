@@ -1,16 +1,38 @@
 const weeks = window.COURSE_WEEKS;
 const quizzes = window.COURSE_QUIZZES;
-const doneKey = "ds-course-done-weeks";
-let done = new Set(JSON.parse(localStorage.getItem(doneKey) || "[]"));
+const progressKey = "ds-course-progress-v2";
+const legacyDoneKey = "ds-course-done-weeks";
+let progress = JSON.parse(localStorage.getItem(progressKey) || "{}");
+try {
+  const legacyDone = JSON.parse(localStorage.getItem(legacyDoneKey) || "[]");
+  legacyDone.forEach((id) => {
+    progress[id] = progress[id] || {};
+    ["lecture", "demo", "exercise", "lab"].forEach((part) => progress[id][part] = true);
+  });
+} catch {}
 
 const grid = document.getElementById("weekGrid");
 const searchInput = document.getElementById("searchInput");
 const topicFilter = document.getElementById("topicFilter");
 const progressText = document.getElementById("progressText");
+const exerciseProgressText = document.getElementById("exerciseProgressText");
 
-function saveDone() {
-  localStorage.setItem(doneKey, JSON.stringify([...done]));
-  progressText.textContent = done.size + "/16";
+function weekState(id) {
+  progress[id] = progress[id] || {};
+  return progress[id];
+}
+
+function isWeekDone(id) {
+  const state = weekState(id);
+  return ["lecture", "demo", "exercise", "lab"].every((part) => !!state[part]);
+}
+
+function saveProgress() {
+  localStorage.setItem(progressKey, JSON.stringify(progress));
+  const doneCount = weeks.filter((week) => isWeekDone(week.id)).length;
+  const exerciseCount = weeks.filter((week) => !!weekState(week.id).exercise).length;
+  progressText.textContent = doneCount + "/16";
+  if (exerciseProgressText) exerciseProgressText.textContent = exerciseCount + "/16";
 }
 
 function matchesFilter(week, filter) {
@@ -37,8 +59,10 @@ function renderWeeks() {
       const lectureUrl = viewerUrl(week.folder + "lecture.md");
       const codeUrl = viewerUrl(week.folder + "examples/" + week.codeFile);
       const exerciseUrl = viewerUrl(week.folder + "exercises.md");
+      const state = weekState(week.id);
+      const done = isWeekDone(week.id);
       const card = document.createElement("article");
-      card.className = "week-card" + (done.has(week.id) ? " done" : "");
+      card.className = "week-card" + (done ? " done" : "");
       card.innerHTML = `
         <header>
           <h3>Week ${String(week.id).padStart(2, "0")} ${week.title}</h3>
@@ -46,12 +70,18 @@ function renderWeeks() {
         </header>
         <p>${week.theme}</p>
         <div class="topic-tags">${week.topics.slice(0, 5).map((t) => "<span>" + t + "</span>").join("")}</div>
+        <div class="progress-checks" aria-label="学习进度">
+          ${["lecture:讲义", "demo:演示", "exercise:练习", "lab:Lab"].map((item) => {
+            const [part, label] = item.split(":");
+            return '<label><input type="checkbox" data-id="' + week.id + '" data-part="' + part + '" ' + (state[part] ? "checked" : "") + '>' + label + '</label>';
+          }).join("")}
+        </div>
         <div class="card-links">
           <a href="${lectureUrl}">讲义</a>
           <a href="${week.folder}interactive.html">演示</a>
           <a href="${codeUrl}">代码</a>
           <a href="${exerciseUrl}">练习</a>
-          <button class="mark-btn" data-id="${week.id}">${done.has(week.id) ? "取消完成" : "标记完成"}</button>
+          <button class="mark-btn" data-id="${week.id}">${done ? "清空状态" : "本周全完成"}</button>
         </div>
       `;
       grid.appendChild(card);
@@ -62,9 +92,18 @@ function renderWeeks() {
   document.querySelectorAll(".mark-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const id = Number(btn.dataset.id);
-      if (done.has(id)) done.delete(id);
-      else done.add(id);
-      saveDone();
+      const state = weekState(id);
+      const next = !isWeekDone(id);
+      ["lecture", "demo", "exercise", "lab"].forEach((part) => state[part] = next);
+      saveProgress();
+      renderWeeks();
+    });
+  });
+  document.querySelectorAll(".progress-checks input").forEach((input) => {
+    input.addEventListener("change", () => {
+      const state = weekState(Number(input.dataset.id));
+      state[input.dataset.part] = input.checked;
+      saveProgress();
       renderWeeks();
     });
   });
@@ -72,7 +111,7 @@ function renderWeeks() {
 
 searchInput.addEventListener("input", renderWeeks);
 topicFilter.addEventListener("change", renderWeeks);
-saveDone();
+saveProgress();
 renderWeeks();
 
 const labs = {

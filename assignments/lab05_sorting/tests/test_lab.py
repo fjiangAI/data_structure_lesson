@@ -3,6 +3,7 @@ import os
 import platform
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -10,6 +11,10 @@ ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = ROOT / "expected_output.txt"
 BUILD = ROOT / "build"
 EXE = BUILD / ("lab05_sorting" + (".exe" if platform.system().lower().startswith("win") else ""))
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
 def main():
@@ -25,9 +30,21 @@ def main():
     if compiler is None:
         raise SystemExit(f"Compiler not found: {args.cc}. Install gcc/clang or set CC.")
     BUILD.mkdir(exist_ok=True)
-    compile_cmd = [compiler, "-std=c11", "-Wall", "-Wextra", str(source), "-o", str(EXE)]
-    subprocess.run(compile_cmd, check=True)
-    result = subprocess.run([str(EXE)], check=True, text=True, capture_output=True)
+    try:
+        source_arg = source.relative_to(ROOT).as_posix()
+    except ValueError:
+        source_arg = str(source)
+    output_arg = EXE.relative_to(ROOT).as_posix()
+    compile_cmd = [compiler, "-std=c11", "-Wall", "-Wextra", source_arg, "-o", output_arg]
+    subprocess.run(compile_cmd, check=True, cwd=ROOT)
+    result = subprocess.run(
+        [str(EXE)],
+        check=True,
+        text=True,
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+    )
     expected = EXPECTED.read_text(encoding="utf-8").strip()
     actual = result.stdout.strip()
     if actual != expected:

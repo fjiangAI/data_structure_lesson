@@ -142,6 +142,9 @@
   }
 
   function treeNodes(kind, step) {
+    if (Array.isArray(step.nodes) && step.nodes.length) {
+      return step.nodes;
+    }
     if (kind === "tree") {
       return [
         { id: "A", x: 50, y: 14 },
@@ -220,7 +223,10 @@
   }
 
   function renderGraph(step, withDist) {
-    const model = graphModel();
+    const model = {
+      nodes: step.nodes || graphModel().nodes,
+      edges: step.edges || graphModel().edges
+    };
     const byId = Object.fromEntries(model.nodes.map((n) => [n[0], n]));
     let svg = '<svg class="graph-svg" viewBox="0 0 100 84" preserveAspectRatio="xMidYMid meet">' + svgDefs();
     model.edges.forEach(([a, b, w]) => {
@@ -567,37 +573,265 @@
     return steps;
   }
 
+  function parseTokens(text, fallback) {
+    const tokens = String(text || "").split(/[，,\s]+/).map((item) => item.trim()).filter(Boolean).slice(0, 10);
+    return tokens.length ? tokens : fallback.slice();
+  }
+
+  function linkedNodes(values, highlight = [], ghostValue = null) {
+    const nodes = [{ id: "head", label: "head", x: 12, y: 46 }];
+    const links = [];
+    const step = Math.min(16, 76 / Math.max(1, values.length + (ghostValue !== null ? 1 : 0)));
+    values.forEach((value, i) => {
+      nodes.push({ id: "n" + i, label: String(value), x: 28 + i * step, y: 46 });
+      links.push([i === 0 ? "head" : "n" + (i - 1), "n" + i]);
+    });
+    if (ghostValue !== null) {
+      nodes.push({ id: "new", label: String(ghostValue), x: 46, y: 72, ghost: true });
+    }
+    nodes.push({ id: "null", label: "NULL", x: 28 + values.length * step, y: 46, null: true });
+    links.push([values.length ? "n" + (values.length - 1) : "head", "null"]);
+    return { nodes, links, active: highlight };
+  }
+
+  function customLinkedSteps(nums, targetText) {
+    const values = nums.slice(0, 6);
+    const value = Number.isFinite(Number(targetText)) ? Number(targetText) : 99;
+    const insertAt = Math.min(1, Math.max(0, values.length - 1));
+    const before = linkedNodes(values, ["n" + insertAt], value);
+    const inserted = values.slice();
+    inserted.splice(insertAt + 1, 0, value);
+    const after = linkedNodes(inserted, ["n" + insertAt, "n" + (insertAt + 1)]);
+    return [
+      { title: "自定义链表初始状态", ...before, meta: ["定位前驱 p"], codeLine: 1, text: "先定位插入位置的前驱结点。链表的物理位置不重要，next 才是逻辑顺序。" },
+      { title: "创建新结点", ...before, links: before.links.concat([["new", "n" + (insertAt + 1), "new"]]), active: ["new", "n" + (insertAt + 1)], meta: ["new->next = p->next"], codeLine: 2, text: "第一条指针赋值让新结点接住原来的后继，避免丢链。" },
+      { title: "接入链表", ...after, meta: ["p->next = new"], codeLine: 3, text: "再让前驱指向新结点。两条赋值的顺序不能随意交换。" }
+    ];
+  }
+
+  function customStackSteps(text) {
+    const expr = String(text || "a[(b+c)*d]").slice(0, 24);
+    const pairs = { ")": "(", "]": "[", "}": "{" };
+    const left = new Set(["(", "[", "{"]);
+    const stack = [];
+    const steps = [];
+    for (let i = 0; i < expr.length; ++i) {
+      const ch = expr[i];
+      if (left.has(ch)) {
+        stack.push(ch);
+        steps.push({ title: "读到 " + ch, input: expr, cursor: i, stack: stack.slice(), active: [stack.length - 1], codeLine: 1, text: "左括号入栈，表示有一个最近未完成的匹配任务。" });
+      } else if (pairs[ch]) {
+        const ok = stack.length && stack[stack.length - 1] === pairs[ch];
+        if (ok) stack.pop();
+        steps.push({ title: "读到 " + ch, input: expr, cursor: i, stack: stack.slice(), active: stack.length ? [stack.length - 1] : [], codeLine: 2, text: ok ? "右括号与栈顶匹配，弹出栈顶。" : "右括号无法匹配栈顶，表达式不合法。" });
+        if (!ok) break;
+      }
+    }
+    if (!steps.length) steps.push({ title: "没有括号", input: expr, cursor: 0, stack: [], active: [], codeLine: 4, text: "输入中没有括号，栈保持为空。" });
+    steps.push({ title: stack.length ? "仍有未匹配左括号" : "匹配结束", input: expr, cursor: Math.max(0, expr.length - 1), stack: stack.slice(), active: [], codeLine: 4, text: stack.length ? "扫描结束但栈不为空，说明有左括号未匹配。" : "扫描结束且栈为空，括号匹配成功。" });
+    return steps;
+  }
+
+  function prefixTable(pattern) {
+    const next = Array(pattern.length).fill(0);
+    let j = 0;
+    for (let i = 1; i < pattern.length; ++i) {
+      while (j > 0 && pattern[i] !== pattern[j]) j = next[j - 1];
+      if (pattern[i] === pattern[j]) j += 1;
+      next[i] = j;
+    }
+    return next;
+  }
+
+  function customKmpSteps(text, patternText) {
+    const textChars = String(text || "ababcabcacbab").replace(/\s+/g, "").slice(0, 18) || "ababcabcacbab";
+    const pattern = String(patternText || "abcac").replace(/\s+/g, "").slice(0, 8) || "abcac";
+    const next = prefixTable(pattern);
+    let j = 0;
+    const steps = [];
+    for (let i = 0; i < textChars.length; ++i) {
+      while (j > 0 && textChars[i] !== pattern[j]) {
+        steps.push({ title: "失配回退", textChars, pattern, i, j, offset: Math.max(0, i - j), next, codeLine: 3, text: "text[" + i + "] 与 pattern[" + j + "] 失配，j 回退到 next[j-1]，文本指针不回退。" });
+        j = next[j - 1];
+      }
+      steps.push({ title: "比较字符", textChars, pattern, i, j, offset: Math.max(0, i - j), next, codeLine: 2, text: "比较 text[" + i + "]='" + textChars[i] + "' 与 pattern[" + j + "]='" + (pattern[j] || "") + "'。" });
+      if (textChars[i] === pattern[j]) j += 1;
+      if (j === pattern.length) {
+        steps.push({ title: "匹配成功", textChars, pattern, i, j: pattern.length - 1, offset: i - pattern.length + 1, next, codeLine: 4, text: "找到完整模式串，起始下标为 " + (i - pattern.length + 1) + "。" });
+        return steps;
+      }
+    }
+    steps.push({ title: "匹配失败", textChars, pattern, i: textChars.length - 1, j: Math.max(0, j), offset: Math.max(0, textChars.length - j), next, codeLine: 5, text: "扫描完成，没有找到完整模式串。" });
+    return steps;
+  }
+
+  function customTreeSteps(tokens, orderText) {
+    const values = parseTokens(tokens, ["A", "B", "C", "D", "E", "F"]).slice(0, 7);
+    const positions = [[50,12],[30,38],[70,38],[18,66],[42,66],[62,66],[84,66]];
+    const nodes = values.map((v, i) => ({ id: String(v), x: positions[i][0], y: positions[i][1], parent: i === 0 ? null : String(values[Math.floor((i - 1) / 2)]) }));
+    const order = String(orderText || "pre").toLowerCase();
+    const seq = [];
+    function walk(i) {
+      if (i >= values.length) return;
+      if (order.startsWith("pre")) seq.push(values[i]);
+      walk(i * 2 + 1);
+      if (order.startsWith("in")) seq.push(values[i]);
+      walk(i * 2 + 2);
+      if (order.startsWith("post")) seq.push(values[i]);
+    }
+    walk(0);
+    return seq.map((value, i) => ({ title: "访问 " + value, nodes, active: [String(value)], visited: seq.slice(0, i + 1).map(String), stack: seq.slice(i).map((v) => "visit(" + v + ")"), phase: order.startsWith("in") ? "inorder" : order.startsWith("post") ? "postorder" : "preorder", codeLine: Math.min(3, i + 1), text: "按照 " + (order || "pre") + " 遍历规则访问 " + value + "。" }));
+  }
+
+  function layoutBst(values) {
+    const root = { value: values[0], left: null, right: null, parent: null };
+    const nodes = [root];
+    for (let i = 1; i < values.length; ++i) {
+      let cur = root;
+      while (true) {
+        const dir = values[i] < cur.value ? "left" : "right";
+        if (!cur[dir]) {
+          cur[dir] = { value: values[i], left: null, right: null, parent: cur };
+          nodes.push(cur[dir]);
+          break;
+        }
+        cur = cur[dir];
+      }
+    }
+    const ordered = [];
+    function inorder(n, depth) {
+      if (!n) return;
+      inorder(n.left, depth + 1);
+      n.rank = ordered.length;
+      n.depth = depth;
+      ordered.push(n);
+      inorder(n.right, depth + 1);
+    }
+    inorder(root, 0);
+    return nodes.map((n) => ({ id: String(n.value), label: String(n.value) + "\nh=" + (n.depth + 1), x: 12 + (n.rank * 76 / Math.max(1, ordered.length - 1)), y: 14 + n.depth * 22, parent: n.parent ? String(n.parent.value) : null }));
+  }
+
+  function customAvlSteps(nums) {
+    const values = nums.slice(0, 7).map((n) => Math.floor(n));
+    const inserted = [];
+    return values.map((value, i) => {
+      inserted.push(value);
+      const nodes = layoutBst(inserted);
+      return { title: "插入 " + value, nodes, active: [String(value)], meta: ["按 BST 规则定位", "检查高度差"], codeLine: i < 2 ? 1 : 3, text: "插入后从新结点向上检查高度。若高度差超过 1，就需要旋转恢复平衡。" };
+    });
+  }
+
+  function customHeapSteps(nums) {
+    const heap = [];
+    const steps = [];
+    nums.slice(0, 7).forEach((value) => {
+      heap.push(value);
+      let i = heap.length - 1;
+      steps.push({ title: "插入 " + value, values: heap.slice(), active: [i], codeLine: 1, text: "新元素先放到完全二叉树的最后一个位置。" });
+      while (i > 0) {
+        const p = Math.floor((i - 1) / 2);
+        if (heap[p] <= heap[i]) break;
+        const tmp = heap[p]; heap[p] = heap[i]; heap[i] = tmp;
+        steps.push({ title: "上滤交换", values: heap.slice(), active: [p, i], codeLine: 2, text: "孩子小于父结点，交换以维护最小堆堆序。" });
+        i = p;
+      }
+    });
+    return steps;
+  }
+
+  function customGraphSteps(nums, weighted) {
+    const baseNodes = [["A",16,24],["B",40,15],["C",42,54],["D",68,29],["E",78,68]];
+    const weights = nums.length ? nums : [2, 4, 3, 6, 5, 7];
+    const edges = [["A","B",weights[0] || 2],["A","C",weights[1] || 4],["B","D",weights[2] || 3],["C","D",weights[3] || 6],["C","E",weights[4] || 5],["D","E",weights[5] || 7]];
+    if (!weighted) {
+      return [
+        { title: "自定义图：从 A 开始", nodes: baseNodes, edges, activeNodes: ["A"], activeEdges: [], visited: ["A"], queue: ["A"], codeLine: 1, text: "把起点 A 入队，visited 防止重复访问。" },
+        { title: "扩展 A 的邻接点", nodes: baseNodes, edges, activeNodes: ["B","C"], activeEdges: ["A-B","A-C"], visited: ["A","B","C"], queue: ["B","C"], codeLine: 2, text: "沿邻接边发现 B 和 C，BFS 队列保存下一层。" },
+        { title: "继续扩展到 D/E", nodes: baseNodes, edges, activeNodes: ["D","E"], activeEdges: ["B-D","C-E"], visited: ["A","B","C","D","E"], queue: ["D","E"], codeLine: 3, text: "图遍历的关键是记录哪些顶点已经被发现。" }
+      ];
+    }
+    return [
+      { title: "初始化 dist", nodes: baseNodes, edges, activeNodes: ["A"], settled: [], activeEdges: [], dist: { A: 0, B: "INF", C: "INF", D: "INF", E: "INF" }, prev: {}, frontier: ["A"], codeLine: 1, text: "起点 A 的距离为 0，其他顶点暂时不可达。" },
+      { title: "松弛 A 的边", nodes: baseNodes, edges, activeNodes: ["B","C"], settled: ["A"], activeEdges: ["A-B","A-C"], dist: { A: 0, B: edges[0][2], C: edges[1][2], D: "INF", E: "INF" }, prev: { B: "A", C: "A" }, frontier: ["B","C"], codeLine: 3, text: "用 A 改进 B 和 C 的当前最短距离。" },
+      { title: "继续选择最小 dist", nodes: baseNodes, edges, activeNodes: ["D"], settled: ["A","B"], activeEdges: ["B-D"], dist: { A: 0, B: edges[0][2], C: edges[1][2], D: edges[0][2] + edges[2][2], E: "INF" }, prev: { B: "A", C: "A", D: "B" }, frontier: ["C","D"], codeLine: 4, text: "每轮确定一个当前距离最小的未确定顶点，再继续松弛。" }
+    ];
+  }
+
+  function customEvolutionSteps(nums) {
+    const n = Math.max(3, Math.min(9, nums.length ? nums.length : 5));
+    return [
+      { title: "点：独立变量", items: Array.from({ length: Math.min(n, 5) }, (_, i) => ({ id: "v" + i, label: "x" + i, x: 18 + i * 16, y: 48 + (i % 2) * 12 })), links: [], active: ["v0"], caption: n + " 个点", codeLine: 1, text: "独立变量只有值，没有稳定关系。" },
+      { title: "线：连续组织", items: Array.from({ length: Math.min(n, 6) }, (_, i) => ({ id: "a" + i, label: String(i), x: 16 + i * 13, y: 50 })), links: Array.from({ length: Math.min(n, 6) - 1 }, (_, i) => ["a" + i, "a" + (i + 1)]), active: ["a0"], caption: "数组/顺序表", codeLine: 2, text: "连续位置表达线性关系，按下标访问变得高效。" },
+      { title: "树/图：复杂关系", items: [{id:"A",label:"A",x:50,y:16},{id:"B",label:"B",x:30,y:48},{id:"C",label:"C",x:70,y:48},{id:"D",label:"D",x:22,y:76},{id:"E",label:"E",x:78,y:76}], links: [["A","B"],["A","C"],["B","D"],["C","E"],["D","E","new"]], active: ["A","D","E"], caption: "树 + 图", codeLine: 4, text: "当关系从一对一走向一对多、多对多，就需要树和图。" }
+    ];
+  }
+
+  function customReviewSteps(nums) {
+    const labels = parseTokens(customInput.value, ["顺序表", "哈希索引", "成绩排序", "一致性检查"]).slice(0, 5);
+    return labels.map((label, i) => ({ title: "系统组件 " + label, blocks: labels, active: [i], codeLine: Math.min(i + 1, 5), text: "综合设计不是只选一个结构，而是让 " + label + " 与其他结构保持一致。" }));
+  }
+
   function setupCustomPanel() {
     if (!customPanel) return;
-    const supported = ["array", "cqueue", "search_lab", "sort", "counting"].includes(demo.kind);
     const hints = {
+      evolution: "数据填若干数字，演示会把对象数量映射到点、线、树/图的组织演进。",
       array: "数据填顺序表初始元素；参数填 index:value，例如 2:99。",
+      linked: "数据填链表元素；参数填要插入的新值。",
+      list: "数据填链表元素；参数填要插入的新值。",
+      stack: "数据填一个括号表达式，例如 a[(b+c)*d]。",
       cqueue: "数据填一串入队元素；演示会先入队、出队，再继续入队观察回绕。",
+      queue: "数据填一串入队元素；演示会先入队、出队，再继续入队观察回绕。",
+      kmp: "数据填文本串；参数填模式串，例如 abcac。",
+      traversal: "数据填二叉树层序结点；参数填 pre、in 或 post。",
+      tree: "数据填二叉树层序结点；参数填 pre、in 或 post。",
+      avl: "数据填插入序列；演示按搜索树插入并提示何时检查平衡。",
+      heap: "数据填堆插入序列；演示最小堆上滤过程。",
+      graph: "数据填 6 个边权；演示固定顶点上的 BFS 发现过程。",
+      path: "数据填 6 个边权；演示 Dijkstra 的 dist/prev 更新。",
       search_lab: "数据填数组，系统会排序后做二分；参数填要查找的目标。",
+      search: "数据填数组，系统会排序后做二分；参数填要查找的目标。",
       sort: "数据填待排序序列；演示使用插入排序逐步重放。",
-      counting: "数据填 0 到 9 的整数；演示计数排序的统计和回填。"
+      counting: "数据填 0 到 9 的整数；演示计数排序的统计和回填。",
+      review: "数据填系统组件名称；演示综合系统如何维护多结构一致性。"
     };
-    if (customHint) customHint.textContent = supported ? hints[demo.kind] : "本周结构不适合用简单数字序列参数化，建议使用默认演示理解不变量。";
-    customPanel.classList.toggle("is-disabled", !supported);
-    if (!supported) {
-      if (applyCustom) applyCustom.disabled = true;
-      if (customInput) customInput.disabled = true;
-      if (customTarget) customTarget.disabled = true;
-      return;
-    }
+    if (customHint) customHint.textContent = hints[demo.kind] || "输入小规模数据，观察本周结构的操作步骤如何变化。";
+    customPanel.classList.remove("is-disabled");
+    if (applyCustom) applyCustom.disabled = false;
+    if (customInput) customInput.disabled = false;
+    if (customTarget) customTarget.disabled = false;
+    if (demo.kind === "evolution") customInput.value = "1,2,3,4,5";
     if (demo.kind === "array") customTarget.value = "2:99";
+    if (demo.kind === "linked" || demo.kind === "list") { customInput.value = "10,20,30,40"; customTarget.value = "25"; }
+    if (demo.kind === "stack") { customInput.value = "a[(b+c)*d]"; customTarget.value = ""; }
     if (demo.kind === "cqueue") customInput.value = "10,20,30,40,50,60,70";
-    if (demo.kind === "search_lab") { customInput.value = "3,7,11,19,24,31,42"; customTarget.value = "24"; }
+    if (demo.kind === "queue") customInput.value = "10,20,30,40,50,60,70";
+    if (demo.kind === "kmp") { customInput.value = "ababcabcacbab"; customTarget.value = "abcac"; }
+    if (demo.kind === "traversal" || demo.kind === "tree") { customInput.value = "A,B,C,D,E,F"; customTarget.value = "pre"; }
+    if (demo.kind === "avl") customInput.value = "30,20,10,25,28";
+    if (demo.kind === "heap") customInput.value = "18,12,7,3,25,10";
+    if (demo.kind === "graph" || demo.kind === "path") customInput.value = "2,4,3,6,5,7";
+    if (demo.kind === "search_lab" || demo.kind === "search") { customInput.value = "3,7,11,19,24,31,42"; customTarget.value = "24"; }
     if (demo.kind === "sort") customInput.value = "29,10,14,37,14,3";
     if (demo.kind === "counting") customInput.value = "4,2,2,8,3,3,1";
+    if (demo.kind === "review") { customInput.value = "顺序表,哈希索引,排序,一致性检查"; customTarget.value = ""; }
     applyCustom.addEventListener("click", () => {
       const nums = parseNumbers(customInput.value, [12, 7, 4, 20, 15]);
       let steps = null;
+      if (demo.kind === "evolution") steps = customEvolutionSteps(nums);
       if (demo.kind === "array") steps = customArraySteps(nums, customTarget.value);
-      if (demo.kind === "cqueue") steps = customQueueSteps(nums);
-      if (demo.kind === "search_lab") steps = customSearchSteps(nums, customTarget.value);
+      if (demo.kind === "linked" || demo.kind === "list") steps = customLinkedSteps(nums, customTarget.value);
+      if (demo.kind === "stack") steps = customStackSteps(customInput.value);
+      if (demo.kind === "cqueue" || demo.kind === "queue") steps = customQueueSteps(nums);
+      if (demo.kind === "kmp") steps = customKmpSteps(customInput.value, customTarget.value);
+      if (demo.kind === "traversal" || demo.kind === "tree") steps = customTreeSteps(customInput.value, customTarget.value);
+      if (demo.kind === "avl") steps = customAvlSteps(nums);
+      if (demo.kind === "heap") steps = customHeapSteps(nums);
+      if (demo.kind === "graph") steps = customGraphSteps(nums, false);
+      if (demo.kind === "path") steps = customGraphSteps(nums, true);
+      if (demo.kind === "search_lab" || demo.kind === "search") steps = customSearchSteps(nums, customTarget.value);
       if (demo.kind === "sort") steps = customSortSteps(nums);
       if (demo.kind === "counting") steps = customCountingSteps(nums);
+      if (demo.kind === "review") steps = customReviewSteps(nums);
       setSteps(steps, "自定义输入实验：用学生输入的数据重新生成操作步骤。");
     });
     restoreDemo.addEventListener("click", () => setSteps(JSON.parse(JSON.stringify(originalSteps)), originalScenario));

@@ -15,7 +15,7 @@
 - 16 周完整课程路径，覆盖线性结构、树、图、查找、排序和算法分析。
 - 每周包含系统讲义、C 示例代码、练习题、参考答案、拓展问题和交互演示页。
 - 示例代码围绕 C 语言数组、结构体、指针、动态内存和模块化接口展开。
-- `test/` 中包含随堂测试、课后作业、阶段任务和 LLM 辅助学习模板。
+- `test/` 中包含随堂测试、课后作业、阶段任务、在线模拟考试和 LLM 辅助学习模板。
 - `onlineweb/viewer.html` 会把 Markdown 讲义、练习和 C 源码渲染成更适合阅读的网页，并为 C 代码提供语法高亮与行号。
 - `interactive.html` 和 `onlineweb/` 使用 GSAP 驱动步骤动画，不依赖前端构建工具，可直接托管到 GitHub Pages。
 - 每个交互演示页包含“动画步骤对应伪代码与关键 C 片段”面板，帮助学生把结构变化映射到实现思路和代码位置。
@@ -115,7 +115,7 @@
 - `extensions.md`：不带标准答案的拓展讨论问题。
 - `interactive.html`：独立交互演示页，可直接用浏览器打开。
 
-`assets/` 存放公共可视化样式和脚本。`test/` 包含随堂测试、课后作业、LLM/代码大模型辅助学习任务和参考答案。`assignments/` 是跨周实验作业模板。`teacher_guide/` 是教师和助教使用指南。`review/` 是期中、期末复习包。`onlineweb/` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习、阅读材料和记录学习进度。`.github/workflows/pages.yml` 用于自动部署 GitHub Pages，`.github/workflows/ci.yml` 用于课程结构、链接、编码、Pages 产物和 C 示例编译检查，`tools/generate_course.mjs` 用于重新生成课程材料。
+`assets/` 存放公共可视化样式和脚本。`test/` 包含随堂测试、课后作业、在线模拟考试、LLM/代码大模型辅助学习任务和参考答案。`assignments/` 是跨周实验作业模板。`teacher_guide/` 是教师和助教使用指南。`review/` 是期中、期末复习包。`onlineweb/` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习、阅读材料、在线考试和记录学习进度。`.github/workflows/pages.yml` 用于自动部署 GitHub Pages，`.github/workflows/ci.yml` 用于课程结构、链接、编码、Pages 产物和 C 示例编译检查，`tools/generate_course.mjs` 用于重新生成课程材料。
 
 ## 16 周安排
 

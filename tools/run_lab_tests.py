@@ -8,6 +8,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "assignments" / "labs.json"
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 
 def load_labs():
     return json.loads(MANIFEST.read_text(encoding="utf-8"))
@@ -33,7 +37,14 @@ def run_one(lab, source_root, expect_starter_fail):
     test = lab_dir / lab["test"]
     source = find_solution(lab, source_root)
     cmd = [sys.executable, str(test), "--source", str(source)]
-    result = subprocess.run(cmd, cwd=lab_dir, text=True, capture_output=True)
+    result = subprocess.run(
+        cmd,
+        cwd=lab_dir,
+        text=True,
+        capture_output=True,
+        encoding="utf-8",
+        errors="replace",
+    )
     starter_mode = source_root is None
     if result.returncode == 0:
         status = "PASS"
@@ -47,8 +58,8 @@ def run_one(lab, source_root, expect_starter_fail):
         "source": str(source.relative_to(ROOT) if source.is_relative_to(ROOT) else source),
         "status": status,
         "ok": ok,
-        "stdout": result.stdout.strip(),
-        "stderr": result.stderr.strip(),
+        "stdout": (result.stdout or "").strip(),
+        "stderr": (result.stderr or "").strip(),
     }
 
 

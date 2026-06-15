@@ -8,7 +8,8 @@
 2. 课堂中使用 `interactive.html` 做状态演示，要求学生同步写出操作伪代码。
 3. 每 2 到 3 周布置一次 [assignments/](../assignments/) 中的实验。
 4. 批改编程题时参考 [rubrics.md](rubrics.md)。
-5. 对学生的 AI 使用记录参考 [../AI_LEARNING_GUIDE.md](../AI_LEARNING_GUIDE.md)。
+5. 参考 [lab_solutions/](lab_solutions/) 准备 public/hidden tests 和讲评。
+6. 对学生的 AI 使用记录参考 [../AI_LEARNING_GUIDE.md](../AI_LEARNING_GUIDE.md)。
 
 ## 教学重点
 
