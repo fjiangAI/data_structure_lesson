@@ -54,9 +54,18 @@
       <div class="code-sync-panel">
         <div>
           <p class="eyebrow">Code Trace</p>
-          <h3>动画步骤对应的操作伪代码</h3>
+          <h3>动画步骤对应的伪代码与 C 代码</h3>
         </div>
-        <ol id="pseudoCode" class="pseudo-code"></ol>
+        <div class="trace-grid">
+          <div>
+            <strong>操作伪代码</strong>
+            <ol id="pseudoCode" class="pseudo-code"></ol>
+          </div>
+          <div>
+            <strong id="codeTraceTitle">关键 C 片段</strong>
+            <pre class="c-trace"><code id="cTrace"></code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -215,7 +224,19 @@
     "while queue not empty",
     "u = dequeue()",
     "for each neighbor v of u: if unvisited then visit and enqueue"
-  ]
+  ],
+  "codeTrace": {
+    "title": "BFS",
+    "lines": [
+      "visited[start] = 1;",
+      "enqueue(&queue, start);",
+      "while (!is_empty(&queue)) {",
+      "    int u = dequeue(&queue);",
+      "    for (Edge *e = graph[u]; e; e = e->next)",
+      "        if (!visited[e->to]) visit_and_enqueue(e->to);",
+      "}"
+    ]
+  }
 };
   </script>
   <script src="../assets/course-visualizer.js"></script>

@@ -2,6 +2,11 @@
 
 本文件夹提供跨周实验模板。每个实验都要求学生提交代码、测试和简短说明，强调“能运行”之外的结构理解。
 
+每个 Lab 同时提供两种材料：
+
+- `labXX_*.md`：教师布置作业时可直接引用的完整要求。
+- `labXX_*/`：学生可运行 starter，包含 `starter/*.c`、`expected_output.txt` 和 `tests/test_lab.py`。
+
 推荐节奏：
 
 - Lab 01：Week 2-3 后布置，线性表。

@@ -54,9 +54,18 @@
       <div class="code-sync-panel">
         <div>
           <p class="eyebrow">Code Trace</p>
-          <h3>动画步骤对应的操作伪代码</h3>
+          <h3>动画步骤对应的伪代码与 C 代码</h3>
         </div>
-        <ol id="pseudoCode" class="pseudo-code"></ol>
+        <div class="trace-grid">
+          <div>
+            <strong>操作伪代码</strong>
+            <ol id="pseudoCode" class="pseudo-code"></ol>
+          </div>
+          <div>
+            <strong id="codeTraceTitle">关键 C 片段</strong>
+            <pre class="c-trace"><code id="cTrace"></code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -189,7 +198,20 @@
     "swap child and parent",
     "move upward",
     "stop when heap order holds"
-  ]
+  ],
+  "codeTrace": {
+    "title": "sift_up",
+    "lines": [
+      "heap->data[heap->size++] = value;",
+      "int child = heap->size - 1;",
+      "while (child > 0) {",
+      "    int parent = (child - 1) / 2;",
+      "    if (heap->data[parent] \u003c= heap->data[child]) break;",
+      "    swap(&heap->data[parent], &heap->data[child]);",
+      "    child = parent;",
+      "}"
+    ]
+  }
 };
   </script>
   <script src="../assets/course-visualizer.js"></script>

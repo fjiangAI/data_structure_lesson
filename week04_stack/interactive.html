@@ -54,9 +54,18 @@
       <div class="code-sync-panel">
         <div>
           <p class="eyebrow">Code Trace</p>
-          <h3>动画步骤对应的操作伪代码</h3>
+          <h3>动画步骤对应的伪代码与 C 代码</h3>
         </div>
-        <ol id="pseudoCode" class="pseudo-code"></ol>
+        <div class="trace-grid">
+          <div>
+            <strong>操作伪代码</strong>
+            <ol id="pseudoCode" class="pseudo-code"></ol>
+          </div>
+          <div>
+            <strong id="codeTraceTitle">关键 C 片段</strong>
+            <pre class="c-trace"><code id="cTrace"></code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -187,7 +196,19 @@
     "if ch is right bracket: top = pop()",
     "if top does not match ch: fail",
     "after scan: stack must be empty"
-  ]
+  ],
+  "codeTrace": {
+    "title": "is_matched",
+    "lines": [
+      "if (is_left(ch)) push(&stack, ch);",
+      "else if (is_right(ch)) {",
+      "    if (is_empty(&stack)) return 0;",
+      "    char left = pop(&stack);",
+      "    if (!match_pair(left, ch)) return 0;",
+      "}",
+      "return is_empty(&stack);"
+    ]
+  }
 };
   </script>
   <script src="../assets/course-visualizer.js"></script>

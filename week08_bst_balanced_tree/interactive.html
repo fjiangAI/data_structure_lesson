@@ -54,9 +54,18 @@
       <div class="code-sync-panel">
         <div>
           <p class="eyebrow">Code Trace</p>
-          <h3>动画步骤对应的操作伪代码</h3>
+          <h3>动画步骤对应的伪代码与 C 代码</h3>
         </div>
-        <ol id="pseudoCode" class="pseudo-code"></ol>
+        <div class="trace-grid">
+          <div>
+            <strong>操作伪代码</strong>
+            <ol id="pseudoCode" class="pseudo-code"></ol>
+          </div>
+          <div>
+            <strong id="codeTraceTitle">关键 C 片段</strong>
+            <pre class="c-trace"><code id="cTrace"></code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -339,7 +348,19 @@
     "if LL/RR: single rotation",
     "if LR/RL: double rotation",
     "return new subtree root"
-  ]
+  ],
+  "codeTrace": {
+    "title": "AVL insert",
+    "lines": [
+      "root = bst_insert(root, key);",
+      "update_height(root);",
+      "int bf = balance_factor(root);",
+      "if (bf > 1 && key \u003c root->left->key) return rotate_right(root);",
+      "if (bf \u003c -1 && key > root->right->key) return rotate_left(root);",
+      "if (bf > 1 && key > root->left->key) { root->left = rotate_left(root->left); return rotate_right(root); }",
+      "if (bf \u003c -1 && key \u003c root->right->key) { root->right = rotate_right(root->right); return rotate_left(root); }"
+    ]
+  }
 };
   </script>
   <script src="../assets/course-visualizer.js"></script>

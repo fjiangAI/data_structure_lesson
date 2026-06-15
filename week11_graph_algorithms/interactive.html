@@ -54,9 +54,18 @@
       <div class="code-sync-panel">
         <div>
           <p class="eyebrow">Code Trace</p>
-          <h3>动画步骤对应的操作伪代码</h3>
+          <h3>动画步骤对应的伪代码与 C 代码</h3>
         </div>
-        <ol id="pseudoCode" class="pseudo-code"></ol>
+        <div class="trace-grid">
+          <div>
+            <strong>操作伪代码</strong>
+            <ol id="pseudoCode" class="pseudo-code"></ol>
+          </div>
+          <div>
+            <strong id="codeTraceTitle">关键 C 片段</strong>
+            <pre class="c-trace"><code id="cTrace"></code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -337,7 +346,20 @@
     "for each edge u -> v",
     "if dist[u] + w \u003c dist[v]: update dist[v] and prev[v]",
     "repeat until all reachable vertices are settled"
-  ]
+  ],
+  "codeTrace": {
+    "title": "Dijkstra relaxation",
+    "lines": [
+      "dist[source] = 0;",
+      "int u = min_unvisited(dist, visited);",
+      "visited[u] = 1;",
+      "for each edge u -> v with weight w:",
+      "    if (dist[u] + w \u003c dist[v]) {",
+      "        dist[v] = dist[u] + w;",
+      "        prev[v] = u;",
+      "    }"
+    ]
+  }
 };
   </script>
   <script src="../assets/course-visualizer.js"></script>

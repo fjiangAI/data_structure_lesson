@@ -54,9 +54,18 @@
       <div class="code-sync-panel">
         <div>
           <p class="eyebrow">Code Trace</p>
-          <h3>动画步骤对应的操作伪代码</h3>
+          <h3>动画步骤对应的伪代码与 C 代码</h3>
         </div>
-        <ol id="pseudoCode" class="pseudo-code"></ol>
+        <div class="trace-grid">
+          <div>
+            <strong>操作伪代码</strong>
+            <ol id="pseudoCode" class="pseudo-code"></ol>
+          </div>
+          <div>
+            <strong id="codeTraceTitle">关键 C 片段</strong>
+            <pre class="c-trace"><code id="cTrace"></code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -352,7 +361,18 @@
     "while table[pos] is occupied and key differs",
     "pos = (pos + 1) % capacity",
     "empty slot means search failure"
-  ]
+  ],
+  "codeTrace": {
+    "title": "hash_search",
+    "lines": [
+      "int pos = hash(key);",
+      "while (table[pos] is occupied) {",
+      "    if (table[pos].key == key) return pos;",
+      "    pos = (pos + 1) % capacity;",
+      "}",
+      "return -1;"
+    ]
+  }
 };
   </script>
   <script src="../assets/course-visualizer.js"></script>

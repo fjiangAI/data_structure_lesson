@@ -10,6 +10,8 @@
   const progressBar = document.getElementById("progressBar");
   const opExplain = document.getElementById("operationExplain");
   const pseudoCode = document.getElementById("pseudoCode");
+  const cTrace = document.getElementById("cTrace");
+  const codeTraceTitle = document.getElementById("codeTraceTitle");
   let index = 0;
   let timer = null;
 
@@ -373,6 +375,16 @@
     pseudoCode.innerHTML = lines.map((line, i) => '<li class="' + (i === active ? "active" : "") + '">' + esc(line) + '</li>').join("");
   }
 
+  function renderCodeTrace(step) {
+    if (!cTrace || !demo.codeTrace) return;
+    const lines = demo.codeTrace.lines || [];
+    const active = Math.max(0, Math.min(lines.length - 1, (step.codeLine || (index + 1)) - 1));
+    if (codeTraceTitle) codeTraceTitle.textContent = demo.codeTrace.title || "关键 C 片段";
+    cTrace.innerHTML = lines.map((line, i) =>
+      '<span class="c-line ' + (i === active ? "active" : "") + '"><span class="ln">' + (i + 1) + '</span><span>' + esc(line) + '</span></span>'
+    ).join("");
+  }
+
   function render() {
     const step = demo.steps[index];
     canvas.innerHTML = renderVisual(step);
@@ -384,6 +396,7 @@
     if (window.gsap) gsap.to(progressBar, { width: progress, duration: .34, ease: "power2.out" });
     else progressBar.style.width = progress;
     renderPseudo(step);
+    renderCodeTrace(step);
     animate();
   }
 

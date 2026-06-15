@@ -1,0 +1,4 @@
+insertion: 3 10 14 14 29 37
+merge: 3 9 10 27 38 43 82
+counting: 1 2 2 3 3 4 8
+

@@ -1,0 +1,4 @@
+bfs: A B C D E
+dist D: 9
+hash 46: found
+

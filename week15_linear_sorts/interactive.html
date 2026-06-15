@@ -54,9 +54,18 @@
       <div class="code-sync-panel">
         <div>
           <p class="eyebrow">Code Trace</p>
-          <h3>动画步骤对应的操作伪代码</h3>
+          <h3>动画步骤对应的伪代码与 C 代码</h3>
         </div>
-        <ol id="pseudoCode" class="pseudo-code"></ol>
+        <div class="trace-grid">
+          <div>
+            <strong>操作伪代码</strong>
+            <ol id="pseudoCode" class="pseudo-code"></ol>
+          </div>
+          <div>
+            <strong id="codeTraceTitle">关键 C 片段</strong>
+            <pre class="c-trace"><code id="cTrace"></code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -435,7 +444,18 @@
     "place elements from right to left for stability",
     "bucket: distribute by value range",
     "radix: stable-sort by each digit from low to high"
-  ]
+  ],
+  "codeTrace": {
+    "title": "linear_sorts",
+    "lines": [
+      "count[value]++",
+      "count[i] += count[i - 1]",
+      "output[--count[value]] = value",
+      "bucket[index(value)].push(value)",
+      "for exp = 1; max / exp > 0; exp *= 10",
+      "stable_counting_pass_by_digit(exp)"
+    ]
+  }
 };
   </script>
   <script src="../assets/course-visualizer.js"></script>

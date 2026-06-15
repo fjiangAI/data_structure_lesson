@@ -54,9 +54,18 @@
       <div class="code-sync-panel">
         <div>
           <p class="eyebrow">Code Trace</p>
-          <h3>动画步骤对应的操作伪代码</h3>
+          <h3>动画步骤对应的伪代码与 C 代码</h3>
         </div>
-        <ol id="pseudoCode" class="pseudo-code"></ol>
+        <div class="trace-grid">
+          <div>
+            <strong>操作伪代码</strong>
+            <ol id="pseudoCode" class="pseudo-code"></ol>
+          </div>
+          <div>
+            <strong id="codeTraceTitle">关键 C 片段</strong>
+            <pre class="c-trace"><code id="cTrace"></code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -361,7 +370,18 @@
     "merge two sorted segments with auxiliary array",
     "heap sort: build max heap",
     "swap heap top to sorted suffix and sift down"
-  ]
+  ],
+  "codeTrace": {
+    "title": "efficient_sorts",
+    "lines": [
+      "p = partition(a, low, high)",
+      "quick_sort(a, low, p - 1); quick_sort(a, p + 1, high);",
+      "merge_sort(left); merge_sort(right); merge(left, right);",
+      "build_max_heap(a)",
+      "swap heap top with suffix boundary",
+      "sift_down(a, 0, heap_size)"
+    ]
+  }
 };
   </script>
   <script src="../assets/course-visualizer.js"></script>

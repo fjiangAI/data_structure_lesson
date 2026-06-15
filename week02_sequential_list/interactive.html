@@ -54,9 +54,18 @@
       <div class="code-sync-panel">
         <div>
           <p class="eyebrow">Code Trace</p>
-          <h3>动画步骤对应的操作伪代码</h3>
+          <h3>动画步骤对应的伪代码与 C 代码</h3>
         </div>
-        <ol id="pseudoCode" class="pseudo-code"></ol>
+        <div class="trace-grid">
+          <div>
+            <strong>操作伪代码</strong>
+            <ol id="pseudoCode" class="pseudo-code"></ol>
+          </div>
+          <div>
+            <strong id="codeTraceTitle">关键 C 片段</strong>
+            <pre class="c-trace"><code id="cTrace"></code></pre>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -226,7 +235,21 @@
     "for i = size; i > index; --i: data[i] = data[i - 1]",
     "data[index] = value",
     "size++"
-  ]
+  ],
+  "codeTrace": {
+    "title": "insert_at",
+    "lines": [
+      "int insert_at(SeqList *list, int index, int value) {",
+      "    if (index \u003c 0 || index > list->size) return 0;",
+      "    if (list->size == list->capacity) reserve(list, list->capacity * 2);",
+      "    for (int i = list->size; i > index; --i)",
+      "        list->data[i] = list->data[i - 1];",
+      "    list->data[index] = value;",
+      "    list->size++;",
+      "    return 1;",
+      "}"
+    ]
+  }
 };
   </script>
   <script src="../assets/course-visualizer.js"></script>

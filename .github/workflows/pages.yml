@@ -24,27 +24,29 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v6.0.3
 
       - name: Configure Pages
-        uses: actions/configure-pages@v6
+        uses: actions/configure-pages@v6.0.0
+        with:
+          enablement: true
 
       - name: Prepare static site
         shell: bash
         run: |
           rm -rf _site
           mkdir -p _site
-          cp -R index.html README.md AI_LEARNING_GUIDE.md CONTRIBUTING.md Makefile .editorconfig .gitattributes assets onlineweb test assignments teacher_guide tools week* _site/
+          cp -R index.html README.md STUDENT_GUIDE.md AI_LEARNING_GUIDE.md CONTRIBUTING.md syllabus.md Makefile Dockerfile .editorconfig .gitattributes assets onlineweb test assignments teacher_guide review tools week* _site/
           if [ -f LICENSE ]; then cp LICENSE _site/; fi
           touch _site/.nojekyll
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@v5.0.0
         with:
           path: _site
           include-hidden-files: true
 
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@v5.0.0
 

@@ -32,8 +32,13 @@ def main():
         "assets/course-visualizer.css",
         "assets/course-visualizer.js",
         "AI_LEARNING_GUIDE.md",
+        "STUDENT_GUIDE.md",
+        "syllabus.md",
         "CONTRIBUTING.md",
         "Makefile",
+        "Dockerfile",
+        ".devcontainer/devcontainer.json",
+        ".devcontainer/Dockerfile",
     ]
     for rel in required_root:
         if not (ROOT / rel).exists():
@@ -55,14 +60,36 @@ def main():
             fail(f"{week.name} demo has fewer than 3 steps")
         if not demo.get("pseudocode"):
             fail(f"{week.name} demo is missing pseudocode")
+        code_trace = demo.get("codeTrace") or {}
+        if not code_trace.get("lines"):
+            fail(f"{week.name} demo is missing C code trace")
 
     assignment_files = sorted((ROOT / "assignments").glob("lab*.md"))
     if len(assignment_files) < 6:
         fail("Expected at least 6 assignment lab files")
 
+    lab_dirs = sorted((ROOT / "assignments").glob("lab??_*"))
+    lab_dirs = [p for p in lab_dirs if p.is_dir()]
+    if len(lab_dirs) < 6:
+        fail("Expected at least 6 runnable assignment lab folders")
+    for lab in lab_dirs:
+        if not (lab / "README.md").exists():
+            fail(f"Missing {lab.relative_to(ROOT)}/README.md")
+        if not (lab / "expected_output.txt").exists():
+            fail(f"Missing {lab.relative_to(ROOT)}/expected_output.txt")
+        starters = sorted((lab / "starter").glob("*.c"))
+        if len(starters) != 1:
+            fail(f"Expected exactly one starter C file in {lab.relative_to(ROOT)}/starter")
+        if not (lab / "tests" / "test_lab.py").exists():
+            fail(f"Missing {lab.relative_to(ROOT)}/tests/test_lab.py")
+
     teacher_files = sorted((ROOT / "teacher_guide").glob("*.md"))
     if len(teacher_files) < 3:
         fail("Expected teacher_guide markdown files")
+
+    review_files = sorted((ROOT / "review").glob("*.md"))
+    if len(review_files) < 5:
+        fail("Expected review markdown files")
 
     print("Course structure check passed.")
 

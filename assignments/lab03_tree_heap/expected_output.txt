@@ -1,0 +1,4 @@
+preorder: A B D E C F
+avl-root: 20
+heap-pop: 3 7 12
+
