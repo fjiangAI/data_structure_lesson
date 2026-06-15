@@ -1872,6 +1872,110 @@ function conceptMap(week) {
   return week.topics.map((topic, i) => `${i + 1}. ${topic}`).join("\n");
 }
 
+function structureStage(week) {
+  if (week.id === 1) {
+    return {
+      name: "共同语言",
+      image: "从变量、字段和操作开始，建立“结构 + 操作 + 复杂度”的分析框架。",
+      relation: "本周不急着进入某个结构，而是让学生先看到：程序中的对象必须被组织起来，操作才有可分析的边界。",
+      question: "同样是 1000 个学生记录，为什么“怎么放”会影响“怎么找、怎么改、怎么排”？"
+    };
+  }
+  if (week.id === 2) {
+    return {
+      name: "连续的线",
+      image: "顺序表把元素排成连续线段，位置就是关系，地址计算就是访问能力。",
+      relation: "它是最接近硬件内存的线性结构，随机访问强，但中间插入删除要搬移元素。",
+      question: "为什么连续性既带来 O(1) 按位访问，也带来 O(n) 移动代价？"
+    };
+  }
+  if (week.id === 3) {
+    return {
+      name: "不连续的线",
+      image: "链表把线性关系从物理相邻转移到指针连接，结点可以散落在内存中。",
+      relation: "它放弃随机访问，换来局部插入删除的灵活性。理解链表，就是理解“关系可以被显式保存”。",
+      question: "为什么链表插入只改两条指针，却仍然常常需要 O(n) 找前驱？"
+    };
+  }
+  if (week.id >= 4 && week.id <= 6) {
+    return {
+      name: "受限线与序列模式",
+      image: "栈、队列和串仍是线性对象，但通过限制操作端点或强化序列匹配，表达更具体的行动规则。",
+      relation: "限制不是削弱，而是换来更强的不变量：最近未完成、先来先服务、已匹配前后缀。",
+      question: "为什么少开放一些操作，反而让算法更容易正确？"
+    };
+  }
+  if (week.id >= 7 && week.id <= 9) {
+    return {
+      name: "分叉的树",
+      image: "树把一条线扩展为层次结构，一个对象可以拥有多个后继，递归成为自然表达方式。",
+      relation: "二叉树、BST、AVL 和堆都在控制树形关系：遍历回答“如何访问全部”，平衡回答“如何控制高度”，堆回答“如何快速取得最优”。",
+      question: "树的高度为什么常常比结点总数更能决定操作代价？"
+    };
+  }
+  if (week.id >= 10 && week.id <= 11) {
+    return {
+      name: "更复杂的图",
+      image: "图取消了层次限制，用顶点和边描述任意多对多关系。",
+      relation: "图算法本质上是在关系网络中传播状态：visited、dist、prev、indegree 都是对关系进展的记录。",
+      question: "为什么图算法一旦忘记 visited 或 dist 的含义，就很容易变成背步骤？"
+    };
+  }
+  if (week.id === 12) {
+    return {
+      name: "面向定位的索引",
+      image: "查找结构把“在哪里”变成核心问题，通过有序性、映射或树高控制定位成本。",
+      relation: "顺序查找、二分、哈希和搜索树分别代表无组织、有序组织、映射组织和动态有序组织。",
+      question: "为什么哈希表平均很快，却仍然需要讨论装载因子、冲突和最坏情况？"
+    };
+  }
+  if (week.id >= 13 && week.id <= 15) {
+    return {
+      name: "面向重排的算法",
+      image: "排序不是新结构，而是在数组或记录序列上重建顺序关系。",
+      relation: "排序把比较、移动、稳定性和额外空间放在一起考察，是结构选择和操作代价的集中训练。",
+      question: "为什么没有一种排序在所有输入、空间、稳定性要求下都最优？"
+    };
+  }
+  return {
+    name: "综合结构设计",
+    image: "真实系统往往不是只用一种结构，而是组合顺序存储、索引、排序和图式关系。",
+    relation: "综合设计的核心是维护多个结构之间的一致性，让每个操作都更新所有相关视图。",
+    question: "如果一个系统同时有顺序表和哈希索引，删除记录时最容易漏掉什么？"
+  };
+}
+
+function llmEraReflection(week) {
+  const stage = structureStage(week);
+  return `大模型时代，学习 ${week.shortTitle} 的目的不是和模型比赛背代码，而是拥有判断模型输出的结构能力。学生需要能看出模型有没有维护 ${stage.name} 的不变量，能不能处理边界，复杂度前提是否成立，测试是否覆盖了最坏情况。知道得越多，越能把模型当成工具，而不是把模型输出当成事实。`;
+}
+
+function deepConnectionBlock(week, prev, next) {
+  const stage = structureStage(week);
+  const prevText = prev ? `上一周的 ${prev.shortTitle} 提供了对照：${structureStage(prev).relation}` : "这是全课程的概念入口，后续所有结构都要回到“对象、关系、操作、代价”四件事。";
+  const nextText = next ? `下一周的 ${next.shortTitle} 会继续推进：${structureStage(next).image}` : "课程最后要回到综合设计：把多个结构组合起来，并证明每个操作后系统仍然一致。";
+  return `
+## 结构演进中的位置
+
+本周处在课程主线的“${stage.name}”阶段。
+
+${stage.image}
+
+${stage.relation}
+
+和前后内容的关系：
+
+- ${prevText}
+- ${nextText}
+
+本周要反复追问的问题是：${stage.question}
+
+## 大模型时代为什么还要学这一章
+
+${llmEraReflection(week)}
+`;
+}
+
 function lectureContent(week, prev, next) {
   const nav = [
     prev ? `上一周：${prev.title}` : "上一周：无，本周建立课程共同语言",
@@ -1888,6 +1992,8 @@ ${week.theme}
 ${nav}
 
 本课程把数据结构看作“数据的组织形式”，把算法看作“作用在组织形式上的操作过程”。当组织形式变了，同一个操作的代价、边界条件和程序写法都会变化。
+
+${deepConnectionBlock(week, prev, next)}
 
 ## 学习目标
 
@@ -2990,6 +3096,25 @@ function interactiveHtml(week) {
           </div>
         </div>
       </div>
+      <div id="customPanel" class="custom-lab-panel">
+        <div>
+          <p class="eyebrow">Input Lab</p>
+          <h3>用自己的数据重放操作</h3>
+          <p id="customHint">输入一组小规模整数，观察结构和操作步骤如何变化。</p>
+        </div>
+        <div class="custom-controls">
+          <label>
+            数据
+            <input id="customInput" type="text" value="12, 7, 4, 20, 15" aria-label="自定义数据">
+          </label>
+          <label>
+            目标/参数
+            <input id="customTarget" type="text" value="15" aria-label="目标或参数">
+          </label>
+          <button id="applyCustom" class="primary-btn" type="button">生成演示</button>
+          <button id="restoreDemo" class="ghost-btn" type="button">恢复默认</button>
+        </div>
+      </div>
     </section>
 
     <section class="operation-section">
@@ -3282,8 +3407,8 @@ function readmeContent() {
 - \`onlineweb/viewer.html\` 会把 Markdown 讲义、练习和 C 源码渲染成更适合阅读的网页，并为 C 代码提供语法高亮与行号。
 - \`interactive.html\` 和 \`onlineweb/\` 使用 GSAP 驱动步骤动画，不依赖前端构建工具，可直接托管到 GitHub Pages。
 - 每个交互演示页包含“动画步骤对应伪代码与关键 C 片段”面板，帮助学生把结构变化映射到实现思路和代码位置。
-- \`assignments/\` 提供 6 个跨周实验模板，覆盖线性表、栈队列串、树堆、图查找、排序和综合设计。
-- \`teacher_guide/\` 提供课堂组织建议和评分 Rubric，便于教师和助教使用。
+- \`assignments/\` 提供 6 个跨周实验模板、可运行 starter、public test 和统一测试运行器，覆盖线性表、栈队列串、树堆、图查找、排序和综合设计。
+- \`teacher_guide/\` 提供课堂组织建议、评分 Rubric 和 16 周逐周教案，便于教师和助教使用。
 - \`STUDENT_GUIDE.md\`、\`syllabus.md\` 和 \`review/\` 分别提供学生入门、课程日历和复习包。
 - \`.github/workflows/ci.yml\` 会检查课程结构并编译所有 C 示例，提升仓库维护可靠性。
 
@@ -3303,6 +3428,34 @@ function readmeContent() {
 - 查找结构强调关键字定位。
 - 排序算法强调数据重排的代价和规律。
 - 算法分析让我们能判断一个方案是否经得起规模增长。
+
+## 课程主线：从点到系统
+
+本课程按“关系表达能力逐步增强”的路线组织，而不是把章节当成彼此独立的知识点：
+
+1. **点**：变量和结构体字段让对象有了边界。
+2. **连续的线**：顺序表把元素放进连续空间，用位置表达线性关系。
+3. **不连续的线**：链表把线性关系交给指针，物理位置不再等于逻辑关系。
+4. **受限线与序列模式**：栈、队列、串通过限制操作或复用匹配信息获得更强不变量。
+5. **分叉的树**：树和二叉树表达层次关系，遍历、平衡和堆序都围绕树高展开。
+6. **复杂的图**：图表达任意多对多关系，算法本质是在关系网络中传播状态。
+7. **索引与定位**：查找结构把“如何快速定位对象”作为核心目标。
+8. **重排与优化**：排序算法重新组织序列关系，比较移动成本、稳定性和空间代价。
+9. **综合系统**：真实程序通常组合多种结构，并要求每个操作后所有结构保持一致。
+
+每一章都要回答同一组问题：对象是什么，关系在哪里，操作改了什么，不变量如何保持，复杂度从哪一步推出来。
+
+## 大模型时代的学习目标
+
+大模型可以快速生成链表、树、哈希表和排序代码，但这并不削弱数据结构的重要性。相反，学生越理解结构，越能驾驭模型：
+
+- 能看出模型代码有没有维护结构不变量。
+- 能识别空结构、满结构、越界、重复关键字、内存释放等边界漏洞。
+- 能判断复杂度结论是否有前提，例如平均、最坏、装载因子、输入有序性。
+- 能主动让模型生成测试，而不是只让模型生成答案。
+- 能把模型输出改造成符合自己接口、数据规模和工程约束的实现。
+
+所以本课程强调“会用 AI，但不被 AI 替代理解”。最终目标不是手背一百段代码，而是掌握组织数据、设计操作、验证正确性和评估代价的能力。
 
 ## 项目结构
 
@@ -3721,6 +3874,7 @@ function onlineIndex() {
         <a href="viewer.html?src=../review/README.md"><strong>复习包</strong><span>期中、期末与复杂度速查</span></a>
         <a href="viewer.html?src=../AI_LEARNING_GUIDE.md"><strong>AI 学习规范</strong><span>提示词、核查与使用记录</span></a>
         <a href="viewer.html?src=../teacher_guide/README.md"><strong>教师指南</strong><span>课堂组织与评分 Rubric</span></a>
+        <a href="viewer.html?src=../teacher_guide/lesson_plans/README.md"><strong>教师教案</strong><span>16 周逐周讲解脚本与课堂活动</span></a>
       </div>
     </section>
 
@@ -5026,6 +5180,46 @@ button {
   padding: 16px;
 }
 .code-sync-panel h3 { font-size: 20px; margin: 0; }
+.custom-lab-panel {
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: end;
+}
+.custom-lab-panel h3 { font-size: 20px; margin: 0; }
+.custom-lab-panel p { margin: 8px 0 0; color: var(--muted); }
+.custom-lab-panel.is-disabled {
+  opacity: .72;
+  background: #f8fafc;
+}
+.custom-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr) auto auto;
+  gap: 10px;
+  align-items: end;
+}
+.custom-controls label {
+  display: grid;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 900;
+}
+.custom-controls input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: 14px Consolas, "Cascadia Mono", "Courier New", monospace;
+  color: var(--ink);
+  background: #fbfdfc;
+}
 .trace-grid {
   display: grid;
   grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
@@ -5400,7 +5594,7 @@ button {
   font-weight: 900;
 }
 @media (max-width: 920px) {
-  .week-hero-grid, .stage-grid, .code-sync-panel, .trace-grid, .traversal-layout, .search-panels { grid-template-columns: 1fr; }
+  .week-hero-grid, .stage-grid, .code-sync-panel, .custom-lab-panel, .custom-controls, .trace-grid, .traversal-layout, .search-panels { grid-template-columns: 1fr; }
   .stage-header { flex-direction: column; }
   .visual-canvas { min-height: 360px; }
   .queue-ring { width: min(100%, 340px); }
@@ -5447,6 +5641,14 @@ function visualizerJs() {
   const pseudoCode = document.getElementById("pseudoCode");
   const cTrace = document.getElementById("cTrace");
   const codeTraceTitle = document.getElementById("codeTraceTitle");
+  const customPanel = document.getElementById("customPanel");
+  const customInput = document.getElementById("customInput");
+  const customTarget = document.getElementById("customTarget");
+  const applyCustom = document.getElementById("applyCustom");
+  const restoreDemo = document.getElementById("restoreDemo");
+  const customHint = document.getElementById("customHint");
+  const originalSteps = JSON.parse(JSON.stringify(demo.steps || []));
+  const originalScenario = demo.scenario;
   let index = 0;
   let timer = null;
 
@@ -5820,6 +6022,216 @@ function visualizerJs() {
     ).join("");
   }
 
+  function parseNumbers(text, fallback) {
+    const values = String(text || "").split(/[，,\\s]+/)
+      .map((item) => Number(item.trim()))
+      .filter((item) => Number.isFinite(item))
+      .slice(0, 12);
+    return values.length ? values : fallback.slice();
+  }
+
+  function setSteps(steps, scenario) {
+    if (!steps || !steps.length) return;
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+      document.getElementById("playSteps").textContent = "自动播放";
+    }
+    demo.steps = steps;
+    if (scenario) demo.scenario = scenario;
+    index = 0;
+    render();
+  }
+
+  function customArraySteps(nums, targetText) {
+    const pair = String(targetText || "").split(":");
+    let insertIndex = Number(pair[0]);
+    let value = Number(pair.length > 1 ? pair[1] : targetText);
+    if (!Number.isInteger(insertIndex)) insertIndex = Math.floor(nums.length / 2);
+    if (!Number.isFinite(value)) value = 99;
+    insertIndex = Math.max(0, Math.min(insertIndex, nums.length));
+    const capacity = Math.max(6, nums.length + 2);
+    const cells = nums.concat(Array(capacity - nums.length).fill("_"));
+    const steps = [{
+      title: "自定义顺序表初始状态",
+      cells: cells.slice(),
+      size: nums.length,
+      capacity,
+      active: [insertIndex],
+      markers: { index: insertIndex },
+      codeLine: 1,
+      text: "准备在下标 " + insertIndex + " 插入 " + value + "。连续存储要求先给新元素腾出位置。"
+    }];
+    for (let j = nums.length - 1; j >= insertIndex; --j) {
+      cells[j + 1] = cells[j];
+      steps.push({
+        title: "后移 a[" + j + "]",
+        cells: cells.slice(),
+        size: nums.length,
+        capacity,
+        active: [j, j + 1],
+        markers: { j, target: insertIndex },
+        codeLine: 3,
+        text: "把下标 " + j + " 的元素复制到 " + (j + 1) + "。必须从后往前移动，避免覆盖还没搬走的数据。"
+      });
+    }
+    cells[insertIndex] = value;
+    steps.push({
+      title: "写入新元素并更新 size",
+      cells: cells.slice(),
+      size: nums.length + 1,
+      capacity,
+      active: [insertIndex],
+      markers: { inserted: insertIndex },
+      codeLine: 4,
+      text: "写入 " + value + " 后，逻辑长度增加。结构不变量仍是下标 0 到 size-1 保存有效元素。"
+    });
+    return steps;
+  }
+
+  function customQueueSteps(nums) {
+    const capacity = Math.max(6, Math.min(10, nums.length + 2));
+    const cells = Array(capacity).fill("_");
+    let front = 0;
+    let rear = 0;
+    let size = 0;
+    const steps = [{ title: "自定义空循环队列", cells: cells.slice(), front, rear, active: [0], op: "front == rear", codeLine: 1, text: "front 与 rear 相同表示队空。" }];
+    function enqueue(value) {
+      if ((rear + 1) % capacity === front) return;
+      const write = rear;
+      cells[write] = value;
+      rear = (rear + 1) % capacity;
+      size += 1;
+      steps.push({ title: "enqueue " + value, cells: cells.slice(), front, rear, active: [write, rear], op: "rear = (rear + 1) % capacity", codeLine: 2, text: "写入 rear 原位置，再通过取模移动 rear。" });
+    }
+    function dequeue() {
+      if (!size) return;
+      const read = front;
+      cells[read] = "_";
+      front = (front + 1) % capacity;
+      size -= 1;
+      steps.push({ title: "dequeue", cells: cells.slice(), front, rear, active: [read, front], op: "front = (front + 1) % capacity", codeLine: 3, text: "出队不搬移元素，只移动 front，释放原队头槽位。" });
+    }
+    const first = nums.slice(0, Math.min(4, capacity - 2));
+    const rest = nums.slice(first.length);
+    first.forEach(enqueue);
+    dequeue();
+    dequeue();
+    rest.forEach(enqueue);
+    steps.push({ title: "队满条件检查", cells: cells.slice(), front, rear, active: [rear, front], op: "(rear + 1) % capacity == front", codeLine: 4, text: "循环队列的关键是把线性数组当成圆环，并用一个空槽区分队满和队空。" });
+    return steps;
+  }
+
+  function customSearchSteps(nums, targetText) {
+    const array = nums.slice().sort((a, b) => a - b);
+    const target = Number.isFinite(Number(targetText)) ? Number(targetText) : array[Math.floor(array.length / 2)];
+    let low = 0;
+    let high = array.length - 1;
+    const checked = [];
+    const steps = [];
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      checked.push(mid);
+      const discarded = [];
+      for (let i = 0; i < array.length; ++i) {
+        if (i < low || i > high) discarded.push(i);
+      }
+      steps.push({
+        title: "检查 mid=" + mid,
+        mode: "binary",
+        array,
+        target,
+        low,
+        mid,
+        high,
+        checked: checked.slice(),
+        discarded,
+        active: [mid],
+        probe: checked.map((i) => "a[" + i + "]=" + array[i]),
+        codeLine: 3,
+        text: "在有序数组中比较 a[" + mid + "]=" + array[mid] + " 与目标 " + target + "。"
+      });
+      if (array[mid] === target) {
+        steps.push({ title: "查找成功", mode: "binary", array, target, low, mid, high, checked: checked.slice(), active: [mid], probe: checked.map((i) => "a[" + i + "]=" + array[i]), codeLine: 4, text: "命中目标，返回下标 " + mid + "。" });
+        return steps;
+      }
+      if (array[mid] < target) low = mid + 1;
+      else high = mid - 1;
+    }
+    steps.push({ title: "查找失败", mode: "binary", array, target, low, mid: -1, high, checked: checked.slice(), active: [], probe: checked.map((i) => "a[" + i + "]=" + array[i]), codeLine: 5, text: "区间为空，目标不存在。二分查找的前提是数组有序。" });
+    return steps;
+  }
+
+  function customSortSteps(nums) {
+    const values = nums.slice().map((n) => Math.max(1, Math.floor(n)));
+    const steps = [{ title: "自定义插入排序初始状态", algorithm: "insertion sort", values: values.slice(), active: [0], sortedPrefix: 1, codeLine: 1, text: "把第一个元素视为有序前缀。" }];
+    for (let i = 1; i < values.length; ++i) {
+      const key = values[i];
+      let j = i - 1;
+      steps.push({ title: "取 key=" + key, algorithm: "insertion sort", values: values.slice(), active: [i], sortedPrefix: i, codeLine: 1, text: "准备把 key 插入到前面的有序区间。" });
+      while (j >= 0 && values[j] > key) {
+        values[j + 1] = values[j];
+        steps.push({ title: "右移 " + values[j], algorithm: "insertion sort", values: values.slice(), active: [j, j + 1], sortedPrefix: i, codeLine: 2, text: "较大的元素右移一格，为 key 腾位置。" });
+        j -= 1;
+      }
+      values[j + 1] = key;
+      steps.push({ title: "插入 key", algorithm: "insertion sort", values: values.slice(), active: [j + 1], sortedPrefix: i + 1, codeLine: 3, text: "key 放入正确位置，已排序前缀扩大。" });
+    }
+    return steps;
+  }
+
+  function customCountingSteps(nums) {
+    const input = nums.map((n) => Math.max(0, Math.min(9, Math.floor(n))));
+    const counts = {};
+    const steps = [{ title: "自定义计数排序输入", algorithm: "counting sort", input, counts: {}, output: [], active: [], codeLine: 1, text: "计数排序要求关键字范围较小，这里把输入限制在 0 到 9。" }];
+    input.forEach((value) => {
+      counts[value] = (counts[value] || 0) + 1;
+      steps.push({ title: "统计 " + value, algorithm: "counting sort", input, counts: { ...counts }, output: [], active: [String(value)], codeLine: 1, text: "count[" + value + "] 增加，记录这个关键字出现次数。" });
+    });
+    const output = [];
+    Object.keys(counts).map(Number).sort((a, b) => a - b).forEach((key) => {
+      for (let i = 0; i < counts[key]; ++i) output.push(key);
+      steps.push({ title: "输出关键字 " + key, algorithm: "counting sort", input, counts: { ...counts }, output: output.slice(), active: ["output", String(key)], codeLine: 3, text: "按照关键字从小到大回填输出数组。" });
+    });
+    return steps;
+  }
+
+  function setupCustomPanel() {
+    if (!customPanel) return;
+    const supported = ["array", "cqueue", "search_lab", "sort", "counting"].includes(demo.kind);
+    const hints = {
+      array: "数据填顺序表初始元素；参数填 index:value，例如 2:99。",
+      cqueue: "数据填一串入队元素；演示会先入队、出队，再继续入队观察回绕。",
+      search_lab: "数据填数组，系统会排序后做二分；参数填要查找的目标。",
+      sort: "数据填待排序序列；演示使用插入排序逐步重放。",
+      counting: "数据填 0 到 9 的整数；演示计数排序的统计和回填。"
+    };
+    if (customHint) customHint.textContent = supported ? hints[demo.kind] : "本周结构不适合用简单数字序列参数化，建议使用默认演示理解不变量。";
+    customPanel.classList.toggle("is-disabled", !supported);
+    if (!supported) {
+      if (applyCustom) applyCustom.disabled = true;
+      if (customInput) customInput.disabled = true;
+      if (customTarget) customTarget.disabled = true;
+      return;
+    }
+    if (demo.kind === "array") customTarget.value = "2:99";
+    if (demo.kind === "cqueue") customInput.value = "10,20,30,40,50,60,70";
+    if (demo.kind === "search_lab") { customInput.value = "3,7,11,19,24,31,42"; customTarget.value = "24"; }
+    if (demo.kind === "sort") customInput.value = "29,10,14,37,14,3";
+    if (demo.kind === "counting") customInput.value = "4,2,2,8,3,3,1";
+    applyCustom.addEventListener("click", () => {
+      const nums = parseNumbers(customInput.value, [12, 7, 4, 20, 15]);
+      let steps = null;
+      if (demo.kind === "array") steps = customArraySteps(nums, customTarget.value);
+      if (demo.kind === "cqueue") steps = customQueueSteps(nums);
+      if (demo.kind === "search_lab") steps = customSearchSteps(nums, customTarget.value);
+      if (demo.kind === "sort") steps = customSortSteps(nums);
+      if (demo.kind === "counting") steps = customCountingSteps(nums);
+      setSteps(steps, "自定义输入实验：用学生输入的数据重新生成操作步骤。");
+    });
+    restoreDemo.addEventListener("click", () => setSteps(JSON.parse(JSON.stringify(originalSteps)), originalScenario));
+  }
+
   function render() {
     const step = demo.steps[index];
     canvas.innerHTML = renderVisual(step);
@@ -5859,6 +6271,7 @@ function visualizerJs() {
       if (window.gsap) gsap.fromTo(opExplain, { x: -8, opacity: .65 }, { x: 0, opacity: 1, duration: .25 });
     });
   });
+  setupCustomPanel();
   render();
 })();
 `;
@@ -6048,7 +6461,7 @@ function makefileContent() {
   return `
 PYTHON ?= python3
 
-.PHONY: check compile examples clean
+.PHONY: check compile examples test-labs clean
 
 check:
 \t$(PYTHON) tools/check_course_structure.py
@@ -6058,6 +6471,9 @@ check:
 
 compile examples:
 \t$(PYTHON) tools/compile_examples.py --require-compiler
+
+test-labs:
+\t$(PYTHON) tools/run_lab_tests.py --all --expect-starter-fail
 
 clean:
 \trm -rf build verification_screenshots
@@ -6233,6 +6649,12 @@ def main():
     lab_dirs = [p for p in lab_dirs if p.is_dir()]
     if len(lab_dirs) < 6:
         fail("Expected at least 6 runnable assignment lab folders")
+    if not (ROOT / "assignments" / "labs.json").exists():
+        fail("Missing assignments/labs.json")
+    if not (ROOT / "assignments" / "lab_testing_guide.md").exists():
+        fail("Missing assignments/lab_testing_guide.md")
+    if not (ROOT / "tools" / "run_lab_tests.py").exists():
+        fail("Missing tools/run_lab_tests.py")
     for lab in lab_dirs:
         if not (lab / "README.md").exists():
             fail(f"Missing {lab.relative_to(ROOT)}/README.md")
@@ -6247,6 +6669,9 @@ def main():
     teacher_files = sorted((ROOT / "teacher_guide").glob("*.md"))
     if len(teacher_files) < 3:
         fail("Expected teacher_guide markdown files")
+    lesson_plan_files = sorted((ROOT / "teacher_guide" / "lesson_plans").glob("week??_lesson_plan.md"))
+    if len(lesson_plan_files) != 16:
+        fail(f"Expected 16 teacher lesson plans, found {len(lesson_plan_files)}")
 
     review_files = sorted((ROOT / "review").glob("*.md"))
     if len(review_files) < 5:
@@ -6398,6 +6823,7 @@ REQUIRED = [
     "assets/course-visualizer.js",
     "assignments/README.md",
     "teacher_guide/README.md",
+    "teacher_guide/lesson_plans/README.md",
     "review/README.md",
     "AI_LEARNING_GUIDE.md",
     "STUDENT_GUIDE.md",
@@ -6517,7 +6943,7 @@ function teacherGuideReadme() {
 
 建议使用方式：
 
-1. 每周课前阅读对应 \`week*/lecture.md\` 和 [week_facilitation.md](week_facilitation.md)。
+1. 每周课前阅读对应 \`week*/lecture.md\`、[week_facilitation.md](week_facilitation.md) 和 [lesson_plans/](lesson_plans/) 中的教案。
 2. 课堂中使用 \`interactive.html\` 做状态演示，要求学生同步写出操作伪代码。
 3. 每 2 到 3 周布置一次 [assignments/](../assignments/) 中的实验。
 4. 批改编程题时参考 [rubrics.md](rubrics.md)。
@@ -6530,6 +6956,142 @@ function teacherGuideReadme() {
 - 复杂度必须从操作步骤推导，不只背结论。
 - C 代码必须关注边界、失败返回、内存释放和测试证据。
 `;
+}
+
+function teacherLessonPlanIndex() {
+  const rows = weeks.map((week) => {
+    const file = `week${String(week.id).padStart(2, "0")}_lesson_plan.md`;
+    return `| ${weekName(week)} | ${week.title} | [教案](${file}) | ${structureStage(week).name} |`;
+  }).join("\n");
+  return `
+# 每周教师教案索引
+
+本目录提供 16 周逐周教案。教案不是简单复述讲义，而是帮助教师把“结构是什么、操作如何维护结构、复杂度如何从操作推出、学生哪里容易错、如何结合大模型教学”组织成课堂过程。
+
+| 周次 | 主题 | 教案 | 结构演进阶段 |
+|---|---|---|---|
+${rows}
+
+使用建议：
+
+1. 课前先看“本周教学意图”和“板书主线”，把课堂节奏压在结构不变量上。
+2. 课堂中至少让学生手推一次“核心操作讲解脚本”。
+3. 每周保留 8 到 12 分钟讨论“LLM 辅助教学提醒”，训练学生审查模型输出。
+4. 课后用“形成性评价”快速判断学生是否真正掌握结构，而不是只会背代码。
+`;
+}
+
+function teacherLessonPlanContent(week, prev, next) {
+  const stage = structureStage(week);
+  const operations = week.operations.map((op, i) => `${i + 1}. ${op[0]}：${op[1]}，复杂度 ${op[2]}。`).join("\n");
+  const board = [
+    `对象：${week.topics.slice(0, 2).join("、")}`,
+    `关系：${stage.image}`,
+    `不变量：${week.adt}`,
+    `操作：${week.operations.slice(0, 3).map((op) => op[0]).join("、")}`,
+    "代价：从字段读写、循环次数和递归层数推出"
+  ].join("\n");
+  const prevLink = prev ? `承接 ${weekName(prev)} ${prev.shortTitle}：${structureStage(prev).relation}` : "从课程总观念进入：程序不是语句堆砌，而是组织形式和操作规则的组合。";
+  const nextLink = next ? `导向 ${weekName(next)} ${next.shortTitle}：${structureStage(next).image}` : "导向综合复习：能为真实问题组合多种结构，并维护一致性。";
+  return `
+# ${weekName(week)} ${week.title} 教师教案
+
+## 本周教学意图
+
+本周不是让学生记住 ${week.shortTitle} 的定义，而是让学生看清它在“点 -> 连续线 -> 不连续线 -> 受限线 -> 树 -> 图 -> 索引 -> 重排 -> 综合系统”这条主线中的位置。
+
+阶段定位：${stage.name}
+
+${stage.relation}
+
+## 课前准备
+
+- 预读学生讲义：[../../${week.folder}/lecture.md](../../${week.folder}/lecture.md)。
+- 打开交互演示：[../../${week.folder}/interactive.html](../../${week.folder}/interactive.html)。
+- 准备 C 示例：[../../${week.folder}/${cFileFor(week)}](../../${week.folder}/${cFileFor(week)})。
+- 选 1 个核心操作让学生课堂手推，建议选择：${week.operations[0][0]}。
+
+## 与前后知识的连接
+
+- ${prevLink}
+- ${nextLink}
+
+教师讲解时应不断提醒学生：结构复杂度增加，不是为了炫技，而是为了表达更复杂的关系或降低某些操作代价。
+
+## 板书主线
+
+\`\`\`text
+${board}
+\`\`\`
+
+## 两节课教学流程
+
+### 第 1 节：结构是什么
+
+1. 用问题场景引入：${stage.question}
+2. 画逻辑结构图，只画对象和关系，暂时不写代码。
+3. 把逻辑结构翻译为 C 字段，逐个解释字段责任。
+4. 让学生说出本周结构的不变量。
+5. 使用交互动画走 2 到 4 步，要求学生记录每一步读写了哪些字段。
+
+### 第 2 节：操作如何维护结构
+
+1. 从 C 示例中找到结构体定义、初始化、核心操作和销毁函数。
+2. 手推核心操作，要求学生写出失败条件。
+3. 根据移动次数、指针跳转次数、递归层数或边扫描次数推导复杂度。
+4. 给一段有缺陷的模型生成代码，让学生指出不变量被破坏的位置。
+5. 用 1 道随堂题收束：让学生把操作、复杂度和边界条件写在同一张表中。
+
+## 核心操作讲解脚本
+
+${operations}
+
+讲解顺序建议：
+
+1. 先问“操作前结构满足什么不变量”。
+2. 再问“为了完成操作，必须读哪些字段”。
+3. 接着问“写字段的顺序能否交换”。
+4. 最后问“操作后如何证明不变量仍然成立”。
+
+## 常见学生误区
+
+- 把结构名当成答案，不解释对象之间的关系。
+- 只写正常输入路径，不写空、满、越界、重复或不存在的情况。
+- 把复杂度结论背下来，却不能指出循环变量或递归规模。
+- 看到 LLM 给出可编译代码就停止检查，不验证结构不变量。
+
+## 课堂活动
+
+- 3 分钟：学生独立画出 5 个元素的小结构图。
+- 5 分钟：两人一组互相检查字段含义。
+- 8 分钟：全班一起推演 ${week.operations[0][0]}。
+- 6 分钟：让 LLM 生成一个错误版本，学生设计能暴露错误的测试。
+
+## LLM 辅助教学提醒
+
+${llmEraReflection(week)}
+
+建议教师不要简单禁止学生使用大模型，而是要求他们提交“模型输出审查记录”：模型假设了什么、漏了什么边界、复杂度前提是否正确、自己如何修改。
+
+## 形成性评价
+
+学生本周真正掌握的标志：
+
+- 能用一句话说清 ${week.shortTitle} 保存了什么关系。
+- 能画出操作前后结构图。
+- 能写出核心操作的 C 风格接口。
+- 能解释至少一个最坏情况。
+- 能指出一段模型生成代码中最可能出错的地方。
+`;
+}
+
+function teacherLessonPlanFiles() {
+  const files = [["teacher_guide/lesson_plans/README.md", teacherLessonPlanIndex()]];
+  weeks.forEach((week, index) => {
+    const file = `teacher_guide/lesson_plans/week${String(week.id).padStart(2, "0")}_lesson_plan.md`;
+    files.push([file, teacherLessonPlanContent(week, weeks[index - 1], weeks[index + 1])]);
+  });
+  return files;
 }
 
 function teacherWeekFacilitation() {
@@ -6611,6 +7173,8 @@ function assignmentsReadme() {
 
 - \`labXX_*.md\`：教师布置作业时可直接引用的完整要求。
 - \`labXX_*/\`：学生可运行 starter，包含 \`starter/*.c\`、\`expected_output.txt\` 和 \`tests/test_lab.py\`。
+- [lab_testing_guide.md](lab_testing_guide.md)：测试脚本、统一运行器和 hidden tests 建议。
+- [labs.json](labs.json)：Lab 元数据清单，便于后续接入课程平台或自动批改系统。
 
 推荐节奏：
 
@@ -6783,21 +7347,34 @@ int main(void) {
 }
 
 function labTestPy(cFile) {
-  return `import platform
+  return `import argparse
+import os
+import platform
+import shutil
 import subprocess
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = ROOT / "starter" / "${cFile}"
 EXPECTED = ROOT / "expected_output.txt"
 BUILD = ROOT / "build"
 EXE = BUILD / ("${cFile.replace(".c", "")}" + (".exe" if platform.system().lower().startswith("win") else ""))
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Compile and test this lab.")
+    parser.add_argument("--source", default=str(ROOT / "starter" / "${cFile}"), help="C source file to test.")
+    parser.add_argument("--cc", default=os.environ.get("CC", "gcc"), help="C compiler, default gcc or CC env.")
+    parser.add_argument("--keep-build", action="store_true", help="Keep build directory after running.")
+    args = parser.parse_args()
+    source = Path(args.source).resolve()
+    if not source.exists():
+        raise SystemExit(f"Source file does not exist: {source}")
+    compiler = shutil.which(args.cc)
+    if compiler is None:
+        raise SystemExit(f"Compiler not found: {args.cc}. Install gcc/clang or set CC.")
     BUILD.mkdir(exist_ok=True)
-    compile_cmd = ["gcc", "-std=c11", "-Wall", "-Wextra", str(SOURCE), "-o", str(EXE)]
+    compile_cmd = [compiler, "-std=c11", "-Wall", "-Wextra", str(source), "-o", str(EXE)]
     subprocess.run(compile_cmd, check=True)
     result = subprocess.run([str(EXE)], check=True, text=True, capture_output=True)
     expected = EXPECTED.read_text(encoding="utf-8").strip()
@@ -6843,15 +7420,24 @@ python3 tests/test_lab.py
 \`\`\`
 
 初始 starter 通常不会通过测试。你需要补全 TODO，并保证输出与 \`expected_output.txt\` 一致。
+
+也可以测试另一份源码：
+
+\`\`\`bash
+python3 tests/test_lab.py --source path/to/your_solution.c
+\`\`\`
 `;
 }
 
-function labStarterFiles() {
-  const labs = [
+function labDefinitions() {
+  return [
     {
       id: 1,
       slug: "linear_list",
       title: "线性表实现与对比",
+      weeks: "Week 02-03",
+      difficulty: "基础",
+      concepts: ["顺序表", "链表", "插入删除", "边界检查"],
       cFile: "lab01_linear_list.c",
       expected: ["seq: 10 20 25 30", "list: 30 25 20 10", "find 25: yes"],
       todos: ["定义顺序表结构和初始化函数", "实现 insert_at 与 erase_at", "定义单链表结点并实现头插、删除和逆置", "按 expected_output.txt 打印结果"]
@@ -6860,6 +7446,9 @@ function labStarterFiles() {
       id: 2,
       slug: "stack_queue_string",
       title: "受限线性结构与串匹配",
+      weeks: "Week 04-06",
+      difficulty: "基础到中等",
+      concepts: ["栈", "循环队列", "串匹配", "KMP"],
       cFile: "lab02_stack_queue_string.c",
       expected: ["brackets: matched", "queue: 30 40 50 60 70", "match abcac: 5"],
       todos: ["实现括号匹配栈", "实现循环队列入队、出队和回绕", "实现朴素匹配或 KMP", "打印三个任务结果"]
@@ -6868,6 +7457,9 @@ function labStarterFiles() {
       id: 3,
       slug: "tree_heap",
       title: "树、AVL 与堆",
+      weeks: "Week 07-09",
+      difficulty: "中等",
+      concepts: ["遍历", "AVL 旋转", "堆", "递归"],
       cFile: "lab03_tree_heap.c",
       expected: ["preorder: A B D E C F", "avl-root: 20", "heap-pop: 3 7 12"],
       todos: ["构造二叉树并输出前序遍历", "实现 AVL 插入并处理旋转", "实现最小堆 push/pop", "按 expected_output.txt 输出关键结果"]
@@ -6876,6 +7468,9 @@ function labStarterFiles() {
       id: 4,
       slug: "graph_search",
       title: "图遍历、最短路与查找结构",
+      weeks: "Week 10-12",
+      difficulty: "中等到较难",
+      concepts: ["邻接表", "BFS", "Dijkstra", "哈希查找"],
       cFile: "lab04_graph_search.c",
       expected: ["bfs: A B C D E", "dist D: 9", "hash 46: found"],
       todos: ["实现邻接表和 BFS", "实现 Dijkstra 的 dist/prev 更新", "实现线性探测哈希查找", "打印遍历、最短路和查找结果"]
@@ -6884,6 +7479,9 @@ function labStarterFiles() {
       id: 5,
       slug: "sorting",
       title: "排序算法实验",
+      weeks: "Week 13-15",
+      difficulty: "中等",
+      concepts: ["插入排序", "归并排序", "计数排序", "稳定性"],
       cFile: "lab05_sorting.c",
       expected: ["insertion: 3 10 14 14 29 37", "merge: 3 9 10 27 38 43 82", "counting: 1 2 2 3 3 4 8"],
       todos: ["实现插入排序", "实现归并排序或快速排序", "实现计数排序", "打印三组排序结果"]
@@ -6892,11 +7490,18 @@ function labStarterFiles() {
       id: 6,
       slug: "integrated_project",
       title: "学生记录索引系统",
+      weeks: "Week 16",
+      difficulty: "综合",
+      concepts: ["顺序表", "哈希索引", "排序", "一致性维护"],
       cFile: "lab06_integrated_project.c",
       expected: ["find 202403: Wang 95", "rank: Wang Lin Chen Zhao", "delete 202402: ok"],
       todos: ["用顺序表保存学生记录", "用哈希表维护 id 到下标的索引", "实现按成绩排序输出排名", "删除后维护索引一致性"]
     }
   ];
+}
+
+function labStarterFiles() {
+  const labs = labDefinitions();
   const files = [];
   for (const lab of labs) {
     const base = `assignments/lab${String(lab.id).padStart(2, "0")}_${lab.slug}`;
@@ -6906,6 +7511,167 @@ function labStarterFiles() {
     files.push([`${base}/tests/test_lab.py`, labTestPy(lab.cFile)]);
   }
   return files;
+}
+
+function labManifestJson() {
+  return JSON.stringify(labDefinitions().map((lab) => ({
+    id: `lab${String(lab.id).padStart(2, "0")}`,
+    slug: lab.slug,
+    title: lab.title,
+    weeks: lab.weeks,
+    difficulty: lab.difficulty,
+    concepts: lab.concepts,
+    folder: `assignments/lab${String(lab.id).padStart(2, "0")}_${lab.slug}`,
+    source: `starter/${lab.cFile}`,
+    expected_output: "expected_output.txt",
+    test: "tests/test_lab.py"
+  })), null, 2);
+}
+
+function labTestingGuideContent() {
+  return `
+# Lab 测试与批改指南
+
+本文件说明如何使用每个 Lab 自带的 public test，以及如何为助教批改扩展 hidden tests。
+
+## 学生本地运行
+
+进入某个 Lab 文件夹后运行：
+
+\`\`\`bash
+python3 tests/test_lab.py
+\`\`\`
+
+如果要测试另一份源码：
+
+\`\`\`bash
+python3 tests/test_lab.py --source ../../submissions/student01/lab01.c
+\`\`\`
+
+测试脚本会：
+
+1. 用 \`gcc -std=c11 -Wall -Wextra\` 编译源码。
+2. 运行生成的程序。
+3. 将标准输出与 \`expected_output.txt\` 精确比较。
+
+## 教师统一检查
+
+仓库提供统一运行器：
+
+\`\`\`bash
+python3 tools/run_lab_tests.py --lab lab01 --expect-starter-fail
+python3 tools/run_lab_tests.py --all --expect-starter-fail
+\`\`\`
+
+\`--expect-starter-fail\` 用于检查 starter 是否能被测试框架识别。starter 默认没有实现 TODO，因此测试不通过是正常状态。
+
+如果测试学生提交，可传入源码根目录。运行器会尝试寻找与 Lab 对应的 C 文件：
+
+\`\`\`bash
+python3 tools/run_lab_tests.py --all --source-root submissions/student01
+\`\`\`
+
+## Hidden tests 建议
+
+Public test 只检查最小可运行结果。正式批改建议增加 hidden tests：
+
+- 空结构：空表删除、空栈 pop、空队列 dequeue。
+- 边界容量：数组满、循环队列回绕、哈希表高装载因子。
+- 重复关键字：排序稳定性、BST 重复插入策略。
+- 极端输入：已排序数组、逆序数组、非连通图、不可达路径。
+- 资源检查：动态内存释放、失败返回值是否被调用者处理。
+
+Hidden tests 不建议放在公开仓库中，可复制每个 Lab 的 \`tests/test_lab.py\` 后替换输入和期望输出。
+`;
+}
+
+function runLabTestsScript() {
+  return String.raw`
+import argparse
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+MANIFEST = ROOT / "assignments" / "labs.json"
+
+
+def load_labs():
+    return json.loads(MANIFEST.read_text(encoding="utf-8"))
+
+
+def find_solution(lab, source_root):
+    if not source_root:
+        return ROOT / lab["folder"] / lab["source"]
+    root = Path(source_root)
+    candidates = [
+        root / Path(lab["source"]).name,
+        root / lab["folder"] / Path(lab["source"]).name,
+        root / lab["id"] / Path(lab["source"]).name,
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    raise FileNotFoundError(f"Cannot find source for {lab['id']} under {root}")
+
+
+def run_one(lab, source_root, expect_starter_fail):
+    lab_dir = ROOT / lab["folder"]
+    test = lab_dir / lab["test"]
+    source = find_solution(lab, source_root)
+    cmd = [sys.executable, str(test), "--source", str(source)]
+    result = subprocess.run(cmd, cwd=lab_dir, text=True, capture_output=True)
+    starter_mode = source_root is None
+    if result.returncode == 0:
+        status = "PASS"
+        ok = not (starter_mode and expect_starter_fail)
+    else:
+        status = "FAIL"
+        ok = starter_mode and expect_starter_fail
+    return {
+        "id": lab["id"],
+        "title": lab["title"],
+        "source": str(source.relative_to(ROOT) if source.is_relative_to(ROOT) else source),
+        "status": status,
+        "ok": ok,
+        "stdout": result.stdout.strip(),
+        "stderr": result.stderr.strip(),
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Run public tests for course labs.")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--all", action="store_true", help="Run all labs.")
+    group.add_argument("--lab", help="Run one lab id, such as lab01.")
+    parser.add_argument("--source-root", help="Directory containing student C files.")
+    parser.add_argument("--expect-starter-fail", action="store_true", help="Treat starter failure as expected.")
+    args = parser.parse_args()
+
+    labs = load_labs()
+    if args.lab:
+        labs = [lab for lab in labs if lab["id"] == args.lab]
+        if not labs:
+            raise SystemExit(f"Unknown lab id: {args.lab}")
+
+    results = [run_one(lab, args.source_root, args.expect_starter_fail) for lab in labs]
+    for item in results:
+        mark = "OK" if item["ok"] else "ERR"
+        print(f"[{mark}] {item['id']} {item['status']} {item['title']}")
+        if item["stdout"]:
+            print(item["stdout"])
+        if item["stderr"]:
+            print(item["stderr"])
+
+    if not all(item["ok"] for item in results):
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()
+`;
 }
 
 function syllabusContent() {
@@ -6951,9 +7717,10 @@ function studentGuideContent() {
 
 1. 打开 \`onlineweb/index.html\` 或 GitHub Pages 地址。
 2. 按周次进入课程，先看讲义，再看交互演示。
-3. 阅读 \`examples/*.c\`，重点看结构体字段和核心操作函数。
-4. 完成 \`exercises.md\`，再对照 \`answers.md\` 自查。
-5. 阶段实验见 \`assignments/\`。
+3. 在支持的交互页中使用 Input Lab 输入自己的数据，观察步骤是否和默认样例一致。
+4. 阅读 \`examples/*.c\`，重点看结构体字段和核心操作函数。
+5. 完成 \`exercises.md\`，再对照 \`answers.md\` 自查。
+6. 阶段实验见 \`assignments/\`。
 
 ## 如何编译 C 示例
 
@@ -7164,6 +7931,7 @@ function generate() {
   writeFile("tools/check_links.py", checkLinksScript());
   writeFile("tools/check_encoding.py", checkEncodingScript());
   writeFile("tools/check_pages_artifact.py", checkPagesArtifactScript());
+  writeFile("tools/run_lab_tests.py", runLabTestsScript());
   writeFile("assets/course-visualizer.css", visualizerCss());
   writeFile("assets/course-visualizer.js", visualizerJs());
   writeFile("README.md", readmeContent());
@@ -7186,7 +7954,10 @@ function generate() {
   writeFile("teacher_guide/README.md", teacherGuideReadme());
   writeFile("teacher_guide/week_facilitation.md", teacherWeekFacilitation());
   writeFile("teacher_guide/rubrics.md", teacherRubrics());
+  teacherLessonPlanFiles().forEach(([rel, content]) => writeFile(rel, content));
   assignmentFiles().forEach(([rel, content]) => writeFile(rel, content));
+  writeFile("assignments/labs.json", labManifestJson());
+  writeFile("assignments/lab_testing_guide.md", labTestingGuideContent());
   labStarterFiles().forEach(([rel, content]) => writeFile(rel, content));
   reviewFiles().forEach(([rel, content]) => writeFile(rel, content));
   writeFile("onlineweb/index.html", onlineIndex());

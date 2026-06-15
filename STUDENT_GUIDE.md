@@ -6,9 +6,10 @@
 
 1. 打开 `onlineweb/index.html` 或 GitHub Pages 地址。
 2. 按周次进入课程，先看讲义，再看交互演示。
-3. 阅读 `examples/*.c`，重点看结构体字段和核心操作函数。
-4. 完成 `exercises.md`，再对照 `answers.md` 自查。
-5. 阶段实验见 `assignments/`。
+3. 在支持的交互页中使用 Input Lab 输入自己的数据，观察步骤是否和默认样例一致。
+4. 阅读 `examples/*.c`，重点看结构体字段和核心操作函数。
+5. 完成 `exercises.md`，再对照 `answers.md` 自查。
+6. 阶段实验见 `assignments/`。
 
 ## 如何编译 C 示例
 

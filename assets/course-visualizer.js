@@ -12,6 +12,14 @@
   const pseudoCode = document.getElementById("pseudoCode");
   const cTrace = document.getElementById("cTrace");
   const codeTraceTitle = document.getElementById("codeTraceTitle");
+  const customPanel = document.getElementById("customPanel");
+  const customInput = document.getElementById("customInput");
+  const customTarget = document.getElementById("customTarget");
+  const applyCustom = document.getElementById("applyCustom");
+  const restoreDemo = document.getElementById("restoreDemo");
+  const customHint = document.getElementById("customHint");
+  const originalSteps = JSON.parse(JSON.stringify(demo.steps || []));
+  const originalScenario = demo.scenario;
   let index = 0;
   let timer = null;
 
@@ -385,6 +393,216 @@
     ).join("");
   }
 
+  function parseNumbers(text, fallback) {
+    const values = String(text || "").split(/[，,\s]+/)
+      .map((item) => Number(item.trim()))
+      .filter((item) => Number.isFinite(item))
+      .slice(0, 12);
+    return values.length ? values : fallback.slice();
+  }
+
+  function setSteps(steps, scenario) {
+    if (!steps || !steps.length) return;
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+      document.getElementById("playSteps").textContent = "自动播放";
+    }
+    demo.steps = steps;
+    if (scenario) demo.scenario = scenario;
+    index = 0;
+    render();
+  }
+
+  function customArraySteps(nums, targetText) {
+    const pair = String(targetText || "").split(":");
+    let insertIndex = Number(pair[0]);
+    let value = Number(pair.length > 1 ? pair[1] : targetText);
+    if (!Number.isInteger(insertIndex)) insertIndex = Math.floor(nums.length / 2);
+    if (!Number.isFinite(value)) value = 99;
+    insertIndex = Math.max(0, Math.min(insertIndex, nums.length));
+    const capacity = Math.max(6, nums.length + 2);
+    const cells = nums.concat(Array(capacity - nums.length).fill("_"));
+    const steps = [{
+      title: "自定义顺序表初始状态",
+      cells: cells.slice(),
+      size: nums.length,
+      capacity,
+      active: [insertIndex],
+      markers: { index: insertIndex },
+      codeLine: 1,
+      text: "准备在下标 " + insertIndex + " 插入 " + value + "。连续存储要求先给新元素腾出位置。"
+    }];
+    for (let j = nums.length - 1; j >= insertIndex; --j) {
+      cells[j + 1] = cells[j];
+      steps.push({
+        title: "后移 a[" + j + "]",
+        cells: cells.slice(),
+        size: nums.length,
+        capacity,
+        active: [j, j + 1],
+        markers: { j, target: insertIndex },
+        codeLine: 3,
+        text: "把下标 " + j + " 的元素复制到 " + (j + 1) + "。必须从后往前移动，避免覆盖还没搬走的数据。"
+      });
+    }
+    cells[insertIndex] = value;
+    steps.push({
+      title: "写入新元素并更新 size",
+      cells: cells.slice(),
+      size: nums.length + 1,
+      capacity,
+      active: [insertIndex],
+      markers: { inserted: insertIndex },
+      codeLine: 4,
+      text: "写入 " + value + " 后，逻辑长度增加。结构不变量仍是下标 0 到 size-1 保存有效元素。"
+    });
+    return steps;
+  }
+
+  function customQueueSteps(nums) {
+    const capacity = Math.max(6, Math.min(10, nums.length + 2));
+    const cells = Array(capacity).fill("_");
+    let front = 0;
+    let rear = 0;
+    let size = 0;
+    const steps = [{ title: "自定义空循环队列", cells: cells.slice(), front, rear, active: [0], op: "front == rear", codeLine: 1, text: "front 与 rear 相同表示队空。" }];
+    function enqueue(value) {
+      if ((rear + 1) % capacity === front) return;
+      const write = rear;
+      cells[write] = value;
+      rear = (rear + 1) % capacity;
+      size += 1;
+      steps.push({ title: "enqueue " + value, cells: cells.slice(), front, rear, active: [write, rear], op: "rear = (rear + 1) % capacity", codeLine: 2, text: "写入 rear 原位置，再通过取模移动 rear。" });
+    }
+    function dequeue() {
+      if (!size) return;
+      const read = front;
+      cells[read] = "_";
+      front = (front + 1) % capacity;
+      size -= 1;
+      steps.push({ title: "dequeue", cells: cells.slice(), front, rear, active: [read, front], op: "front = (front + 1) % capacity", codeLine: 3, text: "出队不搬移元素，只移动 front，释放原队头槽位。" });
+    }
+    const first = nums.slice(0, Math.min(4, capacity - 2));
+    const rest = nums.slice(first.length);
+    first.forEach(enqueue);
+    dequeue();
+    dequeue();
+    rest.forEach(enqueue);
+    steps.push({ title: "队满条件检查", cells: cells.slice(), front, rear, active: [rear, front], op: "(rear + 1) % capacity == front", codeLine: 4, text: "循环队列的关键是把线性数组当成圆环，并用一个空槽区分队满和队空。" });
+    return steps;
+  }
+
+  function customSearchSteps(nums, targetText) {
+    const array = nums.slice().sort((a, b) => a - b);
+    const target = Number.isFinite(Number(targetText)) ? Number(targetText) : array[Math.floor(array.length / 2)];
+    let low = 0;
+    let high = array.length - 1;
+    const checked = [];
+    const steps = [];
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2);
+      checked.push(mid);
+      const discarded = [];
+      for (let i = 0; i < array.length; ++i) {
+        if (i < low || i > high) discarded.push(i);
+      }
+      steps.push({
+        title: "检查 mid=" + mid,
+        mode: "binary",
+        array,
+        target,
+        low,
+        mid,
+        high,
+        checked: checked.slice(),
+        discarded,
+        active: [mid],
+        probe: checked.map((i) => "a[" + i + "]=" + array[i]),
+        codeLine: 3,
+        text: "在有序数组中比较 a[" + mid + "]=" + array[mid] + " 与目标 " + target + "。"
+      });
+      if (array[mid] === target) {
+        steps.push({ title: "查找成功", mode: "binary", array, target, low, mid, high, checked: checked.slice(), active: [mid], probe: checked.map((i) => "a[" + i + "]=" + array[i]), codeLine: 4, text: "命中目标，返回下标 " + mid + "。" });
+        return steps;
+      }
+      if (array[mid] < target) low = mid + 1;
+      else high = mid - 1;
+    }
+    steps.push({ title: "查找失败", mode: "binary", array, target, low, mid: -1, high, checked: checked.slice(), active: [], probe: checked.map((i) => "a[" + i + "]=" + array[i]), codeLine: 5, text: "区间为空，目标不存在。二分查找的前提是数组有序。" });
+    return steps;
+  }
+
+  function customSortSteps(nums) {
+    const values = nums.slice().map((n) => Math.max(1, Math.floor(n)));
+    const steps = [{ title: "自定义插入排序初始状态", algorithm: "insertion sort", values: values.slice(), active: [0], sortedPrefix: 1, codeLine: 1, text: "把第一个元素视为有序前缀。" }];
+    for (let i = 1; i < values.length; ++i) {
+      const key = values[i];
+      let j = i - 1;
+      steps.push({ title: "取 key=" + key, algorithm: "insertion sort", values: values.slice(), active: [i], sortedPrefix: i, codeLine: 1, text: "准备把 key 插入到前面的有序区间。" });
+      while (j >= 0 && values[j] > key) {
+        values[j + 1] = values[j];
+        steps.push({ title: "右移 " + values[j], algorithm: "insertion sort", values: values.slice(), active: [j, j + 1], sortedPrefix: i, codeLine: 2, text: "较大的元素右移一格，为 key 腾位置。" });
+        j -= 1;
+      }
+      values[j + 1] = key;
+      steps.push({ title: "插入 key", algorithm: "insertion sort", values: values.slice(), active: [j + 1], sortedPrefix: i + 1, codeLine: 3, text: "key 放入正确位置，已排序前缀扩大。" });
+    }
+    return steps;
+  }
+
+  function customCountingSteps(nums) {
+    const input = nums.map((n) => Math.max(0, Math.min(9, Math.floor(n))));
+    const counts = {};
+    const steps = [{ title: "自定义计数排序输入", algorithm: "counting sort", input, counts: {}, output: [], active: [], codeLine: 1, text: "计数排序要求关键字范围较小，这里把输入限制在 0 到 9。" }];
+    input.forEach((value) => {
+      counts[value] = (counts[value] || 0) + 1;
+      steps.push({ title: "统计 " + value, algorithm: "counting sort", input, counts: { ...counts }, output: [], active: [String(value)], codeLine: 1, text: "count[" + value + "] 增加，记录这个关键字出现次数。" });
+    });
+    const output = [];
+    Object.keys(counts).map(Number).sort((a, b) => a - b).forEach((key) => {
+      for (let i = 0; i < counts[key]; ++i) output.push(key);
+      steps.push({ title: "输出关键字 " + key, algorithm: "counting sort", input, counts: { ...counts }, output: output.slice(), active: ["output", String(key)], codeLine: 3, text: "按照关键字从小到大回填输出数组。" });
+    });
+    return steps;
+  }
+
+  function setupCustomPanel() {
+    if (!customPanel) return;
+    const supported = ["array", "cqueue", "search_lab", "sort", "counting"].includes(demo.kind);
+    const hints = {
+      array: "数据填顺序表初始元素；参数填 index:value，例如 2:99。",
+      cqueue: "数据填一串入队元素；演示会先入队、出队，再继续入队观察回绕。",
+      search_lab: "数据填数组，系统会排序后做二分；参数填要查找的目标。",
+      sort: "数据填待排序序列；演示使用插入排序逐步重放。",
+      counting: "数据填 0 到 9 的整数；演示计数排序的统计和回填。"
+    };
+    if (customHint) customHint.textContent = supported ? hints[demo.kind] : "本周结构不适合用简单数字序列参数化，建议使用默认演示理解不变量。";
+    customPanel.classList.toggle("is-disabled", !supported);
+    if (!supported) {
+      if (applyCustom) applyCustom.disabled = true;
+      if (customInput) customInput.disabled = true;
+      if (customTarget) customTarget.disabled = true;
+      return;
+    }
+    if (demo.kind === "array") customTarget.value = "2:99";
+    if (demo.kind === "cqueue") customInput.value = "10,20,30,40,50,60,70";
+    if (demo.kind === "search_lab") { customInput.value = "3,7,11,19,24,31,42"; customTarget.value = "24"; }
+    if (demo.kind === "sort") customInput.value = "29,10,14,37,14,3";
+    if (demo.kind === "counting") customInput.value = "4,2,2,8,3,3,1";
+    applyCustom.addEventListener("click", () => {
+      const nums = parseNumbers(customInput.value, [12, 7, 4, 20, 15]);
+      let steps = null;
+      if (demo.kind === "array") steps = customArraySteps(nums, customTarget.value);
+      if (demo.kind === "cqueue") steps = customQueueSteps(nums);
+      if (demo.kind === "search_lab") steps = customSearchSteps(nums, customTarget.value);
+      if (demo.kind === "sort") steps = customSortSteps(nums);
+      if (demo.kind === "counting") steps = customCountingSteps(nums);
+      setSteps(steps, "自定义输入实验：用学生输入的数据重新生成操作步骤。");
+    });
+    restoreDemo.addEventListener("click", () => setSteps(JSON.parse(JSON.stringify(originalSteps)), originalScenario));
+  }
+
   function render() {
     const step = demo.steps[index];
     canvas.innerHTML = renderVisual(step);
@@ -424,6 +642,7 @@
       if (window.gsap) gsap.fromTo(opExplain, { x: -8, opacity: .65 }, { x: 0, opacity: 1, duration: .25 });
     });
   });
+  setupCustomPanel();
   render();
 })();
 

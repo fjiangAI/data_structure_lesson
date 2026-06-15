@@ -67,6 +67,25 @@
           </div>
         </div>
       </div>
+      <div id="customPanel" class="custom-lab-panel">
+        <div>
+          <p class="eyebrow">Input Lab</p>
+          <h3>用自己的数据重放操作</h3>
+          <p id="customHint">输入一组小规模整数，观察结构和操作步骤如何变化。</p>
+        </div>
+        <div class="custom-controls">
+          <label>
+            数据
+            <input id="customInput" type="text" value="12, 7, 4, 20, 15" aria-label="自定义数据">
+          </label>
+          <label>
+            目标/参数
+            <input id="customTarget" type="text" value="15" aria-label="目标或参数">
+          </label>
+          <button id="applyCustom" class="primary-btn" type="button">生成演示</button>
+          <button id="restoreDemo" class="ghost-btn" type="button">恢复默认</button>
+        </div>
+      </div>
     </section>
 
     <section class="operation-section">

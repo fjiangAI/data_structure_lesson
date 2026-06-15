@@ -17,3 +17,9 @@ python3 tests/test_lab.py
 
 初始 starter 通常不会通过测试。你需要补全 TODO，并保证输出与 `expected_output.txt` 一致。
 
+也可以测试另一份源码：
+
+```bash
+python3 tests/test_lab.py --source path/to/your_solution.c
+```
+

@@ -4,7 +4,7 @@
 
 建议使用方式：
 
-1. 每周课前阅读对应 `week*/lecture.md` 和 [week_facilitation.md](week_facilitation.md)。
+1. 每周课前阅读对应 `week*/lecture.md`、[week_facilitation.md](week_facilitation.md) 和 [lesson_plans/](lesson_plans/) 中的教案。
 2. 课堂中使用 `interactive.html` 做状态演示，要求学生同步写出操作伪代码。
 3. 每 2 到 3 周布置一次 [assignments/](../assignments/) 中的实验。
 4. 批改编程题时参考 [rubrics.md](rubrics.md)。

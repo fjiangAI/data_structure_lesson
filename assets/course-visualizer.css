@@ -160,6 +160,46 @@ button {
   padding: 16px;
 }
 .code-sync-panel h3 { font-size: 20px; margin: 0; }
+.custom-lab-panel {
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: minmax(220px, 320px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: end;
+}
+.custom-lab-panel h3 { font-size: 20px; margin: 0; }
+.custom-lab-panel p { margin: 8px 0 0; color: var(--muted); }
+.custom-lab-panel.is-disabled {
+  opacity: .72;
+  background: #f8fafc;
+}
+.custom-controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr) auto auto;
+  gap: 10px;
+  align-items: end;
+}
+.custom-controls label {
+  display: grid;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 900;
+}
+.custom-controls input {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: 14px Consolas, "Cascadia Mono", "Courier New", monospace;
+  color: var(--ink);
+  background: #fbfdfc;
+}
 .trace-grid {
   display: grid;
   grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr);
@@ -534,7 +574,7 @@ button {
   font-weight: 900;
 }
 @media (max-width: 920px) {
-  .week-hero-grid, .stage-grid, .code-sync-panel, .trace-grid, .traversal-layout, .search-panels { grid-template-columns: 1fr; }
+  .week-hero-grid, .stage-grid, .code-sync-panel, .custom-lab-panel, .custom-controls, .trace-grid, .traversal-layout, .search-panels { grid-template-columns: 1fr; }
   .stage-header { flex-direction: column; }
   .visual-canvas { min-height: 360px; }
   .queue-ring { width: min(100%, 340px); }

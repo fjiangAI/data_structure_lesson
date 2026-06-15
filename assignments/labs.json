@@ -1,0 +1,104 @@
+[
+  {
+    "id": "lab01",
+    "slug": "linear_list",
+    "title": "线性表实现与对比",
+    "weeks": "Week 02-03",
+    "difficulty": "基础",
+    "concepts": [
+      "顺序表",
+      "链表",
+      "插入删除",
+      "边界检查"
+    ],
+    "folder": "assignments/lab01_linear_list",
+    "source": "starter/lab01_linear_list.c",
+    "expected_output": "expected_output.txt",
+    "test": "tests/test_lab.py"
+  },
+  {
+    "id": "lab02",
+    "slug": "stack_queue_string",
+    "title": "受限线性结构与串匹配",
+    "weeks": "Week 04-06",
+    "difficulty": "基础到中等",
+    "concepts": [
+      "栈",
+      "循环队列",
+      "串匹配",
+      "KMP"
+    ],
+    "folder": "assignments/lab02_stack_queue_string",
+    "source": "starter/lab02_stack_queue_string.c",
+    "expected_output": "expected_output.txt",
+    "test": "tests/test_lab.py"
+  },
+  {
+    "id": "lab03",
+    "slug": "tree_heap",
+    "title": "树、AVL 与堆",
+    "weeks": "Week 07-09",
+    "difficulty": "中等",
+    "concepts": [
+      "遍历",
+      "AVL 旋转",
+      "堆",
+      "递归"
+    ],
+    "folder": "assignments/lab03_tree_heap",
+    "source": "starter/lab03_tree_heap.c",
+    "expected_output": "expected_output.txt",
+    "test": "tests/test_lab.py"
+  },
+  {
+    "id": "lab04",
+    "slug": "graph_search",
+    "title": "图遍历、最短路与查找结构",
+    "weeks": "Week 10-12",
+    "difficulty": "中等到较难",
+    "concepts": [
+      "邻接表",
+      "BFS",
+      "Dijkstra",
+      "哈希查找"
+    ],
+    "folder": "assignments/lab04_graph_search",
+    "source": "starter/lab04_graph_search.c",
+    "expected_output": "expected_output.txt",
+    "test": "tests/test_lab.py"
+  },
+  {
+    "id": "lab05",
+    "slug": "sorting",
+    "title": "排序算法实验",
+    "weeks": "Week 13-15",
+    "difficulty": "中等",
+    "concepts": [
+      "插入排序",
+      "归并排序",
+      "计数排序",
+      "稳定性"
+    ],
+    "folder": "assignments/lab05_sorting",
+    "source": "starter/lab05_sorting.c",
+    "expected_output": "expected_output.txt",
+    "test": "tests/test_lab.py"
+  },
+  {
+    "id": "lab06",
+    "slug": "integrated_project",
+    "title": "学生记录索引系统",
+    "weeks": "Week 16",
+    "difficulty": "综合",
+    "concepts": [
+      "顺序表",
+      "哈希索引",
+      "排序",
+      "一致性维护"
+    ],
+    "folder": "assignments/lab06_integrated_project",
+    "source": "starter/lab06_integrated_project.c",
+    "expected_output": "expected_output.txt",
+    "test": "tests/test_lab.py"
+  }
+]

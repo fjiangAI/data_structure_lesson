@@ -13,6 +13,7 @@ REQUIRED = [
     "assets/course-visualizer.js",
     "assignments/README.md",
     "teacher_guide/README.md",
+    "teacher_guide/lesson_plans/README.md",
     "review/README.md",
     "AI_LEARNING_GUIDE.md",
     "STUDENT_GUIDE.md",

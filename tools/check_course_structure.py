@@ -72,6 +72,12 @@ def main():
     lab_dirs = [p for p in lab_dirs if p.is_dir()]
     if len(lab_dirs) < 6:
         fail("Expected at least 6 runnable assignment lab folders")
+    if not (ROOT / "assignments" / "labs.json").exists():
+        fail("Missing assignments/labs.json")
+    if not (ROOT / "assignments" / "lab_testing_guide.md").exists():
+        fail("Missing assignments/lab_testing_guide.md")
+    if not (ROOT / "tools" / "run_lab_tests.py").exists():
+        fail("Missing tools/run_lab_tests.py")
     for lab in lab_dirs:
         if not (lab / "README.md").exists():
             fail(f"Missing {lab.relative_to(ROOT)}/README.md")
@@ -86,6 +92,9 @@ def main():
     teacher_files = sorted((ROOT / "teacher_guide").glob("*.md"))
     if len(teacher_files) < 3:
         fail("Expected teacher_guide markdown files")
+    lesson_plan_files = sorted((ROOT / "teacher_guide" / "lesson_plans").glob("week??_lesson_plan.md"))
+    if len(lesson_plan_files) != 16:
+        fail(f"Expected 16 teacher lesson plans, found {len(lesson_plan_files)}")
 
     review_files = sorted((ROOT / "review").glob("*.md"))
     if len(review_files) < 5:
