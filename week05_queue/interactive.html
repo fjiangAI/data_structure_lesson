@@ -51,6 +51,13 @@
           <div id="stepMeta" class="step-meta"></div>
         </aside>
       </div>
+      <div class="code-sync-panel">
+        <div>
+          <p class="eyebrow">Code Trace</p>
+          <h3>动画步骤对应的操作伪代码</h3>
+        </div>
+        <ol id="pseudoCode" class="pseudo-code"></ol>
+      </div>
     </section>
 
     <section class="operation-section">
@@ -264,11 +271,19 @@
       "op": "(rear + 1) % 6 == front",
       "text": "如果 rear 的下一个位置等于 front，就判定队满。牺牲一个槽可以区分队空和队满。"
     }
+  ],
+  "pseudocode": [
+    "empty: front == rear",
+    "enqueue: data[rear] = value",
+    "rear = (rear + 1) % capacity",
+    "dequeue: value = data[front]",
+    "front = (front + 1) % capacity",
+    "full: (rear + 1) % capacity == front"
   ]
 };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="../assets/course-visualizer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
 </body>
 </html>
 

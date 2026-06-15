@@ -51,6 +51,13 @@
           <div id="stepMeta" class="step-meta"></div>
         </aside>
       </div>
+      <div class="code-sync-panel">
+        <div>
+          <p class="eyebrow">Code Trace</p>
+          <h3>动画步骤对应的操作伪代码</h3>
+        </div>
+        <ol id="pseudoCode" class="pseudo-code"></ol>
+      </div>
     </section>
 
     <section class="operation-section">
@@ -212,11 +219,18 @@
       },
       "text": "把 25 写到 a[2]，size 从 4 变成 5。中间插入的代价来自元素移动。"
     }
+  ],
+  "pseudocode": [
+    "if index \u003c 0 or index > size: fail",
+    "if size == capacity: reserve(larger_capacity)",
+    "for i = size; i > index; --i: data[i] = data[i - 1]",
+    "data[index] = value",
+    "size++"
   ]
 };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="../assets/course-visualizer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
 </body>
 </html>
 

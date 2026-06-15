@@ -51,6 +51,13 @@
           <div id="stepMeta" class="step-meta"></div>
         </aside>
       </div>
+      <div class="code-sync-panel">
+        <div>
+          <p class="eyebrow">Code Trace</p>
+          <h3>动画步骤对应的操作伪代码</h3>
+        </div>
+        <ol id="pseudoCode" class="pseudo-code"></ol>
+      </div>
     </section>
 
     <section class="operation-section">
@@ -247,11 +254,18 @@
       "phase": "go right",
       "text": "C 没有左孩子，继续访问右孩子 F。前序遍历得到 A, B, D, E, C, F。"
     }
+  ],
+  "pseudocode": [
+    "preorder(root):",
+    "if root == NULL: return",
+    "visit(root)",
+    "preorder(root->left)",
+    "preorder(root->right)"
   ]
 };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="../assets/course-visualizer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
 </body>
 </html>
 

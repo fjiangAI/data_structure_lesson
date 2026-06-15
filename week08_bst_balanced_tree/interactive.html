@@ -51,6 +51,13 @@
           <div id="stepMeta" class="step-meta"></div>
         </aside>
       </div>
+      <div class="code-sync-panel">
+        <div>
+          <p class="eyebrow">Code Trace</p>
+          <h3>动画步骤对应的操作伪代码</h3>
+        </div>
+        <ol id="pseudoCode" class="pseudo-code"></ol>
+      </div>
     </section>
 
     <section class="operation-section">
@@ -324,11 +331,19 @@
       ],
       "text": "再对 30 右旋。AVL 的规律是：先按插入路径判断 LL/RR/LR/RL，再用单旋或双旋恢复平衡。"
     }
+  ],
+  "pseudocode": [
+    "insert by BST order",
+    "update height on return path",
+    "balance = height(left) - height(right)",
+    "if LL/RR: single rotation",
+    "if LR/RL: double rotation",
+    "return new subtree root"
   ]
 };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="../assets/course-visualizer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
 </body>
 </html>
 

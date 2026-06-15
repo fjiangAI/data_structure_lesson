@@ -9,6 +9,7 @@
   const stepMeta = document.getElementById("stepMeta");
   const progressBar = document.getElementById("progressBar");
   const opExplain = document.getElementById("operationExplain");
+  const pseudoCode = document.getElementById("pseudoCode");
   let index = 0;
   let timer = null;
 
@@ -365,6 +366,13 @@
     );
   }
 
+  function renderPseudo(step) {
+    const lines = demo.pseudocode || [];
+    if (!pseudoCode || !lines.length) return;
+    const active = Math.max(0, Math.min(lines.length - 1, (step.codeLine || (index + 1)) - 1));
+    pseudoCode.innerHTML = lines.map((line, i) => '<li class="' + (i === active ? "active" : "") + '">' + esc(line) + '</li>').join("");
+  }
+
   function render() {
     const step = demo.steps[index];
     canvas.innerHTML = renderVisual(step);
@@ -375,6 +383,7 @@
     const progress = ((index + 1) / demo.steps.length * 100) + "%";
     if (window.gsap) gsap.to(progressBar, { width: progress, duration: .34, ease: "power2.out" });
     else progressBar.style.width = progress;
+    renderPseudo(step);
     animate();
   }
 

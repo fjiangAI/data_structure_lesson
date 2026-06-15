@@ -51,6 +51,13 @@
           <div id="stepMeta" class="step-meta"></div>
         </aside>
       </div>
+      <div class="code-sync-panel">
+        <div>
+          <p class="eyebrow">Code Trace</p>
+          <h3>动画步骤对应的操作伪代码</h3>
+        </div>
+        <ol id="pseudoCode" class="pseudo-code"></ol>
+      </div>
     </section>
 
     <section class="operation-section">
@@ -346,11 +353,19 @@
       "note": "排序完成",
       "text": "重复取堆顶，右侧有序区不断扩大。堆排序时间 O(n log n)，额外空间 O(1)。"
     }
+  ],
+  "pseudocode": [
+    "quick sort: partition by pivot",
+    "recursively sort left and right parts",
+    "merge sort: split until small segments",
+    "merge two sorted segments with auxiliary array",
+    "heap sort: build max heap",
+    "swap heap top to sorted suffix and sift down"
   ]
 };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="../assets/course-visualizer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
 </body>
 </html>
 

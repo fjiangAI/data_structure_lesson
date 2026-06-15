@@ -51,6 +51,13 @@
           <div id="stepMeta" class="step-meta"></div>
         </aside>
       </div>
+      <div class="code-sync-panel">
+        <div>
+          <p class="eyebrow">Code Trace</p>
+          <h3>动画步骤对应的操作伪代码</h3>
+        </div>
+        <ol id="pseudoCode" class="pseudo-code"></ol>
+      </div>
     </section>
 
     <section class="operation-section">
@@ -322,11 +329,19 @@
       "activeEdges": [],
       "text": "最后确定 D。最短路可以通过 prev 恢复，例如 A 到 D 是 A -> C -> B -> D，距离 9。"
     }
+  ],
+  "pseudocode": [
+    "initialize dist[source] = 0, others = INF",
+    "choose unsettled vertex u with minimum dist",
+    "mark u as settled",
+    "for each edge u -> v",
+    "if dist[u] + w \u003c dist[v]: update dist[v] and prev[v]",
+    "repeat until all reachable vertices are settled"
   ]
 };
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="../assets/course-visualizer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" defer></script>
 </body>
 </html>
 
