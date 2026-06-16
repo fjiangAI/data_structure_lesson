@@ -10,6 +10,14 @@
 4. 批改编程题时参考 [rubrics.md](rubrics.md)。
 5. 参考 [lab_solutions/](lab_solutions/) 准备 public/hidden tests 和讲评。
 6. 对学生的 AI 使用记录参考 [../AI_LEARNING_GUIDE.md](../AI_LEARNING_GUIDE.md)。
+7. 正式考试、真实 hidden tests 和成绩脚本不要放在公开 Pages 中，发布边界见 [../ASSESSMENT_SECURITY.md](../ASSESSMENT_SECURITY.md)。
+
+## 公开与私有材料分层
+
+- 公开仓库：讲义、示例、交互动画、练习、模拟自测、Lab starter、public tests、Rubric。
+- 私有教师仓库或学校平台：正式试卷、补考题、真实 hidden tests、完整评分脚本、未公开参考实现。
+- 在线自测页面只用于复习诊断。由于静态页面会暴露答案，不应作为正式成绩依据。
+- 每学期发布前建议检查一次公开目录，确认没有误放本学期正式考核材料。
 
 ## 教学重点
 

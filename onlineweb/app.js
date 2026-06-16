@@ -16,6 +16,16 @@ const searchInput = document.getElementById("searchInput");
 const topicFilter = document.getElementById("topicFilter");
 const progressText = document.getElementById("progressText");
 const exerciseProgressText = document.getElementById("exerciseProgressText");
+const exportProgress = document.getElementById("exportProgress");
+const importProgress = document.getElementById("importProgress");
+const progressFile = document.getElementById("progressFile");
+const progressStatus = document.getElementById("progressStatus");
+
+function setProgressStatus(message, bad = false) {
+  if (!progressStatus) return;
+  progressStatus.textContent = message;
+  progressStatus.className = bad ? "bad" : "";
+}
 
 function weekState(id) {
   progress[id] = progress[id] || {};
@@ -33,6 +43,58 @@ function saveProgress() {
   const exerciseCount = weeks.filter((week) => !!weekState(week.id).exercise).length;
   progressText.textContent = doneCount + "/16";
   if (exerciseProgressText) exerciseProgressText.textContent = exerciseCount + "/16";
+}
+
+function normalizeProgress(raw) {
+  const source = raw && raw.progress ? raw.progress : raw;
+  const next = {};
+  if (!source || typeof source !== "object" || Array.isArray(source)) {
+    throw new Error("文件中没有 progress 对象");
+  }
+  weeks.forEach((week) => {
+    const state = source[week.id] || source[String(week.id)] || {};
+    next[week.id] = {};
+    ["lecture", "demo", "exercise", "lab"].forEach((part) => {
+      next[week.id][part] = !!state[part];
+    });
+  });
+  return next;
+}
+
+function exportProgressData() {
+  const payload = {
+    course: "data_structure_c",
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    progress
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "data-structure-progress.json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  setProgressStatus("已导出学习记录 JSON");
+}
+
+function importProgressData(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      progress = normalizeProgress(JSON.parse(reader.result));
+      saveProgress();
+      renderWeeks();
+      setProgressStatus("已导入学习记录");
+    } catch (err) {
+      setProgressStatus("导入失败：" + err.message, true);
+    }
+  };
+  reader.onerror = () => setProgressStatus("导入失败：无法读取文件", true);
+  reader.readAsText(file, "utf-8");
 }
 
 function matchesFilter(week, filter) {
@@ -111,6 +173,12 @@ function renderWeeks() {
 
 searchInput.addEventListener("input", renderWeeks);
 topicFilter.addEventListener("change", renderWeeks);
+if (exportProgress) exportProgress.addEventListener("click", exportProgressData);
+if (importProgress && progressFile) importProgress.addEventListener("click", () => progressFile.click());
+if (progressFile) progressFile.addEventListener("change", () => {
+  importProgressData(progressFile.files[0]);
+  progressFile.value = "";
+});
 saveProgress();
 renderWeeks();
 

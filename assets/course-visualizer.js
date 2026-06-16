@@ -407,6 +407,86 @@
     return values.length ? values : fallback.slice();
   }
 
+  function setCustomHint(message, bad = false) {
+    if (!customHint) return;
+    customHint.textContent = message;
+    customHint.classList.toggle("is-error", bad);
+  }
+
+  function readNumberList(text, options = {}) {
+    const raw = String(text || "").trim();
+    const minCount = options.minCount || 1;
+    const maxCount = options.maxCount || 12;
+    if (!raw) throw new Error("数据不能为空，请输入用逗号或空格分隔的数字。");
+    const parts = raw.split(/[，,\s]+/).filter(Boolean);
+    if (parts.length < minCount) throw new Error("至少需要 " + minCount + " 个数字。");
+    if (parts.length > maxCount) throw new Error("最多输入 " + maxCount + " 个数字，避免动画过密。");
+    const values = parts.map((item) => Number(item));
+    const badIndex = values.findIndex((item) => !Number.isFinite(item));
+    if (badIndex >= 0) throw new Error("第 " + (badIndex + 1) + " 项不是合法数字：" + parts[badIndex]);
+    if (options.integer && values.some((item) => !Number.isInteger(item))) {
+      throw new Error("该演示要求整数输入。");
+    }
+    if (options.min !== undefined && values.some((item) => item < options.min)) {
+      throw new Error("该演示要求所有数字不小于 " + options.min + "。");
+    }
+    if (options.max !== undefined && values.some((item) => item > options.max)) {
+      throw new Error("该演示要求所有数字不大于 " + options.max + "。");
+    }
+    return values;
+  }
+
+  function validateCustomInput() {
+    const kind = demo.kind;
+    const data = customInput ? customInput.value : "";
+    const target = customTarget ? customTarget.value : "";
+    if (kind === "stack") {
+      if (!String(data).trim()) throw new Error("括号表达式不能为空。");
+      return [];
+    }
+    if (kind === "kmp") {
+      if (!String(data).replace(/\s+/g, "")) throw new Error("文本串不能为空。");
+      if (!String(target).replace(/\s+/g, "")) throw new Error("模式串不能为空。");
+      return [];
+    }
+    if (kind === "traversal" || kind === "tree") {
+      const order = String(target || "pre").toLowerCase();
+      if (!["pre", "in", "post"].some((prefix) => order.startsWith(prefix))) {
+        throw new Error("遍历参数只能填写 pre、in 或 post。");
+      }
+      const tokens = parseTokens(data, []);
+      if (!tokens.length) throw new Error("请至少输入一个结点标签。");
+      if (tokens.length > 7) throw new Error("二叉树演示最多支持 7 个结点。");
+      return [];
+    }
+    if (kind === "review") {
+      if (!parseTokens(data, []).length) throw new Error("请至少输入一个系统组件名称。");
+      return [];
+    }
+    const numericOptions = { integer: true, minCount: 1, maxCount: 10 };
+    if (kind === "counting") Object.assign(numericOptions, { min: 0, max: 9, maxCount: 12 });
+    if (kind === "graph" || kind === "path") Object.assign(numericOptions, { minCount: 6, maxCount: 6, min: 1 });
+    if (kind === "evolution") Object.assign(numericOptions, { minCount: 3, maxCount: 9 });
+    if (kind === "sort") Object.assign(numericOptions, { minCount: 2, maxCount: 10, min: 1 });
+    if (kind === "heap" || kind === "avl") Object.assign(numericOptions, { minCount: 2, maxCount: 7 });
+    if (kind === "array") Object.assign(numericOptions, { minCount: 1, maxCount: 10 });
+    if (kind === "linked" || kind === "list") Object.assign(numericOptions, { minCount: 1, maxCount: 6 });
+    const nums = readNumberList(data, numericOptions);
+    if (kind === "array") {
+      const match = String(target || "").trim().match(/^(\d+)\s*[:：]\s*(-?\d+)$/);
+      if (!match) throw new Error("顺序表参数格式应为 index:value，例如 2:99。");
+      const index = Number(match[1]);
+      if (index < 0 || index > nums.length) throw new Error("插入下标必须在 0 到 " + nums.length + " 之间。");
+    }
+    if ((kind === "linked" || kind === "list") && !Number.isFinite(Number(target))) {
+      throw new Error("链表参数应填写要插入的新数字。");
+    }
+    if ((kind === "search_lab" || kind === "search") && !Number.isFinite(Number(target))) {
+      throw new Error("查找目标必须是数字。");
+    }
+    return nums;
+  }
+
   function setSteps(steps, scenario) {
     if (!steps || !steps.length) return;
     if (timer) {
@@ -794,7 +874,8 @@
       counting: "数据填 0 到 9 的整数；演示计数排序的统计和回填。",
       review: "数据填系统组件名称；演示综合系统如何维护多结构一致性。"
     };
-    if (customHint) customHint.textContent = hints[demo.kind] || "输入小规模数据，观察本周结构的操作步骤如何变化。";
+    const defaultHint = hints[demo.kind] || "输入小规模数据，观察本周结构的操作步骤如何变化。";
+    setCustomHint(defaultHint);
     customPanel.classList.remove("is-disabled");
     if (applyCustom) applyCustom.disabled = false;
     if (customInput) customInput.disabled = false;
@@ -815,26 +896,40 @@
     if (demo.kind === "counting") customInput.value = "4,2,2,8,3,3,1";
     if (demo.kind === "review") { customInput.value = "顺序表,哈希索引,排序,一致性检查"; customTarget.value = ""; }
     applyCustom.addEventListener("click", () => {
-      const nums = parseNumbers(customInput.value, [12, 7, 4, 20, 15]);
+      let nums = [];
+      try {
+        nums = validateCustomInput();
+      } catch (err) {
+        setCustomHint(err.message, true);
+        return;
+      }
       let steps = null;
-      if (demo.kind === "evolution") steps = customEvolutionSteps(nums);
-      if (demo.kind === "array") steps = customArraySteps(nums, customTarget.value);
-      if (demo.kind === "linked" || demo.kind === "list") steps = customLinkedSteps(nums, customTarget.value);
-      if (demo.kind === "stack") steps = customStackSteps(customInput.value);
-      if (demo.kind === "cqueue" || demo.kind === "queue") steps = customQueueSteps(nums);
-      if (demo.kind === "kmp") steps = customKmpSteps(customInput.value, customTarget.value);
-      if (demo.kind === "traversal" || demo.kind === "tree") steps = customTreeSteps(customInput.value, customTarget.value);
-      if (demo.kind === "avl") steps = customAvlSteps(nums);
-      if (demo.kind === "heap") steps = customHeapSteps(nums);
-      if (demo.kind === "graph") steps = customGraphSteps(nums, false);
-      if (demo.kind === "path") steps = customGraphSteps(nums, true);
-      if (demo.kind === "search_lab" || demo.kind === "search") steps = customSearchSteps(nums, customTarget.value);
-      if (demo.kind === "sort") steps = customSortSteps(nums);
-      if (demo.kind === "counting") steps = customCountingSteps(nums);
-      if (demo.kind === "review") steps = customReviewSteps(nums);
-      setSteps(steps, "自定义输入实验：用学生输入的数据重新生成操作步骤。");
+      try {
+        if (demo.kind === "evolution") steps = customEvolutionSteps(nums);
+        if (demo.kind === "array") steps = customArraySteps(nums, customTarget.value);
+        if (demo.kind === "linked" || demo.kind === "list") steps = customLinkedSteps(nums, customTarget.value);
+        if (demo.kind === "stack") steps = customStackSteps(customInput.value);
+        if (demo.kind === "cqueue" || demo.kind === "queue") steps = customQueueSteps(nums);
+        if (demo.kind === "kmp") steps = customKmpSteps(customInput.value, customTarget.value);
+        if (demo.kind === "traversal" || demo.kind === "tree") steps = customTreeSteps(customInput.value, customTarget.value);
+        if (demo.kind === "avl") steps = customAvlSteps(nums);
+        if (demo.kind === "heap") steps = customHeapSteps(nums);
+        if (demo.kind === "graph") steps = customGraphSteps(nums, false);
+        if (demo.kind === "path") steps = customGraphSteps(nums, true);
+        if (demo.kind === "search_lab" || demo.kind === "search") steps = customSearchSteps(nums, customTarget.value);
+        if (demo.kind === "sort") steps = customSortSteps(nums);
+        if (demo.kind === "counting") steps = customCountingSteps(nums);
+        if (demo.kind === "review") steps = customReviewSteps(nums);
+        setCustomHint("已使用自定义输入生成 " + (steps ? steps.length : 0) + " 个步骤。");
+        setSteps(steps, "自定义输入实验：用学生输入的数据重新生成操作步骤。");
+      } catch (err) {
+        setCustomHint("生成失败：" + err.message, true);
+      }
     });
-    restoreDemo.addEventListener("click", () => setSteps(JSON.parse(JSON.stringify(originalSteps)), originalScenario));
+    restoreDemo.addEventListener("click", () => {
+      setCustomHint(defaultHint);
+      setSteps(JSON.parse(JSON.stringify(originalSteps)), originalScenario);
+    });
   }
 
   function render() {

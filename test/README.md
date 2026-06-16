@@ -12,5 +12,5 @@
 - 课后作业：每 2 到 3 周一次，关注代码实现和复杂度分析。
 - LLM 任务：要求学生提交提示词、模型输出摘要、人工验证结果和最终代码修改。
 - 阶段测试：线性结构、树图结构、查找排序、综合设计各一次。
-- 正式模拟卷：见 [exams/](exams/)，在线提交版见 [../onlineweb/exam.html](../onlineweb/exam.html)。
+- 模拟卷与在线自测：见 [exams/](exams/)，在线自测版见 [../onlineweb/exam.html](../onlineweb/exam.html)。正式考试与 hidden tests 的保密边界见 [../ASSESSMENT_SECURITY.md](../ASSESSMENT_SECURITY.md)。
 

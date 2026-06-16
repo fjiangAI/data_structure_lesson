@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <a class="skip-link" href="#mainContent">跳到主内容</a>
   <header class="site-header">
     <nav>
       <strong>数据结构 C 语言版</strong>
@@ -14,7 +15,7 @@
         <a href="#weeks">周次</a>
         <a href="#lab">交互实验</a>
         <a href="#practice">练习</a>
-        <a href="exam.html">考试</a>
+        <a href="exam.html">自测</a>
       </div>
     </nav>
     <section class="hero">
@@ -36,7 +37,7 @@
     </section>
   </header>
 
-  <main>
+  <main id="mainContent">
     <section class="band summary">
       <article>
         <strong id="progressText">0/16</strong>
@@ -54,6 +55,15 @@
         <strong>C11</strong>
         <span>全部示例围绕 C 语言结构体、指针和数组</span>
       </article>
+      <article class="progress-tools">
+        <strong>学习记录</strong>
+        <span id="progressStatus">保存在本地浏览器，可导出备份</span>
+        <div>
+          <button id="exportProgress" type="button">导出</button>
+          <button id="importProgress" type="button">导入</button>
+          <input id="progressFile" type="file" accept="application/json,.json" hidden>
+        </div>
+      </article>
     </section>
 
     <section class="content-section resource-center">
@@ -66,9 +76,10 @@
         <a href="viewer.html?src=../syllabus.md"><strong>课程日历</strong><span>16 周节奏与阶段安排</span></a>
         <a href="viewer.html?src=../assignments/README.md"><strong>实验作业</strong><span>6 个跨周 Lab 模板</span></a>
         <a href="viewer.html?src=../test/README.md"><strong>测试题库</strong><span>随堂测试、课后作业与参考答案</span></a>
-        <a href="exam.html"><strong>在线考试</strong><span>期中、期末模拟卷，提交后即时评分</span></a>
+        <a href="exam.html"><strong>在线自测</strong><span>期中、期末模拟卷，提交后即时反馈，不作为正式成绩</span></a>
         <a href="viewer.html?src=../review/README.md"><strong>复习包</strong><span>期中、期末与复杂度速查</span></a>
         <a href="viewer.html?src=../AI_LEARNING_GUIDE.md"><strong>AI 学习规范</strong><span>提示词、核查与使用记录</span></a>
+        <a href="viewer.html?src=../ASSESSMENT_SECURITY.md"><strong>考核边界</strong><span>公开自测、正式考试与 hidden tests 分层</span></a>
         <a href="viewer.html?src=../teacher_guide/README.md"><strong>教师指南</strong><span>课堂组织与评分 Rubric</span></a>
         <a href="viewer.html?src=../teacher_guide/lesson_plans/README.md"><strong>教师教案</strong><span>16 周逐周讲解脚本与课堂活动</span></a>
         <a href="viewer.html?src=../teacher_guide/lab_solutions/README.md"><strong>Lab 教师包</strong><span>参考实现、讲解说明与 hidden-test 模板</span></a>

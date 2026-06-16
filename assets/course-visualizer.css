@@ -101,6 +101,10 @@ button {
   font-weight: 800;
   transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease, background .18s ease;
 }
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 3px solid rgba(31, 138, 112, .35);
+  outline-offset: 3px;
+}
 .primary-btn:hover, .ghost-btn:hover, .icon-btn:hover, .op-card:hover, .resource-strip a:hover {
   transform: translateY(-1px);
   border-color: #9bc9bd;
@@ -173,6 +177,7 @@ button {
 }
 .custom-lab-panel h3 { font-size: 20px; margin: 0; }
 .custom-lab-panel p { margin: 8px 0 0; color: var(--muted); }
+.custom-lab-panel p.is-error { color: #b91c1c; font-weight: 800; }
 .custom-lab-panel.is-disabled {
   opacity: .72;
   background: #f8fafc;

@@ -30,6 +30,8 @@ def main():
         "onlineweb/index.html",
         "onlineweb/viewer.html",
         "onlineweb/exam.html",
+        "ASSESSMENT_SECURITY.md",
+        "MAINTAINING.md",
         "assets/course-visualizer.css",
         "assets/course-visualizer.js",
         "AI_LEARNING_GUIDE.md",

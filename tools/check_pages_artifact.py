@@ -7,6 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 REQUIRED = [
     "index.html",
     "README.md",
+    "ASSESSMENT_SECURITY.md",
+    "MAINTAINING.md",
     "onlineweb/index.html",
     "onlineweb/viewer.html",
     "onlineweb/exam.html",

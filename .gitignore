@@ -1,4 +1,6 @@
 # C build artifacts
+build/
+**/build/
 *.exe
 *.out
 *.o

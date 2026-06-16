@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>数据结构在线考试</title>
+  <title>数据结构在线自测</title>
   <link rel="stylesheet" href="exam.css">
 </head>
 <body>
@@ -11,11 +11,16 @@
     <nav>
       <a href="./">课程首页</a>
       <a href="viewer.html?src=../test/exams/README.md">考试说明</a>
+      <a href="viewer.html?src=../ASSESSMENT_SECURITY.md">考核边界</a>
     </nav>
     <h1>数据结构在线自测考试</h1>
-    <p>选择试卷后答题，提交即可查看分数、错题和解析。结果保存在本地浏览器中。</p>
+    <p>本页面是公开静态站点中的自测工具，提交后可查看分数、错题和解析。题目与答案位于前端文件中，不作为正式课程成绩依据。</p>
   </header>
   <main>
+    <section class="exam-notice">
+      <strong>自测定位</strong>
+      <span>适合复习诊断和即时反馈；正式考试、hidden tests 与成绩评定请使用教师私有仓库或学校教学平台。</span>
+    </section>
     <section class="exam-toolbar">
       <label>试卷
         <select id="examSelect">
