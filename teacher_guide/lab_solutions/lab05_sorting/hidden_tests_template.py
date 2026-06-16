@@ -44,23 +44,70 @@ REQUIRED_SIGNALS = [
     "merge",
     "count"
 ]
+HIDDEN_MAIN = r'''#include "lab05_sorting.h"
+#include <stdio.h>
+
+static int sorted(const int *a, int n) {
+    for (int i = 1; i < n; ++i) if (a[i - 1] > a[i]) return 0;
+    return 1;
+}
+
+int main(void) {
+    int a[] = {5, 4, 3, 2, 1};
+    int b[] = {1};
+    int c[] = {2, 0, 2, 1};
+    int out[4];
+    insertion_sort(a, 5);
+    merge_sort(b, 1);
+    if (!counting_sort(c, 4, out, 2)) return 1;
+    if (!sorted(a, 5) || b[0] != 1 || !sorted(out, 4)) return 2;
+    if (out[0] != 0 || out[1] != 1 || out[2] != 2 || out[3] != 2) return 3;
+    puts("hidden: ok");
+    return 0;
+}
+'''
+LAB_ROOT = Path(__file__).resolve().parents[3] / "assignments" / "lab05_sorting"
+HEADER_PATH = LAB_ROOT / "starter" / "lab05_sorting.h"
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
-def compile_and_run(source, compiler):
+def source_arg_for(source, tmp):
+    try:
+        return source.relative_to(LAB_ROOT).as_posix()
+    except ValueError:
+        copied = Path(tmp) / source.name
+        shutil.copyfile(source, copied)
+        return str(copied)
+
+
+def compile_and_run(source, compiler, hidden=False):
     compiler_path = shutil.which(compiler)
     if compiler_path is None:
         raise SystemExit(f"Compiler not found: {compiler}")
     source = Path(source).resolve()
     with tempfile.TemporaryDirectory() as tmp:
         exe = Path(tmp) / ("solution.exe" if os.name == "nt" else "solution")
+        harness = Path(tmp) / "hidden_main.c" if hidden else LAB_ROOT / "tests" / "public_main.c"
+        if hidden:
+            harness.write_text(HIDDEN_MAIN, encoding="utf-8")
         subprocess.run(
-            [compiler_path, "-std=c11", "-Wall", "-Wextra", source.name, "-o", str(exe)],
+            [
+                compiler_path,
+                "-std=c11",
+                "-Wall",
+                "-Wextra",
+                "-I",
+                "starter",
+                source_arg_for(source, tmp),
+                str(harness) if hidden else "tests/public_main.c",
+                "-o",
+                str(exe),
+            ],
             check=True,
-            cwd=source.parent,
+            cwd=LAB_ROOT,
         )
         return subprocess.run(
             [str(exe)],
@@ -74,6 +121,8 @@ def compile_and_run(source, compiler):
 
 def inspect_source(source, enforce_signals=False):
     text = Path(source).read_text(encoding="utf-8-sig", errors="replace")
+    if HEADER_PATH.exists():
+        text += "\n" + HEADER_PATH.read_text(encoding="utf-8-sig", errors="replace")
     fatal = []
     warnings = []
     if "TODO" in text:
@@ -103,7 +152,7 @@ def main():
     args = parser.parse_args()
 
     source = Path(args.source)
-    actual = compile_and_run(source, args.cc)
+    actual = compile_and_run(source, args.cc, hidden=False)
     if actual != EXPECTED_PUBLIC:
         print("Public-output compatibility failed.")
         print("Expected:", EXPECTED_PUBLIC)
@@ -119,8 +168,14 @@ def main():
             print("-", item)
         raise SystemExit(1)
 
+    hidden_actual = compile_and_run(source, args.cc, hidden=True)
+    if hidden_actual != ["hidden: ok"]:
+        print("Hidden harness failed.")
+        print("Actual:", hidden_actual)
+        raise SystemExit(1)
+
     print_hidden_case_plan()
-    print("Automatic hidden checks passed. Move the scenario samples into a private harness for formal grading.")
+    print("Automatic hidden checks passed. Add more private cases before formal grading.")
 
 
 if __name__ == "__main__":

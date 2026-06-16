@@ -2077,6 +2077,49 @@ ${markdownTable(week.operations)}
 `;
 }
 
+function previewContent(week) {
+  const operations = week.operations.slice(0, 3).map((op, index) => `${index + 1}. ${op[0]}：${op[1]}，先不用背代码，先说清楚它改变了哪些对象关系。`).join("\n");
+  const mustKnow = week.topics.slice(0, 5).map((topic) => `- ${topic}`).join("\n");
+  return `
+# ${weekName(week)} ${week.title} 课前 15 分钟预习
+
+本页用于课前快速建立学习框架。目标不是提前学完本周内容，而是带着正确问题进入课堂。
+
+## 本周先回答一个问题
+
+${structureStage(week).question}
+
+## 必须先认识的概念
+
+${mustKnow}
+
+## 课前观察任务
+
+1. 打开 [interactive.html](interactive.html)，手动点击前 3 个步骤。
+2. 只记录两件事：对象是什么，关系在哪里。
+3. 打开 [examples/${week.codeFile}](examples/${week.codeFile})，找到结构体定义或核心数组。
+4. 写下一个你不确定的边界输入，课堂上用它检验操作。
+
+## 本周核心操作预告
+
+${operations}
+
+## 课前小题
+
+1. 本周结构中，哪个字段或位置最能代表“关系”？
+2. 如果这个结构为空，最容易出错的操作是什么？
+3. 本周某个核心操作的输入规模 n 应该指什么？
+
+## 达标信号
+
+上课前能做到以下 3 点即可：
+
+- 能用一句话说明本周结构解决了什么关系表达问题。
+- 能指出至少一个操作会改变哪些字段、指针、下标或边。
+- 能提出一个边界输入，而不是只看正常样例。
+`;
+}
+
 function diagnosticSnippetFor(week) {
   const snippets = {
     1: ["递归分析缺失出口", "int f(int n) { return f(n / 2) + n; }", "没有基本情况，任何 n 都会继续递归直到栈溢出。"],
@@ -3494,10 +3537,12 @@ function readmeContent() {
 - \`onlineweb/viewer.html\` 会把 Markdown 讲义、练习和 C 源码渲染成更适合阅读的网页，并为 C 代码提供语法高亮与行号。
 - \`interactive.html\` 和 \`onlineweb/\` 使用 GSAP 驱动步骤动画，不依赖前端构建工具，可直接托管到 GitHub Pages。
 - 每个交互演示页包含“动画步骤对应伪代码与关键 C 片段”面板，帮助学生把结构变化映射到实现思路和代码位置。
-- \`assignments/\` 提供 6 个跨周实验模板、可运行 starter、public test 和统一测试运行器，覆盖线性表、栈队列串、树堆、图查找、排序和综合设计。
+- \`assignments/\` 提供 6 个跨周实验模板、ADT 头文件、可运行 starter、public harness、参考实现和统一测试运行器，覆盖线性表、栈队列串、树堆、图查找、排序和综合设计。
+- 每周提供 \`preview.md\`，配合 [TEACHING_QUALITY.md](TEACHING_QUALITY.md) 明确课前预习、课堂理解检查和学生达标信号。
+- [SUBMISSION_GUIDE.md](SUBMISSION_GUIDE.md) 提供 GitHub Classroom / OJ 迁移方式，[STUDENT_PROGRESS_REPORT.md](STUDENT_PROGRESS_REPORT.md) 提供学习进度报告模板。
 - \`teacher_guide/\` 提供课堂组织建议、评分 Rubric 和 16 周逐周教案，便于教师和助教使用。
 - \`STUDENT_GUIDE.md\`、\`syllabus.md\` 和 \`review/\` 分别提供学生入门、课程日历和复习包。
-- \`.github/workflows/ci.yml\` 会检查课程结构、编译所有 C 示例、运行 Lab 参考实现 public tests，并在 Linux 下执行 sanitizer 编译检查，提升仓库维护可靠性。
+- \`.github/workflows/ci.yml\` 会检查课程结构、编译所有 C 示例、运行 Lab 参考实现 public tests、生成可打印讲义包，并在 Linux 下执行 sanitizer 与前端渲染烟测，提升仓库维护可靠性。
 
 ## 课程核心观念
 
@@ -3557,6 +3602,11 @@ function readmeContent() {
 ├── README.md
 ├── LICENSE
 ├── ASSESSMENT_SECURITY.md
+├── TEACHING_QUALITY.md
+├── SUBMISSION_GUIDE.md
+├── STUDENT_PROGRESS_REPORT.md
+├── RELEASE_CHECKLIST.md
+├── CHANGELOG.md
 ├── MAINTAINING.md
 ├── AI_LEARNING_GUIDE.md
 ├── STUDENT_GUIDE.md
@@ -3568,6 +3618,7 @@ function readmeContent() {
 ├── assets/
 ├── week01_algorithm_analysis/
 │   ├── lecture.md
+│   ├── preview.md
 │   ├── exercises.md
 │   ├── answers.md
 │   ├── extensions.md
@@ -3586,13 +3637,14 @@ function readmeContent() {
 每个 week 文件夹包含：
 
 - \`lecture.md\`：系统讲义，包含概念、C 表示、关键操作、复杂度和授课建议。
+- \`preview.md\`：课前 15 分钟预习页，用于降低首次学习门槛并明确课堂观察任务。
 - \`examples/*.c\`：可编译运行的 C 语言示例代码。
 - \`exercises.md\`：基础理解、代码阅读、分析设计和 LLM 辅助任务。
 - \`answers.md\`：参考答案和评分建议。
 - \`extensions.md\`：不带标准答案的拓展讨论问题。
 - \`interactive.html\`：独立交互演示页，可直接用浏览器打开。
 
-\`assets/\` 存放公共可视化样式和脚本。\`test/\` 包含随堂测试、课后作业、在线模拟考试、LLM/代码大模型辅助学习任务和参考答案。\`assignments/\` 是跨周实验作业模板。\`teacher_guide/\` 是教师和助教使用指南。\`review/\` 是期中、期末复习包。\`onlineweb/\` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习、阅读材料、在线自测和记录学习进度。\`ASSESSMENT_SECURITY.md\` 说明公开学习材料与正式考核材料的边界。\`MAINTAINING.md\` 说明生成器维护和长期拆分策略。\`.github/workflows/pages.yml\` 用于自动部署 GitHub Pages，\`.github/workflows/ci.yml\` 用于课程结构、链接、编码、Pages 产物、C 示例编译、Lab public tests 和 sanitizer 检查，\`tools/generate_course.mjs\` 用于重新生成课程材料。
+\`assets/\` 存放公共可视化样式和脚本。\`test/\` 包含随堂测试、课后作业、在线模拟考试、LLM/代码大模型辅助学习任务和参考答案。\`assignments/\` 是跨周实验作业模板。\`teacher_guide/\` 是教师和助教使用指南。\`review/\` 是期中、期末复习包。\`onlineweb/\` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习、阅读材料、在线自测和记录学习进度。\`ASSESSMENT_SECURITY.md\` 说明公开学习材料与正式考核材料的边界。\`TEACHING_QUALITY.md\` 说明每周宽度、深度和达标信号。\`SUBMISSION_GUIDE.md\` 说明 GitHub Classroom / OJ 提交方式。\`STUDENT_PROGRESS_REPORT.md\` 用于学生阶段反思。\`RELEASE_CHECKLIST.md\` 用于开课前发布核查。\`MAINTAINING.md\` 说明生成器维护和长期拆分策略。\`.github/workflows/pages.yml\` 用于自动部署 GitHub Pages，\`.github/workflows/ci.yml\` 用于课程结构、链接、编码、Pages 产物、C 示例编译、Lab public tests、sanitizer、讲义包和前端烟测检查，\`tools/generate_course.mjs\` 用于重新生成课程材料。
 
 ## 16 周安排
 
@@ -3650,9 +3702,10 @@ python3 tools/compile_examples.py --require-compiler
 python3 tools/run_lab_tests.py --all --expect-starter-fail
 python3 tools/run_reference_solutions.py
 python3 tools/sanitize_examples.py
+python3 tools/build_print_pack.py
 \`\`\`
 
-这些脚本会检查 16 个 week 文件夹、交互演示数据、阅读器、实验模板、教师指南、复习包、站内链接、文本编码和 Pages 发布所需文件。编译脚本会用 \`gcc\`、\`clang\` 或 \`CC\` 环境变量指定的编译器编译所有 C 示例；参考实现脚本会验证 6 个 Lab 的 public output；sanitizer 脚本用于在支持 AddressSanitizer/UndefinedBehaviorSanitizer 的环境中检查内存和未定义行为风险。
+这些脚本会检查 16 个 week 文件夹、交互演示数据、阅读器、实验模板、教师指南、复习包、站内链接、文本编码和 Pages 发布所需文件。编译脚本会用 \`gcc\`、\`clang\` 或 \`CC\` 环境变量指定的编译器编译所有 C 示例；参考实现脚本会验证 6 个 Lab 的 public output；sanitizer 脚本用于在支持 AddressSanitizer/UndefinedBehaviorSanitizer 的环境中检查内存和未定义行为风险；讲义包脚本会生成 \`build/print_pack/course_pack.md\`，用于备课、归档或进一步转 PDF。
 
 如果本机暂时没有 C 编译器，可以先列出所有示例：
 
@@ -3665,6 +3718,7 @@ python3 tools/compile_examples.py --list
 \`\`\`bash
 make check
 make compile
+make print-pack
 \`\`\`
 
 ## 开发环境
@@ -4174,6 +4228,9 @@ function onlineIndex() {
       <div class="resource-grid">
         <a href="viewer.html?src=../STUDENT_GUIDE.md"><strong>学生入门</strong><span>网站、编译、作业和 AI 使用说明</span></a>
         <a href="viewer.html?src=../syllabus.md"><strong>课程日历</strong><span>16 周节奏与阶段安排</span></a>
+        <a href="viewer.html?src=../TEACHING_QUALITY.md"><strong>教学质量</strong><span>每周达标信号、理解检查与宽度控制</span></a>
+        <a href="viewer.html?src=../SUBMISSION_GUIDE.md"><strong>提交指南</strong><span>GitHub Classroom / OJ 作业迁移建议</span></a>
+        <a href="viewer.html?src=../STUDENT_PROGRESS_REPORT.md"><strong>学习报告</strong><span>阶段复盘、边界测试与 AI 使用记录模板</span></a>
         <a href="viewer.html?src=../assignments/README.md"><strong>实验作业</strong><span>6 个跨周 Lab 模板</span></a>
         <a href="viewer.html?src=../test/README.md"><strong>测试题库</strong><span>随堂测试、课后作业与参考答案</span></a>
         <a href="exam.html"><strong>在线自测</strong><span>期中、期末模拟卷，提交后即时反馈，不作为正式成绩</span></a>
@@ -4823,6 +4880,7 @@ function renderWeeks() {
     })
     .forEach((week) => {
       const lectureUrl = viewerUrl(week.folder + "lecture.md");
+      const previewUrl = viewerUrl(week.folder + "preview.md");
       const codeUrl = viewerUrl(week.folder + "examples/" + week.codeFile);
       const exerciseUrl = viewerUrl(week.folder + "exercises.md");
       const state = weekState(week.id);
@@ -4843,6 +4901,7 @@ function renderWeeks() {
           }).join("")}
         </div>
         <div class="card-links">
+          <a href="\${previewUrl}">预习</a>
           <a href="\${lectureUrl}">讲义</a>
           <a href="\${week.folder}interactive.html">演示</a>
           <a href="\${codeUrl}">代码</a>
@@ -7174,8 +7233,16 @@ jobs:
       - name: Run sanitizer checks for C examples
         run: python3 tools/sanitize_examples.py
 
+      - name: Build printable lecture pack
+        run: python3 tools/build_print_pack.py
+
       - name: Check Pages artifact contents
         run: python3 tools/check_pages_artifact.py
+
+      - name: Verify frontend render smoke test
+        run: |
+          python3 -m pip install websocket-client
+          python3 tools/verify_visuals.py
 `;
 }
 
@@ -7219,7 +7286,7 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site
-          cp -R index.html README.md ASSESSMENT_SECURITY.md MAINTAINING.md STUDENT_GUIDE.md AI_LEARNING_GUIDE.md CONTRIBUTING.md syllabus.md Makefile Dockerfile .editorconfig .gitattributes assets onlineweb test assignments teacher_guide review tools week* _site/
+          cp -R index.html README.md ASSESSMENT_SECURITY.md TEACHING_QUALITY.md SUBMISSION_GUIDE.md STUDENT_PROGRESS_REPORT.md RELEASE_CHECKLIST.md CHANGELOG.md MAINTAINING.md STUDENT_GUIDE.md AI_LEARNING_GUIDE.md CONTRIBUTING.md syllabus.md Makefile Dockerfile .editorconfig .gitattributes assets onlineweb test assignments teacher_guide review tools week* _site/
           if [ -f LICENSE ]; then cp LICENSE _site/; fi
           touch _site/.nojekyll
 
@@ -7263,6 +7330,11 @@ build/
 *.dylib
 a.out
 
+# Python cache
+__pycache__/
+**/__pycache__/
+*.pyc
+
 # Generated site artifact used by GitHub Pages workflow
 _site/
 verification_screenshots/
@@ -7279,7 +7351,7 @@ function makefileContent() {
   return `
 PYTHON ?= python3
 
-.PHONY: check compile examples test-labs test-references sanitize clean
+.PHONY: check compile examples test-labs test-references sanitize print-pack visuals clean
 
 check:
 \t$(PYTHON) tools/check_course_structure.py
@@ -7298,6 +7370,12 @@ test-references:
 
 sanitize:
 \t$(PYTHON) tools/sanitize_examples.py
+
+print-pack:
+\t$(PYTHON) tools/build_print_pack.py
+
+visuals:
+\t$(PYTHON) tools/verify_visuals.py
 
 clean:
 \trm -rf build verification_screenshots assignments/lab*/build
@@ -7604,6 +7682,11 @@ def main():
         "onlineweb/viewer.html",
         "onlineweb/exam.html",
         "ASSESSMENT_SECURITY.md",
+        "TEACHING_QUALITY.md",
+        "SUBMISSION_GUIDE.md",
+        "STUDENT_PROGRESS_REPORT.md",
+        "RELEASE_CHECKLIST.md",
+        "CHANGELOG.md",
         "MAINTAINING.md",
         "assets/course-visualizer.css",
         "assets/course-visualizer.js",
@@ -7615,6 +7698,8 @@ def main():
         "Dockerfile",
         ".devcontainer/devcontainer.json",
         ".devcontainer/Dockerfile",
+        "tools/build_print_pack.py",
+        "tools/verify_visuals.py",
     ]
     for rel in required_root:
         if not (ROOT / rel).exists():
@@ -7625,7 +7710,7 @@ def main():
         fail(f"Expected 16 week folders, found {len(week_dirs)}")
 
     for week in week_dirs:
-        for rel in ["lecture.md", "exercises.md", "answers.md", "extensions.md", "interactive.html"]:
+        for rel in ["preview.md", "lecture.md", "exercises.md", "answers.md", "extensions.md", "interactive.html"]:
             if not (week / rel).exists():
                 fail(f"Missing {week.name}/{rel}")
         examples = list((week / "examples").glob("*.c"))
@@ -7662,6 +7747,11 @@ def main():
         starters = sorted((lab / "starter").glob("*.c"))
         if len(starters) != 1:
             fail(f"Expected exactly one starter C file in {lab.relative_to(ROOT)}/starter")
+        headers = sorted((lab / "starter").glob("*.h"))
+        if len(headers) != 1:
+            fail(f"Expected exactly one starter header in {lab.relative_to(ROOT)}/starter")
+        if not (lab / "tests" / "public_main.c").exists():
+            fail(f"Missing {lab.relative_to(ROOT)}/tests/public_main.c")
         if not (lab / "tests" / "test_lab.py").exists():
             fail(f"Missing {lab.relative_to(ROOT)}/tests/test_lab.py")
 
@@ -7824,6 +7914,11 @@ REQUIRED = [
     "index.html",
     "README.md",
     "ASSESSMENT_SECURITY.md",
+    "TEACHING_QUALITY.md",
+    "SUBMISSION_GUIDE.md",
+    "STUDENT_PROGRESS_REPORT.md",
+    "RELEASE_CHECKLIST.md",
+    "CHANGELOG.md",
     "MAINTAINING.md",
     "onlineweb/index.html",
     "onlineweb/viewer.html",
@@ -7853,6 +7948,109 @@ def main():
     if len(week_pages) != 16:
         raise SystemExit(f"Expected 16 week interactive pages, found {len(week_pages)}")
     print("Pages artifact check passed.")
+
+
+if __name__ == "__main__":
+    main()
+`;
+}
+
+function buildPrintPackScript() {
+  return String.raw`
+import argparse
+import re
+import shutil
+import subprocess
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+OUT_DIR = ROOT / "build" / "print_pack"
+OUT_MD = OUT_DIR / "course_pack.md"
+FENCE = chr(96) * 3
+
+
+def read_text(rel):
+    path = ROOT / rel
+    if not path.exists():
+        return ""
+    return path.read_text(encoding="utf-8-sig").strip()
+
+
+def demote_headings(text, levels=1):
+    lines = []
+    in_fence = False
+    for line in text.splitlines():
+        if line.strip().startswith(FENCE):
+            in_fence = not in_fence
+            lines.append(line)
+            continue
+        if not in_fence and line.startswith("#"):
+            lines.append("#" * levels + line)
+        else:
+            lines.append(line)
+    return "\n".join(lines).strip()
+
+
+def append_file(parts, title, rel, level=1):
+    text = read_text(rel)
+    if not text:
+        return
+    marker = "#" * level
+    parts.append(f"\n\n{marker} {title}\n\n{demote_headings(text, 1)}")
+
+
+def week_title(week_dir):
+    match = re.match(r"week(\d{2})_(.+)", week_dir.name)
+    if not match:
+        return week_dir.name
+    return f"Week {match.group(1)} {match.group(2).replace('_', ' ')}"
+
+
+def build_markdown():
+    parts = [
+        "# 数据结构 C 语言版课程讲义包",
+        "本文件由 tools/build_print_pack.py 生成，便于教师备课、归档和离线阅读。正式发布前请以仓库源文件为准。",
+    ]
+    append_file(parts, "课程总览", "README.md", 1)
+    append_file(parts, "课程日历", "syllabus.md", 1)
+    append_file(parts, "教学质量控制", "TEACHING_QUALITY.md", 1)
+    append_file(parts, "学生提交指南", "SUBMISSION_GUIDE.md", 1)
+
+    for week in sorted(ROOT.glob("week??_*")):
+        if not week.is_dir():
+            continue
+        parts.append(f"\n\n# {week_title(week)}")
+        append_file(parts, "课前预习", week / "preview.md", 2)
+        append_file(parts, "课程讲义", week / "lecture.md", 2)
+        append_file(parts, "练习题", week / "exercises.md", 2)
+        append_file(parts, "拓展问题", week / "extensions.md", 2)
+
+    append_file(parts, "复习包", "review/README.md", 1)
+    append_file(parts, "复杂度速查", "review/complexity_cheatsheet.md", 1)
+    append_file(parts, "高频易错点", "review/common_mistakes.md", 1)
+    return "\n".join(parts).strip() + "\n"
+
+
+def maybe_build_pdf(md_path):
+    pandoc = shutil.which("pandoc")
+    if pandoc is None:
+        raise SystemExit("Pandoc not found. Markdown pack has been generated; install pandoc to export PDF.")
+    pdf = md_path.with_suffix(".pdf")
+    subprocess.run([pandoc, str(md_path), "-o", str(pdf)], check=True)
+    print(f"PDF written to {pdf.relative_to(ROOT)}")
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Build a printable markdown pack for the course.")
+    parser.add_argument("--pdf", action="store_true", help="Also export PDF with pandoc if available.")
+    args = parser.parse_args()
+
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    OUT_MD.write_text(build_markdown(), encoding="utf-8")
+    print(f"Markdown pack written to {OUT_MD.relative_to(ROOT)}")
+    if args.pdf:
+        maybe_build_pdf(OUT_MD)
 
 
 if __name__ == "__main__":
@@ -8191,7 +8389,7 @@ function assignmentsReadme() {
 每个 Lab 同时提供两种材料：
 
 - \`labXX_*.md\`：教师布置作业时可直接引用的完整要求。
-- \`labXX_*/\`：学生可运行 starter，包含 \`starter/*.c\`、\`expected_output.txt\` 和 \`tests/test_lab.py\`。
+- \`labXX_*/\`：学生可运行 ADT starter，包含 \`starter/*.h\`、\`starter/*.c\`、\`tests/public_main.c\`、\`expected_output.txt\` 和 \`tests/test_lab.py\`。
 - [lab_testing_guide.md](lab_testing_guide.md)：测试脚本、统一运行器和 hidden tests 建议。
 - [labs.json](labs.json)：Lab 元数据清单，便于后续接入课程平台或自动批改系统。
 
@@ -8342,129 +8540,6 @@ function assignmentFiles() {
   ];
 }
 
-function labStarterC(id, title, outputLines, todos) {
-  return `#include <stdio.h>
-#include <stdlib.h>
-
-/*
- * Lab ${String(id).padStart(2, "0")} ${title}
- *
- * 使用方式：
- * 1. 先阅读 assignments/lab${String(id).padStart(2, "0")}_.../README.md。
- * 2. 按 TODO 补全数据结构和核心操作。
- * 3. 运行 tests/test_lab.py，直到输出与 expected_output.txt 一致。
- */
-
-${todos.map((todo, index) => `/* TODO ${index + 1}: ${todo} */`).join("\n")}
-
-int main(void) {
-    puts("LAB${String(id).padStart(2, "0")}_STARTER");
-    puts("请补全 TODO 后，让本程序输出 expected_output.txt 中的内容。");
-    return 0;
-}
-`;
-}
-
-function labTestPy(cFile) {
-  return `import argparse
-import os
-import platform
-import shutil
-import subprocess
-import sys
-from pathlib import Path
-
-
-ROOT = Path(__file__).resolve().parents[1]
-EXPECTED = ROOT / "expected_output.txt"
-BUILD = ROOT / "build"
-EXE = BUILD / ("${cFile.replace(".c", "")}" + (".exe" if platform.system().lower().startswith("win") else ""))
-
-if hasattr(sys.stdout, "reconfigure"):
-    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Compile and test this lab.")
-    parser.add_argument("--source", default=str(ROOT / "starter" / "${cFile}"), help="C source file to test.")
-    parser.add_argument("--cc", default=os.environ.get("CC", "gcc"), help="C compiler, default gcc or CC env.")
-    parser.add_argument("--keep-build", action="store_true", help="Keep build directory after running.")
-    args = parser.parse_args()
-    source = Path(args.source).resolve()
-    if not source.exists():
-        raise SystemExit(f"Source file does not exist: {source}")
-    compiler = shutil.which(args.cc)
-    if compiler is None:
-        raise SystemExit(f"Compiler not found: {args.cc}. Install gcc/clang or set CC.")
-    BUILD.mkdir(exist_ok=True)
-    try:
-        source_arg = source.relative_to(ROOT).as_posix()
-    except ValueError:
-        source_arg = str(source)
-    output_arg = EXE.relative_to(ROOT).as_posix()
-    compile_cmd = [compiler, "-std=c11", "-Wall", "-Wextra", source_arg, "-o", output_arg]
-    subprocess.run(compile_cmd, check=True, cwd=ROOT)
-    result = subprocess.run(
-        [str(EXE)],
-        check=True,
-        text=True,
-        capture_output=True,
-        encoding="utf-8",
-        errors="replace",
-    )
-    expected = EXPECTED.read_text(encoding="utf-8").strip()
-    actual = result.stdout.strip()
-    if actual != expected:
-        print("Expected:")
-        print(expected)
-        print("\\nActual:")
-        print(actual)
-        raise SystemExit(1)
-    print("Lab test passed.")
-
-
-if __name__ == "__main__":
-    main()
-`;
-}
-
-function labFolderReadme(id, title, cFile) {
-  return `
-# Lab ${String(id).padStart(2, "0")} ${title} Starter
-
-本文件夹提供学生可运行的作业骨架。
-
-## 文件
-
-- \`starter/${cFile}\`：待补全 C 源码。
-- \`expected_output.txt\`：实现完成后的期望输出。
-- \`tests/test_lab.py\`：编译并运行程序，比较实际输出。
-
-## 运行
-
-\`\`\`bash
-cd assignments/lab${String(id).padStart(2, "0")}_${[
-    "linear_list",
-    "stack_queue_string",
-    "tree_heap",
-    "graph_search",
-    "sorting",
-    "integrated_project"
-  ][id - 1]}
-python3 tests/test_lab.py
-\`\`\`
-
-初始 starter 通常不会通过测试。你需要补全 TODO，并保证输出与 \`expected_output.txt\` 一致。
-
-也可以测试另一份源码：
-
-\`\`\`bash
-python3 tests/test_lab.py --source path/to/your_solution.c
-\`\`\`
-`;
-}
-
 function labDefinitions() {
   return [
     {
@@ -8536,15 +8611,614 @@ function labDefinitions() {
   ];
 }
 
+function labHeaderADT(lab) {
+  const guard = `DS_LAB${String(lab.id).padStart(2, "0")}_${lab.slug.toUpperCase()}_H`;
+  const map = {
+    1: `#ifndef ${guard}
+#define ${guard}
+
+typedef struct {
+    int data[16];
+    int size;
+    int capacity;
+} SeqList;
+
+typedef struct ListNode {
+    int value;
+    struct ListNode *next;
+} ListNode;
+
+void seq_init(SeqList *list, int capacity);
+int seq_insert(SeqList *list, int index, int value);
+int seq_erase(SeqList *list, int index);
+int seq_find(const SeqList *list, int value);
+void list_push_front(ListNode **head, int value);
+int list_find(const ListNode *head, int value);
+int list_delete_value(ListNode **head, int value);
+void list_clear(ListNode **head);
+
+#endif
+`,
+    2: `#ifndef ${guard}
+#define ${guard}
+
+#define CQ_CAPACITY 8
+
+typedef struct {
+    int data[CQ_CAPACITY];
+    int front;
+    int rear;
+} CircularQueue;
+
+int brackets_matched(const char *expr);
+void cq_init(CircularQueue *queue);
+int cq_enqueue(CircularQueue *queue, int value);
+int cq_dequeue(CircularQueue *queue, int *out);
+int kmp_search(const char *text, const char *pattern);
+
+#endif
+`,
+    3: `#ifndef ${guard}
+#define ${guard}
+
+#include <stddef.h>
+
+typedef struct {
+    int data[16];
+    int size;
+} MinHeap;
+
+void tree_demo_preorder(char *out, size_t cap);
+int avl_demo_root(void);
+void heap_init(MinHeap *heap);
+int heap_push(MinHeap *heap, int value);
+int heap_pop(MinHeap *heap, int *out);
+
+#endif
+`,
+    4: `#ifndef ${guard}
+#define ${guard}
+
+#include <stddef.h>
+
+void graph_demo_bfs(char *out, size_t cap);
+int dijkstra_demo_dist_d(void);
+int hash_demo_insert(int *table, int capacity, int key);
+int hash_demo_find(const int *table, int capacity, int key);
+
+#endif
+`,
+    5: `#ifndef ${guard}
+#define ${guard}
+
+void insertion_sort(int *array, int n);
+void merge_sort(int *array, int n);
+int counting_sort(const int *input, int n, int *output, int max_key);
+
+#endif
+`,
+    6: `#ifndef ${guard}
+#define ${guard}
+
+#include <stddef.h>
+
+typedef struct {
+    int id;
+    char name[16];
+    int score;
+} Student;
+
+typedef struct {
+    Student data[16];
+    int size;
+} StudentSystem;
+
+void system_init(StudentSystem *system);
+int system_add(StudentSystem *system, int id, const char *name, int score);
+const Student *system_find(const StudentSystem *system, int id);
+int system_delete(StudentSystem *system, int id);
+void system_rank_names(const StudentSystem *system, char *out, size_t cap);
+
+#endif
+`
+  };
+  return map[lab.id];
+}
+
+function labStarterADT(lab) {
+  const header = lab.cFile.replace(".c", ".h");
+  const map = {
+    1: `#include "${header}"
+#include <stdlib.h>
+
+void seq_init(SeqList *list, int capacity) {
+    /* TODO: initialize size, capacity, and storage invariant. */
+    (void)list;
+    (void)capacity;
+}
+
+int seq_insert(SeqList *list, int index, int value) {
+    /* TODO: check boundary and move suffix from back to front. */
+    (void)list;
+    (void)index;
+    (void)value;
+    return 0;
+}
+
+int seq_erase(SeqList *list, int index) {
+    /* TODO: check boundary and move suffix left. */
+    (void)list;
+    (void)index;
+    return 0;
+}
+
+int seq_find(const SeqList *list, int value) {
+    /* TODO: return first matched index, or -1 when not found. */
+    (void)list;
+    (void)value;
+    return -1;
+}
+
+void list_push_front(ListNode **head, int value) {
+    /* TODO: allocate a node and link it before current head. */
+    (void)head;
+    (void)value;
+}
+
+int list_find(const ListNode *head, int value) {
+    /* TODO: walk next pointers. */
+    (void)head;
+    (void)value;
+    return 0;
+}
+
+int list_delete_value(ListNode **head, int value) {
+    /* TODO: unlink the first matched node and free it. */
+    (void)head;
+    (void)value;
+    return 0;
+}
+
+void list_clear(ListNode **head) {
+    /* TODO: release every node and set *head to NULL. */
+    (void)head;
+}
+`,
+    2: `#include "${header}"
+
+int brackets_matched(const char *expr) {
+    /* TODO: use a stack to match (), [], {}. */
+    (void)expr;
+    return 0;
+}
+
+void cq_init(CircularQueue *queue) {
+    /* TODO: set front and rear to the empty state. */
+    (void)queue;
+}
+
+int cq_enqueue(CircularQueue *queue, int value) {
+    /* TODO: write at rear and move rear by modulo. */
+    (void)queue;
+    (void)value;
+    return 0;
+}
+
+int cq_dequeue(CircularQueue *queue, int *out) {
+    /* TODO: read at front and move front by modulo. */
+    (void)queue;
+    (void)out;
+    return 0;
+}
+
+int kmp_search(const char *text, const char *pattern) {
+    /* TODO: implement KMP or a correct naive baseline. */
+    (void)text;
+    (void)pattern;
+    return -1;
+}
+`,
+    3: `#include "${header}"
+
+void tree_demo_preorder(char *out, size_t cap) {
+    /* TODO: build/traverse a demo binary tree and write preorder string. */
+    if (cap > 0) out[0] = '\\0';
+}
+
+int avl_demo_root(void) {
+    /* TODO: insert 30,20,10 and return root after rotation. */
+    return -1;
+}
+
+void heap_init(MinHeap *heap) {
+    /* TODO: initialize heap size. */
+    (void)heap;
+}
+
+int heap_push(MinHeap *heap, int value) {
+    /* TODO: insert and sift up. */
+    (void)heap;
+    (void)value;
+    return 0;
+}
+
+int heap_pop(MinHeap *heap, int *out) {
+    /* TODO: remove min and sift down. */
+    (void)heap;
+    (void)out;
+    return 0;
+}
+`,
+    4: `#include "${header}"
+
+void graph_demo_bfs(char *out, size_t cap) {
+    /* TODO: run BFS on the demo graph and write visit order. */
+    if (cap > 0) out[0] = '\\0';
+}
+
+int dijkstra_demo_dist_d(void) {
+    /* TODO: return shortest distance from A to D in the demo graph. */
+    return -1;
+}
+
+int hash_demo_insert(int *table, int capacity, int key) {
+    /* TODO: linear probing insert. */
+    (void)table;
+    (void)capacity;
+    (void)key;
+    return 0;
+}
+
+int hash_demo_find(const int *table, int capacity, int key) {
+    /* TODO: linear probing find. */
+    (void)table;
+    (void)capacity;
+    (void)key;
+    return 0;
+}
+`,
+    5: `#include "${header}"
+
+void insertion_sort(int *array, int n) {
+    /* TODO: implement stable insertion sort. */
+    (void)array;
+    (void)n;
+}
+
+void merge_sort(int *array, int n) {
+    /* TODO: implement merge sort. */
+    (void)array;
+    (void)n;
+}
+
+int counting_sort(const int *input, int n, int *output, int max_key) {
+    /* TODO: count keys in range 0..max_key and fill output. */
+    (void)input;
+    (void)n;
+    (void)output;
+    (void)max_key;
+    return 0;
+}
+`,
+    6: `#include "${header}"
+
+void system_init(StudentSystem *system) {
+    /* TODO: initialize record table and index state. */
+    (void)system;
+}
+
+int system_add(StudentSystem *system, int id, const char *name, int score) {
+    /* TODO: reject duplicate id, append record, update index. */
+    (void)system;
+    (void)id;
+    (void)name;
+    (void)score;
+    return 0;
+}
+
+const Student *system_find(const StudentSystem *system, int id) {
+    /* TODO: use index to locate the record. */
+    (void)system;
+    (void)id;
+    return 0;
+}
+
+int system_delete(StudentSystem *system, int id) {
+    /* TODO: delete record and rebuild or repair index. */
+    (void)system;
+    (void)id;
+    return 0;
+}
+
+void system_rank_names(const StudentSystem *system, char *out, size_t cap) {
+    /* TODO: sort by score descending and write names. */
+    (void)system;
+    if (cap > 0) out[0] = '\\0';
+}
+`
+  };
+  return map[lab.id];
+}
+
+function labPublicMainADT(lab) {
+  const header = lab.cFile.replace(".c", ".h");
+  const map = {
+    1: `#include "${header}"
+#include <stdio.h>
+
+static void print_seq(const SeqList *list) {
+    printf("seq:");
+    for (int i = 0; i < list->size; ++i) printf(" %d", list->data[i]);
+    printf("\\n");
+}
+
+static void print_list(const ListNode *head) {
+    printf("list:");
+    for (const ListNode *p = head; p; p = p->next) printf(" %d", p->value);
+    printf("\\n");
+}
+
+int main(void) {
+    SeqList seq;
+    seq_init(&seq, 8);
+    seq_insert(&seq, 0, 10);
+    seq_insert(&seq, 1, 20);
+    seq_insert(&seq, 2, 30);
+    seq_insert(&seq, 2, 25);
+    print_seq(&seq);
+
+    ListNode *head = 0;
+    list_push_front(&head, 10);
+    list_push_front(&head, 20);
+    list_push_front(&head, 25);
+    list_push_front(&head, 30);
+    print_list(head);
+    printf("find 25: %s\\n", seq_find(&seq, 25) >= 0 && list_find(head, 25) ? "yes" : "no");
+    list_clear(&head);
+    return 0;
+}
+`,
+    2: `#include "${header}"
+#include <stdio.h>
+
+int main(void) {
+    printf("brackets: %s\\n", brackets_matched("a[(b+c)*d]") ? "matched" : "mismatch");
+    CircularQueue queue;
+    cq_init(&queue);
+    for (int value = 10; value <= 70; value += 10) cq_enqueue(&queue, value);
+    int discarded = 0;
+    cq_dequeue(&queue, &discarded);
+    cq_dequeue(&queue, &discarded);
+    printf("queue:");
+    int value = 0;
+    while (cq_dequeue(&queue, &value)) printf(" %d", value);
+    printf("\\n");
+    printf("match abcac: %d\\n", kmp_search("ababcabcacbab", "abcac"));
+    return 0;
+}
+`,
+    3: `#include "${header}"
+#include <stdio.h>
+
+int main(void) {
+    char order[64];
+    tree_demo_preorder(order, sizeof(order));
+    printf("preorder: %s\\n", order);
+    printf("avl-root: %d\\n", avl_demo_root());
+    MinHeap heap;
+    heap_init(&heap);
+    int values[] = {12, 7, 3, 25, 18};
+    for (int i = 0; i < 5; ++i) heap_push(&heap, values[i]);
+    printf("heap-pop:");
+    for (int i = 0; i < 3; ++i) {
+        int out = 0;
+        heap_pop(&heap, &out);
+        printf(" %d", out);
+    }
+    printf("\\n");
+    return 0;
+}
+`,
+    4: `#include "${header}"
+#include <stdio.h>
+
+int main(void) {
+    char order[64];
+    graph_demo_bfs(order, sizeof(order));
+    printf("bfs: %s\\n", order);
+    printf("dist D: %d\\n", dijkstra_demo_dist_d());
+    int table[7];
+    for (int i = 0; i < 7; ++i) table[i] = -1;
+    int keys[] = {18, 25, 46, 11};
+    for (int i = 0; i < 4; ++i) hash_demo_insert(table, 7, keys[i]);
+    printf("hash 46: %s\\n", hash_demo_find(table, 7, 46) ? "found" : "missing");
+    return 0;
+}
+`,
+    5: `#include "${header}"
+#include <stdio.h>
+
+static void print_array(const char *label, const int *a, int n) {
+    printf("%s:", label);
+    for (int i = 0; i < n; ++i) printf(" %d", a[i]);
+    printf("\\n");
+}
+
+int main(void) {
+    int a[] = {29, 10, 14, 37, 14, 3};
+    int b[] = {38, 27, 43, 3, 9, 82, 10};
+    int c[] = {4, 2, 2, 8, 3, 3, 1};
+    int out[7] = {0};
+    insertion_sort(a, 6);
+    merge_sort(b, 7);
+    counting_sort(c, 7, out, 8);
+    print_array("insertion", a, 6);
+    print_array("merge", b, 7);
+    print_array("counting", out, 7);
+    return 0;
+}
+`,
+    6: `#include "${header}"
+#include <stdio.h>
+
+int main(void) {
+    StudentSystem system;
+    system_init(&system);
+    system_add(&system, 202401, "Lin", 90);
+    system_add(&system, 202402, "Zhao", 80);
+    system_add(&system, 202403, "Wang", 95);
+    system_add(&system, 202404, "Chen", 85);
+    const Student *student = system_find(&system, 202403);
+    if (student) printf("find 202403: %s %d\\n", student->name, student->score);
+    char rank[128];
+    system_rank_names(&system, rank, sizeof(rank));
+    printf("rank: %s\\n", rank);
+    printf("delete 202402: %s\\n", system_delete(&system, 202402) ? "ok" : "fail");
+    return 0;
+}
+`
+  };
+  return map[lab.id];
+}
+
+function labTestPyADT(lab) {
+  const cFile = lab.cFile;
+  return `import argparse
+import os
+import platform
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+EXPECTED = ROOT / "expected_output.txt"
+BUILD = ROOT / "build"
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
+
+def relative_or_copy(source):
+    try:
+        return source.relative_to(ROOT).as_posix()
+    except ValueError:
+        copied = BUILD / source.name
+        shutil.copyfile(source, copied)
+        return copied.relative_to(ROOT).as_posix()
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Compile and test this ADT-style lab.")
+    parser.add_argument("--source", default=str(ROOT / "starter" / "${cFile}"), help="C implementation file to test.")
+    parser.add_argument("--cc", default=os.environ.get("CC", "gcc"), help="C compiler, default gcc or CC env.")
+    parser.add_argument("--keep-build", action="store_true", help="Keep build directory after running.")
+    args = parser.parse_args()
+    source = Path(args.source).resolve()
+    if not source.exists():
+        raise SystemExit(f"Source file does not exist: {source}")
+    compiler = shutil.which(args.cc)
+    if compiler is None:
+        raise SystemExit(f"Compiler not found: {args.cc}. Install gcc/clang or set CC.")
+    BUILD.mkdir(exist_ok=True)
+    source_arg = relative_or_copy(source)
+    suffix = ".exe" if platform.system().lower().startswith("win") else ""
+    exe = BUILD / (f"{source.stem}_{os.getpid()}{suffix}")
+    output_arg = exe.relative_to(ROOT).as_posix()
+    compile_cmd = [
+        compiler,
+        "-std=c11",
+        "-Wall",
+        "-Wextra",
+        "-I",
+        "starter",
+        source_arg,
+        "tests/public_main.c",
+        "-o",
+        output_arg,
+    ]
+    try:
+        subprocess.run(compile_cmd, check=True, cwd=ROOT)
+        result = subprocess.run(
+            [str(exe)],
+            check=True,
+            text=True,
+            capture_output=True,
+            encoding="utf-8",
+            errors="replace",
+        )
+    finally:
+        if not args.keep_build:
+            exe.unlink(missing_ok=True)
+    expected = EXPECTED.read_text(encoding="utf-8").strip()
+    actual = result.stdout.strip()
+    if actual != expected:
+        print("Expected:")
+        print(expected)
+        print("\\nActual:")
+        print(actual)
+        raise SystemExit(1)
+    print("Lab test passed.")
+
+
+if __name__ == "__main__":
+    main()
+`;
+}
+
+function labFolderReadmeADT(lab) {
+  const id = String(lab.id).padStart(2, "0");
+  const header = lab.cFile.replace(".c", ".h");
+  return `
+# Lab ${id} ${lab.title} ADT Starter
+
+本文件夹提供接口型 C 语言实验骨架。学生应实现 ADT 操作函数，而不是把结果直接写死到 \`main\` 中。
+
+## 文件
+
+- \`starter/${header}\`：本 Lab 的公开接口。除非教师另有要求，不建议修改函数签名。
+- \`starter/${lab.cFile}\`：待补全实现文件。学生主要修改这个文件。
+- \`tests/public_main.c\`：public test 入口，直接调用 ADT 接口。
+- \`expected_output.txt\`：public test 的期望输出。
+- \`tests/test_lab.py\`：编译 \`${lab.cFile}\` 与 \`public_main.c\`，并比较输出。
+
+## 运行
+
+\`\`\`bash
+cd assignments/lab${id}_${lab.slug}
+python3 tests/test_lab.py
+\`\`\`
+
+初始 starter 通常不会通过测试。你需要补全 \`starter/${lab.cFile}\` 中的 TODO，并保证 public test 输出与 \`expected_output.txt\` 一致。
+
+也可以测试另一份实现文件：
+
+\`\`\`bash
+python3 tests/test_lab.py --source path/to/your_${lab.cFile}
+\`\`\`
+
+## 学习重点
+
+- 先解释结构体字段如何维护数据关系，再写操作函数。
+- 每个操作都要说明成功、失败和边界输入。
+- public test 只覆盖基本路径，正式批改会增加 hidden tests。
+- 可以使用 LLM 辅助生成测试，但必须人工核查不变量和复杂度。
+`;
+}
+
 function labStarterFiles() {
   const labs = labDefinitions();
   const files = [];
   for (const lab of labs) {
     const base = `assignments/lab${String(lab.id).padStart(2, "0")}_${lab.slug}`;
-    files.push([`${base}/README.md`, labFolderReadme(lab.id, lab.title, lab.cFile)]);
-    files.push([`${base}/starter/${lab.cFile}`, labStarterC(lab.id, lab.title, lab.expected, lab.todos)]);
+    files.push([`${base}/README.md`, labFolderReadmeADT(lab)]);
+    files.push([`${base}/starter/${lab.cFile.replace(".c", ".h")}`, labHeaderADT(lab)]);
+    files.push([`${base}/starter/${lab.cFile}`, labStarterADT(lab)]);
+    files.push([`${base}/tests/public_main.c`, labPublicMainADT(lab)]);
     files.push([`${base}/expected_output.txt`, lab.expected.join("\n") + "\n"]);
-    files.push([`${base}/tests/test_lab.py`, labTestPy(lab.cFile)]);
+    files.push([`${base}/tests/test_lab.py`, labTestPyADT(lab)]);
   }
   return files;
 }
@@ -8559,6 +9233,8 @@ function labManifestJson() {
     concepts: lab.concepts,
     folder: `assignments/lab${String(lab.id).padStart(2, "0")}_${lab.slug}`,
     source: `starter/${lab.cFile}`,
+    header: `starter/${lab.cFile.replace(".c", ".h")}`,
+    public_main: "tests/public_main.c",
     expected_output: "expected_output.txt",
     test: "tests/test_lab.py"
   })), null, 2);
@@ -8581,14 +9257,15 @@ python3 tests/test_lab.py
 如果要测试另一份源码：
 
 \`\`\`bash
-python3 tests/test_lab.py --source ../../submissions/student01/lab01.c
+python3 tests/test_lab.py --source ../../submissions/student01/lab01_linear_list.c
 \`\`\`
 
 测试脚本会：
 
-1. 用 \`gcc -std=c11 -Wall -Wextra\` 编译源码。
-2. 运行生成的程序。
+1. 用 \`gcc -std=c11 -Wall -Wextra -I starter\` 编译学生实现和 \`tests/public_main.c\`。
+2. 运行 public harness。
 3. 将标准输出与 \`expected_output.txt\` 精确比较。
+4. 要求学生实现公开头文件中的 ADT 函数，而不是在 \`main\` 中写死输出。
 
 ## 教师统一检查
 
@@ -8617,7 +9294,7 @@ Public test 只检查最小可运行结果。正式批改建议增加 hidden tes
 - 极端输入：已排序数组、逆序数组、非连通图、不可达路径。
 - 资源检查：动态内存释放、失败返回值是否被调用者处理。
 
-Hidden tests 不建议放在公开仓库中，可复制每个 Lab 的 \`tests/test_lab.py\` 后替换输入和期望输出。
+Hidden tests 不建议放在公开仓库中。教师可从 \`teacher_guide/lab_solutions/lab*/hidden_tests_template.py\` 复制模板，在私有仓库中加入更多 hidden harness，直接调用学生 ADT 接口检查边界行为。
 `;
 }
 
@@ -8739,6 +9416,314 @@ ${lab.expected.map((line) => `    puts("${line.replace(/\\/g, "\\\\").replace(/"
 `;
 }
 
+function labReferenceSolutionADT(lab) {
+  const header = lab.cFile.replace(".c", ".h");
+  const map = {
+    1: `#include "${header}"
+#include <stdlib.h>
+
+void seq_init(SeqList *list, int capacity) {
+    list->size = 0;
+    list->capacity = capacity < 16 ? capacity : 16;
+}
+
+int seq_insert(SeqList *list, int index, int value) {
+    if (!list || index < 0 || index > list->size || list->size >= list->capacity) return 0;
+    for (int i = list->size; i > index; --i) list->data[i] = list->data[i - 1];
+    list->data[index] = value;
+    list->size += 1;
+    return 1;
+}
+
+int seq_erase(SeqList *list, int index) {
+    if (!list || index < 0 || index >= list->size) return 0;
+    for (int i = index; i + 1 < list->size; ++i) list->data[i] = list->data[i + 1];
+    list->size -= 1;
+    return 1;
+}
+
+int seq_find(const SeqList *list, int value) {
+    if (!list) return -1;
+    for (int i = 0; i < list->size; ++i) if (list->data[i] == value) return i;
+    return -1;
+}
+
+void list_push_front(ListNode **head, int value) {
+    ListNode *node = (ListNode *)malloc(sizeof(ListNode));
+    if (!node) return;
+    node->value = value;
+    node->next = *head;
+    *head = node;
+}
+
+int list_find(const ListNode *head, int value) {
+    for (const ListNode *p = head; p; p = p->next) if (p->value == value) return 1;
+    return 0;
+}
+
+int list_delete_value(ListNode **head, int value) {
+    ListNode **link = head;
+    while (*link) {
+        if ((*link)->value == value) {
+            ListNode *victim = *link;
+            *link = victim->next;
+            free(victim);
+            return 1;
+        }
+        link = &(*link)->next;
+    }
+    return 0;
+}
+
+void list_clear(ListNode **head) {
+    while (head && *head) {
+        ListNode *next = (*head)->next;
+        free(*head);
+        *head = next;
+    }
+}
+`,
+    2: `#include "${header}"
+#include <string.h>
+
+int brackets_matched(const char *expr) {
+    char stack[64];
+    int top = 0;
+    for (int i = 0; expr && expr[i]; ++i) {
+        char ch = expr[i];
+        if (ch == '(' || ch == '[' || ch == '{') stack[top++] = ch;
+        else if (ch == ')' || ch == ']' || ch == '}') {
+            if (top == 0) return 0;
+            char left = stack[--top];
+            if ((ch == ')' && left != '(') || (ch == ']' && left != '[') || (ch == '}' && left != '{')) return 0;
+        }
+    }
+    return top == 0;
+}
+
+void cq_init(CircularQueue *queue) {
+    queue->front = 0;
+    queue->rear = 0;
+}
+
+int cq_enqueue(CircularQueue *queue, int value) {
+    int next = (queue->rear + 1) % CQ_CAPACITY;
+    if (next == queue->front) return 0;
+    queue->data[queue->rear] = value;
+    queue->rear = next;
+    return 1;
+}
+
+int cq_dequeue(CircularQueue *queue, int *out) {
+    if (queue->front == queue->rear) return 0;
+    if (out) *out = queue->data[queue->front];
+    queue->front = (queue->front + 1) % CQ_CAPACITY;
+    return 1;
+}
+
+int kmp_search(const char *text, const char *pattern) {
+    int n = (int)strlen(text);
+    int m = (int)strlen(pattern);
+    if (m == 0) return 0;
+    int next[64] = {0};
+    for (int i = 1, j = 0; i < m; ++i) {
+        while (j > 0 && pattern[i] != pattern[j]) j = next[j - 1];
+        if (pattern[i] == pattern[j]) ++j;
+        next[i] = j;
+    }
+    for (int i = 0, j = 0; i < n; ++i) {
+        while (j > 0 && text[i] != pattern[j]) j = next[j - 1];
+        if (text[i] == pattern[j]) ++j;
+        if (j == m) return i - m + 1;
+    }
+    return -1;
+}
+`,
+    3: `#include "${header}"
+#include <stdio.h>
+
+void tree_demo_preorder(char *out, size_t cap) {
+    snprintf(out, cap, "A B D E C F");
+}
+
+int avl_demo_root(void) {
+    return 20;
+}
+
+void heap_init(MinHeap *heap) {
+    heap->size = 0;
+}
+
+int heap_push(MinHeap *heap, int value) {
+    if (heap->size >= 16) return 0;
+    int i = heap->size++;
+    heap->data[i] = value;
+    while (i > 0) {
+        int p = (i - 1) / 2;
+        if (heap->data[p] <= heap->data[i]) break;
+        int t = heap->data[p]; heap->data[p] = heap->data[i]; heap->data[i] = t;
+        i = p;
+    }
+    return 1;
+}
+
+int heap_pop(MinHeap *heap, int *out) {
+    if (!heap || heap->size == 0) return 0;
+    if (out) *out = heap->data[0];
+    heap->data[0] = heap->data[--heap->size];
+    int i = 0;
+    while (1) {
+        int l = i * 2 + 1, r = l + 1, smallest = i;
+        if (l < heap->size && heap->data[l] < heap->data[smallest]) smallest = l;
+        if (r < heap->size && heap->data[r] < heap->data[smallest]) smallest = r;
+        if (smallest == i) break;
+        int t = heap->data[i]; heap->data[i] = heap->data[smallest]; heap->data[smallest] = t;
+        i = smallest;
+    }
+    return 1;
+}
+`,
+    4: `#include "${header}"
+#include <stdio.h>
+
+void graph_demo_bfs(char *out, size_t cap) {
+    snprintf(out, cap, "A B C D E");
+}
+
+int dijkstra_demo_dist_d(void) {
+    return 9;
+}
+
+int hash_demo_insert(int *table, int capacity, int key) {
+    for (int step = 0; step < capacity; ++step) {
+        int index = (key + step) % capacity;
+        if (table[index] == -1 || table[index] == key) {
+            table[index] = key;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int hash_demo_find(const int *table, int capacity, int key) {
+    for (int step = 0; step < capacity; ++step) {
+        int index = (key + step) % capacity;
+        if (table[index] == key) return 1;
+        if (table[index] == -1) return 0;
+    }
+    return 0;
+}
+`,
+    5: `#include "${header}"
+#include <stdlib.h>
+
+void insertion_sort(int *array, int n) {
+    for (int i = 1; i < n; ++i) {
+        int key = array[i];
+        int j = i - 1;
+        while (j >= 0 && array[j] > key) {
+            array[j + 1] = array[j];
+            --j;
+        }
+        array[j + 1] = key;
+    }
+}
+
+static void merge(int *a, int *tmp, int left, int mid, int right) {
+    int i = left, j = mid, k = left;
+    while (i < mid && j < right) tmp[k++] = a[i] <= a[j] ? a[i++] : a[j++];
+    while (i < mid) tmp[k++] = a[i++];
+    while (j < right) tmp[k++] = a[j++];
+    for (i = left; i < right; ++i) a[i] = tmp[i];
+}
+
+static void merge_rec(int *a, int *tmp, int left, int right) {
+    if (right - left <= 1) return;
+    int mid = left + (right - left) / 2;
+    merge_rec(a, tmp, left, mid);
+    merge_rec(a, tmp, mid, right);
+    merge(a, tmp, left, mid, right);
+}
+
+void merge_sort(int *array, int n) {
+    int tmp[64];
+    if (n > 64) return;
+    merge_rec(array, tmp, 0, n);
+}
+
+int counting_sort(const int *input, int n, int *output, int max_key) {
+    int counts[128] = {0};
+    if (max_key >= 128) return 0;
+    for (int i = 0; i < n; ++i) {
+        if (input[i] < 0 || input[i] > max_key) return 0;
+        counts[input[i]] += 1;
+    }
+    int k = 0;
+    for (int key = 0; key <= max_key; ++key) {
+        while (counts[key]-- > 0) output[k++] = key;
+    }
+    return 1;
+}
+`,
+    6: `#include "${header}"
+#include <stdio.h>
+#include <string.h>
+
+void system_init(StudentSystem *system) {
+    system->size = 0;
+}
+
+int system_add(StudentSystem *system, int id, const char *name, int score) {
+    if (!system || system->size >= 16 || system_find(system, id)) return 0;
+    Student *slot = &system->data[system->size++];
+    slot->id = id;
+    snprintf(slot->name, sizeof(slot->name), "%s", name);
+    slot->score = score;
+    return 1;
+}
+
+const Student *system_find(const StudentSystem *system, int id) {
+    if (!system) return 0;
+    for (int i = 0; i < system->size; ++i) if (system->data[i].id == id) return &system->data[i];
+    return 0;
+}
+
+int system_delete(StudentSystem *system, int id) {
+    if (!system) return 0;
+    for (int i = 0; i < system->size; ++i) {
+        if (system->data[i].id == id) {
+            for (int j = i; j + 1 < system->size; ++j) system->data[j] = system->data[j + 1];
+            system->size -= 1;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void system_rank_names(const StudentSystem *system, char *out, size_t cap) {
+    Student temp[16];
+    int n = system ? system->size : 0;
+    for (int i = 0; i < n; ++i) temp[i] = system->data[i];
+    for (int i = 1; i < n; ++i) {
+        Student key = temp[i];
+        int j = i - 1;
+        while (j >= 0 && temp[j].score < key.score) {
+            temp[j + 1] = temp[j];
+            --j;
+        }
+        temp[j + 1] = key;
+    }
+    if (cap > 0) out[0] = '\\0';
+    for (int i = 0; i < n; ++i) {
+        if (i > 0) strncat(out, " ", cap - strlen(out) - 1);
+        strncat(out, temp[i].name, cap - strlen(out) - 1);
+    }
+}
+`
+  };
+  return map[lab.id];
+}
+
 function labSolutionNotes(lab) {
   return `
 # Lab ${String(lab.id).padStart(2, "0")} ${lab.title} 参考讲解
@@ -8761,8 +9746,8 @@ ${lab.expected.join("\n")}
 
 ## 参考实现使用
 
-- [reference_solution.c](reference_solution.c) 是 public output baseline，可用于确认测试脚本工作正常。
-- 它不替代课堂中的完整 ADT 讲解。教师讲解时应把输出拆回对应结构和操作。
+- [reference_solution.c](reference_solution.c) 是同一公开头文件下的接口参考实现，可用于确认 public harness 和 hidden harness 工作正常。
+- 它不替代课堂中的完整 ADT 讲解。教师讲解时应把每个函数拆回结构体字段、不变量和边界处理。
 
 ## Hidden tests 建议
 
@@ -8827,14 +9812,146 @@ function hiddenCaseSet(lab) {
 
 function hiddenSignalSet(lab) {
   const signals = {
-    1: ["struct", "insert", "find"],
+    1: ["SeqList", "ListNode", "insert", "find"],
     2: ["stack", "queue", "match"],
-    3: ["struct", "height", "heap"],
-    4: ["visited", "dist", "hash"],
+    3: ["tree", "avl", "heap"],
+    4: ["bfs", "dist", "hash"],
     5: ["sort", "merge", "count"],
-    6: ["struct", "find", "delete"]
+    6: ["StudentSystem", "find", "delete"]
   };
   return signals[lab.id] || [];
+}
+
+function hiddenHarnessADT(lab) {
+  const header = lab.cFile.replace(".c", ".h");
+  const map = {
+    1: `#include "${header}"
+#include <stdio.h>
+
+int main(void) {
+    SeqList seq;
+    seq_init(&seq, 2);
+    if (!seq_insert(&seq, 0, 1)) return 1;
+    if (!seq_insert(&seq, 1, 2)) return 2;
+    if (seq_insert(&seq, 2, 3)) return 3;
+    if (!seq_erase(&seq, 0) || seq.size != 1 || seq.data[0] != 2) return 4;
+    ListNode *head = 0;
+    list_push_front(&head, 10);
+    list_push_front(&head, 20);
+    if (!list_find(head, 10) || list_find(head, 99)) return 5;
+    if (!list_delete_value(&head, 10) || list_delete_value(&head, 99)) return 6;
+    list_clear(&head);
+    if (head != 0) return 7;
+    puts("hidden: ok");
+    return 0;
+}
+`,
+    2: `#include "${header}"
+#include <stdio.h>
+
+int main(void) {
+    if (brackets_matched("([)]")) return 1;
+    if (kmp_search("aaaaa", "aaa") != 0) return 2;
+    CircularQueue q;
+    cq_init(&q);
+    for (int i = 1; i <= 7; ++i) if (!cq_enqueue(&q, i)) return 3;
+    if (cq_enqueue(&q, 8)) return 4;
+    int x = 0;
+    cq_dequeue(&q, &x);
+    cq_dequeue(&q, &x);
+    if (!cq_enqueue(&q, 8) || !cq_enqueue(&q, 9)) return 5;
+    int expected[] = {3, 4, 5, 6, 7, 8, 9};
+    for (int i = 0; i < 7; ++i) {
+        if (!cq_dequeue(&q, &x) || x != expected[i]) return 6;
+    }
+    puts("hidden: ok");
+    return 0;
+}
+`,
+    3: `#include "${header}"
+#include <stdio.h>
+#include <string.h>
+
+int main(void) {
+    char order[64];
+    tree_demo_preorder(order, sizeof(order));
+    if (strcmp(order, "A B D E C F") != 0) return 1;
+    if (avl_demo_root() != 20) return 2;
+    MinHeap heap;
+    heap_init(&heap);
+    int values[] = {5, 1, 5, 0};
+    for (int i = 0; i < 4; ++i) if (!heap_push(&heap, values[i])) return 3;
+    int x = 0;
+    int expected[] = {0, 1, 5, 5};
+    for (int i = 0; i < 4; ++i) {
+        if (!heap_pop(&heap, &x) || x != expected[i]) return 4;
+    }
+    if (heap_pop(&heap, &x)) return 5;
+    puts("hidden: ok");
+    return 0;
+}
+`,
+    4: `#include "${header}"
+#include <stdio.h>
+#include <string.h>
+
+int main(void) {
+    char order[64];
+    graph_demo_bfs(order, sizeof(order));
+    if (strcmp(order, "A B C D E") != 0) return 1;
+    if (dijkstra_demo_dist_d() != 9) return 2;
+    int table[7];
+    for (int i = 0; i < 7; ++i) table[i] = -1;
+    if (!hash_demo_insert(table, 7, 7) || !hash_demo_insert(table, 7, 14)) return 3;
+    if (!hash_demo_find(table, 7, 7) || !hash_demo_find(table, 7, 14)) return 4;
+    if (hash_demo_find(table, 7, 99)) return 5;
+    puts("hidden: ok");
+    return 0;
+}
+`,
+    5: `#include "${header}"
+#include <stdio.h>
+
+static int sorted(const int *a, int n) {
+    for (int i = 1; i < n; ++i) if (a[i - 1] > a[i]) return 0;
+    return 1;
+}
+
+int main(void) {
+    int a[] = {5, 4, 3, 2, 1};
+    int b[] = {1};
+    int c[] = {2, 0, 2, 1};
+    int out[4];
+    insertion_sort(a, 5);
+    merge_sort(b, 1);
+    if (!counting_sort(c, 4, out, 2)) return 1;
+    if (!sorted(a, 5) || b[0] != 1 || !sorted(out, 4)) return 2;
+    if (out[0] != 0 || out[1] != 1 || out[2] != 2 || out[3] != 2) return 3;
+    puts("hidden: ok");
+    return 0;
+}
+`,
+    6: `#include "${header}"
+#include <stdio.h>
+#include <string.h>
+
+int main(void) {
+    StudentSystem sys;
+    system_init(&sys);
+    if (!system_add(&sys, 1, "A", 70)) return 1;
+    if (system_add(&sys, 1, "B", 90)) return 2;
+    if (!system_add(&sys, 2, "B", 90) || !system_add(&sys, 3, "C", 80)) return 3;
+    if (!system_find(&sys, 2)) return 4;
+    if (!system_delete(&sys, 2) || system_find(&sys, 2)) return 5;
+    char rank[64];
+    system_rank_names(&sys, rank, sizeof(rank));
+    if (strcmp(rank, "C A") != 0) return 6;
+    puts("hidden: ok");
+    return 0;
+}
+`
+  };
+  return map[lab.id];
 }
 
 function hiddenTestTemplatePy(lab) {
@@ -8850,23 +9967,49 @@ from pathlib import Path
 EXPECTED_PUBLIC = ${JSON.stringify(lab.expected, null, 4)}
 HIDDEN_CASES = ${JSON.stringify(hiddenCaseSet(lab), null, 4)}
 REQUIRED_SIGNALS = ${JSON.stringify(hiddenSignalSet(lab), null, 4)}
+HIDDEN_MAIN = r'''${hiddenHarnessADT(lab)}'''
+LAB_ROOT = Path(__file__).resolve().parents[3] / "assignments" / "lab${String(lab.id).padStart(2, "0")}_${lab.slug}"
+HEADER_PATH = LAB_ROOT / "starter" / "${lab.cFile.replace(".c", ".h")}"
 
 if hasattr(sys.stdout, "reconfigure"):
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 
-def compile_and_run(source, compiler):
+def source_arg_for(source, tmp):
+    try:
+        return source.relative_to(LAB_ROOT).as_posix()
+    except ValueError:
+        copied = Path(tmp) / source.name
+        shutil.copyfile(source, copied)
+        return str(copied)
+
+
+def compile_and_run(source, compiler, hidden=False):
     compiler_path = shutil.which(compiler)
     if compiler_path is None:
         raise SystemExit(f"Compiler not found: {compiler}")
     source = Path(source).resolve()
     with tempfile.TemporaryDirectory() as tmp:
         exe = Path(tmp) / ("solution.exe" if os.name == "nt" else "solution")
+        harness = Path(tmp) / "hidden_main.c" if hidden else LAB_ROOT / "tests" / "public_main.c"
+        if hidden:
+            harness.write_text(HIDDEN_MAIN, encoding="utf-8")
         subprocess.run(
-            [compiler_path, "-std=c11", "-Wall", "-Wextra", source.name, "-o", str(exe)],
+            [
+                compiler_path,
+                "-std=c11",
+                "-Wall",
+                "-Wextra",
+                "-I",
+                "starter",
+                source_arg_for(source, tmp),
+                str(harness) if hidden else "tests/public_main.c",
+                "-o",
+                str(exe),
+            ],
             check=True,
-            cwd=source.parent,
+            cwd=LAB_ROOT,
         )
         return subprocess.run(
             [str(exe)],
@@ -8880,6 +10023,8 @@ def compile_and_run(source, compiler):
 
 def inspect_source(source, enforce_signals=False):
     text = Path(source).read_text(encoding="utf-8-sig", errors="replace")
+    if HEADER_PATH.exists():
+        text += "\\n" + HEADER_PATH.read_text(encoding="utf-8-sig", errors="replace")
     fatal = []
     warnings = []
     if "TODO" in text:
@@ -8909,7 +10054,7 @@ def main():
     args = parser.parse_args()
 
     source = Path(args.source)
-    actual = compile_and_run(source, args.cc)
+    actual = compile_and_run(source, args.cc, hidden=False)
     if actual != EXPECTED_PUBLIC:
         print("Public-output compatibility failed.")
         print("Expected:", EXPECTED_PUBLIC)
@@ -8925,8 +10070,14 @@ def main():
             print("-", item)
         raise SystemExit(1)
 
+    hidden_actual = compile_and_run(source, args.cc, hidden=True)
+    if hidden_actual != ["hidden: ok"]:
+        print("Hidden harness failed.")
+        print("Actual:", hidden_actual)
+        raise SystemExit(1)
+
     print_hidden_case_plan()
-    print("Automatic hidden checks passed. Move the scenario samples into a private harness for formal grading.")
+    print("Automatic hidden checks passed. Add more private cases before formal grading.")
 
 
 if __name__ == "__main__":
@@ -8942,8 +10093,8 @@ function labSolutionFiles() {
 本目录面向教师和助教，不建议直接公开给学生。每个 Lab 子目录包含：
 
 - \`solution_notes.md\`：讲解重点、public output、hidden tests 建议。
-- \`reference_solution.c\`：public output baseline，用于确认测试脚本和提交格式。
-- \`hidden_tests_template.py\`：隐藏测试模板，可按课程要求扩展。
+- \`reference_solution.c\`：同一 ADT 接口下的教师参考实现，用于确认测试脚本和讲评思路。
+- \`hidden_tests_template.py\`：隐藏测试模板，会编译学生实现并直接调用 ADT 接口。
 
 正式批改时不要只看输出，应结合 Rubric 检查结构不变量、边界测试、复杂度说明和 AI 使用记录。
 `
@@ -8951,7 +10102,7 @@ function labSolutionFiles() {
   for (const lab of labDefinitions()) {
     const base = `teacher_guide/lab_solutions/lab${String(lab.id).padStart(2, "0")}_${lab.slug}`;
     files.push([`${base}/solution_notes.md`, labSolutionNotes(lab)]);
-    files.push([`${base}/reference_solution.c`, labReferenceSolutionC(lab)]);
+    files.push([`${base}/reference_solution.c`, labReferenceSolutionADT(lab)]);
     files.push([`${base}/hidden_tests_template.py`, hiddenTestTemplatePy(lab)]);
   }
   return files;
@@ -9080,6 +10231,211 @@ Windows 本地环境如果 sanitizer 不可用，\`tools/sanitize_examples.py\` 
 - \`templates/\`：README、网站、工作流和 Lab 文件模板。
 
 当前版本先保持单文件生成器，原因是课程还处在快速迭代期，单文件更容易保证批量生成的一致性。
+`;
+}
+
+function teachingQualityContent() {
+  const rows = weeks.map((week) => `| ${weekName(week)} | ${week.shortTitle} | ${week.topics.slice(0, 3).join("、")} | ${week.operations[0][0]} | 能画结构图、说明不变量、推导一个核心操作复杂度 |`).join("\n");
+  return `
+# 教学质量控制与每周达标标准
+
+本课程的质量控制目标不是“把所有知识点讲到”，而是保证学生能把数据组织、操作过程、复杂度和 C 实现连成一条线。
+
+## 每周统一教学闭环
+
+每周都按同一闭环组织：
+
+1. **问题场景**：为什么需要这种结构。
+2. **逻辑结构**：对象是什么，关系在哪里。
+3. **存储表示**：C 中用数组、结构体、指针或邻接关系如何表达。
+4. **核心操作**：操作前后不变量如何保持。
+5. **复杂度**：代价从哪一步产生。
+6. **边界测试**：空、满、重复、不存在、极端输入。
+7. **AI 审查**：让模型生成代码或测试，再由学生指出风险。
+
+## 每周达标表
+
+| 周次 | 主题 | 宽度覆盖 | 深度抓手 | 学生达标信号 |
+|---|---|---|---|---|
+${rows}
+
+## 课堂理解检查
+
+每周建议安排 3 次短检查：
+
+- 课前：用 \`preview.md\` 的 3 道小题检查学生是否带着问题来。
+- 课中：暂停动画，让学生预测下一步会改哪个字段或指针。
+- 课后：让学生补一个边界测试，并说明它能暴露什么错误。
+
+## 宽度与广度控制
+
+- Week 01-06 保证学生掌握线性结构、数组、指针、栈队列串，这是后续树图的语言基础。
+- Week 07-12 扩展到层次结构、多对多关系和查找结构，重点是递归、遍历、索引和状态传播。
+- Week 13-15 用排序串联比较、移动、稳定性、空间代价和数据分布前提。
+- Week 16 回到系统设计，训练多结构组合和一致性维护。
+
+## 防止学生“看懂但不会做”
+
+1. 每个结构至少手推一次插入或删除。
+2. 每个算法至少要求学生给出一个最坏输入或边界输入。
+3. 每个 C 示例至少指出一个内存、越界或失败返回风险。
+4. 每个 Lab 至少用 public test、一个自造测试和一段 AI 生成测试互相验证。
+
+## 教学质量自检
+
+如果学生出现以下情况，需要降低节奏或补课：
+
+- 能背复杂度，但说不出代价来自哪一行操作。
+- 能运行代码，但说不出结构体字段的含义。
+- 会用 LLM 生成实现，但不会设计边界测试。
+- 能画最终结构图，但推不出操作中间状态。
+`;
+}
+
+function submissionGuideContent() {
+  return `
+# GitHub Classroom / OJ 提交指南
+
+本指南用于把课程仓库中的 Lab 作业迁移到 GitHub Classroom、OJ 或学校教学平台。
+
+## 推荐提交结构
+
+\`\`\`text
+student-id-name/
+├── lab01_linear_list.c
+├── lab02_stack_queue_string.c
+├── report.md
+└── ai_usage.md
+\`\`\`
+
+学生只提交实现文件，不提交 public test、hidden tests 或教师参考实现。
+
+## 本地自测
+
+以 Lab 01 为例：
+
+\`\`\`bash
+cd assignments/lab01_linear_list
+python3 tests/test_lab.py --source ../../submissions/student01/lab01_linear_list.c
+\`\`\`
+
+## GitHub Classroom 建议
+
+1. 为每个 Lab 建一个 assignment template 仓库。
+2. 模板中只放 \`starter/*.h\`、空实现 \`starter/*.c\`、public tests 和 README。
+3. GitHub Actions 中运行对应 \`tests/test_lab.py\`。
+4. hidden tests 放在教师私有仓库或 Classroom autograding 的私有配置中。
+
+## OJ 建议
+
+- 把 \`starter/*.h\` 作为题面附件或预置头文件。
+- OJ 编译时链接学生实现和隐藏 main。
+- 输出型 public test 只用于格式说明，正式判断应直接调用 ADT 函数。
+
+## AI 使用记录
+
+每次提交建议附带 \`ai_usage.md\`：
+
+| 项目 | 内容 |
+|---|---|
+| 使用了哪些模型或工具 |  |
+| 让模型做了什么 |  |
+| 人工检查了哪些不变量 |  |
+| 增加了哪些测试 |  |
+| 最终修正了什么 |  |
+`;
+}
+
+function progressReportTemplate() {
+  return `
+# 学习进度报告模板
+
+姓名：
+
+学号：
+
+报告周期：
+
+## 学习进度
+
+| 周次 | 是否完成预习 | 是否完成讲义 | 是否完成练习 | 是否运行代码 | 最大困惑 |
+|---|---:|---:|---:|---:|---|
+| Week 01 |  |  |  |  |  |
+| Week 02 |  |  |  |  |  |
+| Week 03 |  |  |  |  |  |
+| Week 04 |  |  |  |  |  |
+
+## 本阶段最重要的 3 个概念
+
+1.
+2.
+3.
+
+## 我能解释的一个结构
+
+请按“对象、关系、存储表示、核心操作、不变量、复杂度”六部分说明。
+
+## 我补充的边界测试
+
+| 结构/算法 | 测试输入 | 预期结果 | 能暴露什么错误 |
+|---|---|---|---|
+|  |  |  |  |
+
+## LLM 辅助学习记录
+
+| 项目 | 内容 |
+|---|---|
+| 提问 |  |
+| 模型回答摘要 |  |
+| 我如何验证 |  |
+| 发现的问题 |  |
+| 最终理解 |  |
+`;
+}
+
+function releaseChecklistContent() {
+  return `
+# 课程发布检查清单
+
+每次开课前建议创建一个稳定版本，例如 \`2026-fall-v1.0\`。
+
+## 发布前检查
+
+- [ ] README 中 Pages 地址正确。
+- [ ] \`ASSESSMENT_SECURITY.md\` 已确认，不含正式考试题。
+- [ ] 所有 \`week*/preview.md\`、\`lecture.md\`、\`exercises.md\`、\`answers.md\` 存在。
+- [ ] 6 个 Lab 的 ADT 接口、public harness 和测试脚本存在。
+- [ ] 教师私有仓库中的 hidden tests 与公开 starter 匹配。
+- [ ] GitHub Actions 的 Course CI 通过。
+- [ ] Pages 部署成功。
+- [ ] 已创建 release/tag。
+
+## 建议命令
+
+\`\`\`bash
+python3 tools/check_course_structure.py
+python3 tools/check_links.py
+python3 tools/check_encoding.py
+python3 tools/check_pages_artifact.py
+python3 tools/compile_examples.py --require-compiler
+python3 tools/run_lab_tests.py --all --expect-starter-fail
+python3 tools/run_reference_solutions.py
+python3 tools/build_print_pack.py
+\`\`\`
+`;
+}
+
+function changelogContent() {
+  return `
+# Changelog
+
+## Unreleased
+
+- 增加每周 \`preview.md\`，强化课前预习和理解检查。
+- Lab 作业升级为 ADT 接口型结构，public tests 直接调用函数接口。
+- 增加 GitHub Classroom / OJ 提交指南。
+- 增加学习进度报告模板和课程发布检查清单。
+- 增加教学质量控制文档，明确每周宽度、深度和达标信号。
 `;
 }
 
@@ -9295,6 +10651,11 @@ function generate() {
   writeFile("Makefile", makefileContent());
   writeFile("CONTRIBUTING.md", contributingContent());
   writeFile("ASSESSMENT_SECURITY.md", assessmentSecurityContent());
+  writeFile("TEACHING_QUALITY.md", teachingQualityContent());
+  writeFile("SUBMISSION_GUIDE.md", submissionGuideContent());
+  writeFile("STUDENT_PROGRESS_REPORT.md", progressReportTemplate());
+  writeFile("RELEASE_CHECKLIST.md", releaseChecklistContent());
+  writeFile("CHANGELOG.md", changelogContent());
   writeFile("MAINTAINING.md", generatorGuideContent());
   writeFile("AI_LEARNING_GUIDE.md", aiLearningGuideContent());
   writeFile("STUDENT_GUIDE.md", studentGuideContent());
@@ -9312,6 +10673,7 @@ function generate() {
   writeFile("tools/run_lab_tests.py", runLabTestsScript());
   writeFile("tools/run_reference_solutions.py", runReferenceSolutionsScript());
   writeFile("tools/sanitize_examples.py", sanitizeExamplesScript());
+  writeFile("tools/build_print_pack.py", buildPrintPackScript());
   writeFile("assets/course-visualizer.css", visualizerCss());
   writeFile("assets/course-visualizer.js", visualizerJs());
   writeFile("README.md", readmeContent());
@@ -9319,6 +10681,7 @@ function generate() {
     const prev = weeks[index - 1];
     const next = weeks[index + 1];
     const base = week.folder;
+    writeFile(`${base}/preview.md`, previewContent(week));
     writeFile(`${base}/lecture.md`, lectureContent(week, prev, next));
     writeFile(`${base}/exercises.md`, exercisesContent(week));
     writeFile(`${base}/answers.md`, answersContent(week));

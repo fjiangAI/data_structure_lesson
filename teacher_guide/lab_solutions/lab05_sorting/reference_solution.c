@@ -1,16 +1,51 @@
-﻿#include <stdio.h>
+﻿#include "lab05_sorting.h"
+#include <stdlib.h>
 
-/*
- * Lab 05 排序算法实验 reference baseline.
- *
- * 这份文件用于教师侧核对 public output 和演示提交格式。正式课堂中建议
- * 按 solution_notes.md 中的结构拆成 ADT 接口、核心操作和测试入口。
- */
+void insertion_sort(int *array, int n) {
+    for (int i = 1; i < n; ++i) {
+        int key = array[i];
+        int j = i - 1;
+        while (j >= 0 && array[j] > key) {
+            array[j + 1] = array[j];
+            --j;
+        }
+        array[j + 1] = key;
+    }
+}
 
-int main(void) {
-    puts("insertion: 3 10 14 14 29 37");
-    puts("merge: 3 9 10 27 38 43 82");
-    puts("counting: 1 2 2 3 3 4 8");
-    return 0;
+static void merge(int *a, int *tmp, int left, int mid, int right) {
+    int i = left, j = mid, k = left;
+    while (i < mid && j < right) tmp[k++] = a[i] <= a[j] ? a[i++] : a[j++];
+    while (i < mid) tmp[k++] = a[i++];
+    while (j < right) tmp[k++] = a[j++];
+    for (i = left; i < right; ++i) a[i] = tmp[i];
+}
+
+static void merge_rec(int *a, int *tmp, int left, int right) {
+    if (right - left <= 1) return;
+    int mid = left + (right - left) / 2;
+    merge_rec(a, tmp, left, mid);
+    merge_rec(a, tmp, mid, right);
+    merge(a, tmp, left, mid, right);
+}
+
+void merge_sort(int *array, int n) {
+    int tmp[64];
+    if (n > 64) return;
+    merge_rec(array, tmp, 0, n);
+}
+
+int counting_sort(const int *input, int n, int *output, int max_key) {
+    int counts[128] = {0};
+    if (max_key >= 128) return 0;
+    for (int i = 0; i < n; ++i) {
+        if (input[i] < 0 || input[i] > max_key) return 0;
+        counts[input[i]] += 1;
+    }
+    int k = 0;
+    for (int key = 0; key <= max_key; ++key) {
+        while (counts[key]-- > 0) output[k++] = key;
+    }
+    return 1;
 }
 

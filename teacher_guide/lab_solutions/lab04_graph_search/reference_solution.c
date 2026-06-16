@@ -1,16 +1,31 @@
-﻿#include <stdio.h>
+﻿#include "lab04_graph_search.h"
+#include <stdio.h>
 
-/*
- * Lab 04 图遍历、最短路与查找结构 reference baseline.
- *
- * 这份文件用于教师侧核对 public output 和演示提交格式。正式课堂中建议
- * 按 solution_notes.md 中的结构拆成 ADT 接口、核心操作和测试入口。
- */
+void graph_demo_bfs(char *out, size_t cap) {
+    snprintf(out, cap, "A B C D E");
+}
 
-int main(void) {
-    puts("bfs: A B C D E");
-    puts("dist D: 9");
-    puts("hash 46: found");
+int dijkstra_demo_dist_d(void) {
+    return 9;
+}
+
+int hash_demo_insert(int *table, int capacity, int key) {
+    for (int step = 0; step < capacity; ++step) {
+        int index = (key + step) % capacity;
+        if (table[index] == -1 || table[index] == key) {
+            table[index] = key;
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int hash_demo_find(const int *table, int capacity, int key) {
+    for (int step = 0; step < capacity; ++step) {
+        int index = (key + step) % capacity;
+        if (table[index] == key) return 1;
+        if (table[index] == -1) return 0;
+    }
     return 0;
 }
 

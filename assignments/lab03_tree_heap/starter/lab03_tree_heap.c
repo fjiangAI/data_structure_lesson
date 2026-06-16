@@ -1,23 +1,31 @@
-﻿#include <stdio.h>
-#include <stdlib.h>
+﻿#include "lab03_tree_heap.h"
 
-/*
- * Lab 03 树、AVL 与堆
- *
- * 使用方式：
- * 1. 先阅读 assignments/lab03_.../README.md。
- * 2. 按 TODO 补全数据结构和核心操作。
- * 3. 运行 tests/test_lab.py，直到输出与 expected_output.txt 一致。
- */
+void tree_demo_preorder(char *out, size_t cap) {
+    /* TODO: build/traverse a demo binary tree and write preorder string. */
+    if (cap > 0) out[0] = '\0';
+}
 
-/* TODO 1: 构造二叉树并输出前序遍历 */
-/* TODO 2: 实现 AVL 插入并处理旋转 */
-/* TODO 3: 实现最小堆 push/pop */
-/* TODO 4: 按 expected_output.txt 输出关键结果 */
+int avl_demo_root(void) {
+    /* TODO: insert 30,20,10 and return root after rotation. */
+    return -1;
+}
 
-int main(void) {
-    puts("LAB03_STARTER");
-    puts("请补全 TODO 后，让本程序输出 expected_output.txt 中的内容。");
+void heap_init(MinHeap *heap) {
+    /* TODO: initialize heap size. */
+    (void)heap;
+}
+
+int heap_push(MinHeap *heap, int value) {
+    /* TODO: insert and sift up. */
+    (void)heap;
+    (void)value;
+    return 0;
+}
+
+int heap_pop(MinHeap *heap, int *out) {
+    /* TODO: remove min and sift down. */
+    (void)heap;
+    (void)out;
     return 0;
 }
 

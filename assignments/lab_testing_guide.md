@@ -13,14 +13,15 @@ python3 tests/test_lab.py
 如果要测试另一份源码：
 
 ```bash
-python3 tests/test_lab.py --source ../../submissions/student01/lab01.c
+python3 tests/test_lab.py --source ../../submissions/student01/lab01_linear_list.c
 ```
 
 测试脚本会：
 
-1. 用 `gcc -std=c11 -Wall -Wextra` 编译源码。
-2. 运行生成的程序。
+1. 用 `gcc -std=c11 -Wall -Wextra -I starter` 编译学生实现和 `tests/public_main.c`。
+2. 运行 public harness。
 3. 将标准输出与 `expected_output.txt` 精确比较。
+4. 要求学生实现公开头文件中的 ADT 函数，而不是在 `main` 中写死输出。
 
 ## 教师统一检查
 
@@ -49,5 +50,5 @@ Public test 只检查最小可运行结果。正式批改建议增加 hidden tes
 - 极端输入：已排序数组、逆序数组、非连通图、不可达路径。
 - 资源检查：动态内存释放、失败返回值是否被调用者处理。
 
-Hidden tests 不建议放在公开仓库中，可复制每个 Lab 的 `tests/test_lab.py` 后替换输入和期望输出。
+Hidden tests 不建议放在公开仓库中。教师可从 `teacher_guide/lab_solutions/lab*/hidden_tests_template.py` 复制模板，在私有仓库中加入更多 hidden harness，直接调用学生 ADT 接口检查边界行为。
 

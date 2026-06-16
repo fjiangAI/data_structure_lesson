@@ -119,6 +119,7 @@ function renderWeeks() {
     })
     .forEach((week) => {
       const lectureUrl = viewerUrl(week.folder + "lecture.md");
+      const previewUrl = viewerUrl(week.folder + "preview.md");
       const codeUrl = viewerUrl(week.folder + "examples/" + week.codeFile);
       const exerciseUrl = viewerUrl(week.folder + "exercises.md");
       const state = weekState(week.id);
@@ -139,6 +140,7 @@ function renderWeeks() {
           }).join("")}
         </div>
         <div class="card-links">
+          <a href="${previewUrl}">预习</a>
           <a href="${lectureUrl}">讲义</a>
           <a href="${week.folder}interactive.html">演示</a>
           <a href="${codeUrl}">代码</a>

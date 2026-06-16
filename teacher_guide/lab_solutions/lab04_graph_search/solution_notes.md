@@ -20,8 +20,8 @@ hash 46: found
 
 ## 参考实现使用
 
-- [reference_solution.c](reference_solution.c) 是 public output baseline，可用于确认测试脚本工作正常。
-- 它不替代课堂中的完整 ADT 讲解。教师讲解时应把输出拆回对应结构和操作。
+- [reference_solution.c](reference_solution.c) 是同一公开头文件下的接口参考实现，可用于确认 public harness 和 hidden harness 工作正常。
+- 它不替代课堂中的完整 ADT 讲解。教师讲解时应把每个函数拆回结构体字段、不变量和边界处理。
 
 ## Hidden tests 建议
 

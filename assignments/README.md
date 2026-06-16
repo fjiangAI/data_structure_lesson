@@ -5,7 +5,7 @@
 每个 Lab 同时提供两种材料：
 
 - `labXX_*.md`：教师布置作业时可直接引用的完整要求。
-- `labXX_*/`：学生可运行 starter，包含 `starter/*.c`、`expected_output.txt` 和 `tests/test_lab.py`。
+- `labXX_*/`：学生可运行 ADT starter，包含 `starter/*.h`、`starter/*.c`、`tests/public_main.c`、`expected_output.txt` 和 `tests/test_lab.py`。
 - [lab_testing_guide.md](lab_testing_guide.md)：测试脚本、统一运行器和 hidden tests 建议。
 - [labs.json](labs.json)：Lab 元数据清单，便于后续接入课程平台或自动批改系统。
 

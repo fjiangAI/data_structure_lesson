@@ -1,23 +1,34 @@
-﻿#include <stdio.h>
-#include <stdlib.h>
+﻿#include "lab02_stack_queue_string.h"
 
-/*
- * Lab 02 受限线性结构与串匹配
- *
- * 使用方式：
- * 1. 先阅读 assignments/lab02_.../README.md。
- * 2. 按 TODO 补全数据结构和核心操作。
- * 3. 运行 tests/test_lab.py，直到输出与 expected_output.txt 一致。
- */
-
-/* TODO 1: 实现括号匹配栈 */
-/* TODO 2: 实现循环队列入队、出队和回绕 */
-/* TODO 3: 实现朴素匹配或 KMP */
-/* TODO 4: 打印三个任务结果 */
-
-int main(void) {
-    puts("LAB02_STARTER");
-    puts("请补全 TODO 后，让本程序输出 expected_output.txt 中的内容。");
+int brackets_matched(const char *expr) {
+    /* TODO: use a stack to match (), [], {}. */
+    (void)expr;
     return 0;
+}
+
+void cq_init(CircularQueue *queue) {
+    /* TODO: set front and rear to the empty state. */
+    (void)queue;
+}
+
+int cq_enqueue(CircularQueue *queue, int value) {
+    /* TODO: write at rear and move rear by modulo. */
+    (void)queue;
+    (void)value;
+    return 0;
+}
+
+int cq_dequeue(CircularQueue *queue, int *out) {
+    /* TODO: read at front and move front by modulo. */
+    (void)queue;
+    (void)out;
+    return 0;
+}
+
+int kmp_search(const char *text, const char *pattern) {
+    /* TODO: implement KMP or a correct naive baseline. */
+    (void)text;
+    (void)pattern;
+    return -1;
 }
 

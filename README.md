@@ -21,10 +21,12 @@
 - `onlineweb/viewer.html` 会把 Markdown 讲义、练习和 C 源码渲染成更适合阅读的网页，并为 C 代码提供语法高亮与行号。
 - `interactive.html` 和 `onlineweb/` 使用 GSAP 驱动步骤动画，不依赖前端构建工具，可直接托管到 GitHub Pages。
 - 每个交互演示页包含“动画步骤对应伪代码与关键 C 片段”面板，帮助学生把结构变化映射到实现思路和代码位置。
-- `assignments/` 提供 6 个跨周实验模板、可运行 starter、public test 和统一测试运行器，覆盖线性表、栈队列串、树堆、图查找、排序和综合设计。
+- `assignments/` 提供 6 个跨周实验模板、ADT 头文件、可运行 starter、public harness、参考实现和统一测试运行器，覆盖线性表、栈队列串、树堆、图查找、排序和综合设计。
+- 每周提供 `preview.md`，配合 [TEACHING_QUALITY.md](TEACHING_QUALITY.md) 明确课前预习、课堂理解检查和学生达标信号。
+- [SUBMISSION_GUIDE.md](SUBMISSION_GUIDE.md) 提供 GitHub Classroom / OJ 迁移方式，[STUDENT_PROGRESS_REPORT.md](STUDENT_PROGRESS_REPORT.md) 提供学习进度报告模板。
 - `teacher_guide/` 提供课堂组织建议、评分 Rubric 和 16 周逐周教案，便于教师和助教使用。
 - `STUDENT_GUIDE.md`、`syllabus.md` 和 `review/` 分别提供学生入门、课程日历和复习包。
-- `.github/workflows/ci.yml` 会检查课程结构、编译所有 C 示例、运行 Lab 参考实现 public tests，并在 Linux 下执行 sanitizer 编译检查，提升仓库维护可靠性。
+- `.github/workflows/ci.yml` 会检查课程结构、编译所有 C 示例、运行 Lab 参考实现 public tests、生成可打印讲义包，并在 Linux 下执行 sanitizer 与前端渲染烟测，提升仓库维护可靠性。
 
 ## 课程核心观念
 
@@ -84,6 +86,11 @@
 ├── README.md
 ├── LICENSE
 ├── ASSESSMENT_SECURITY.md
+├── TEACHING_QUALITY.md
+├── SUBMISSION_GUIDE.md
+├── STUDENT_PROGRESS_REPORT.md
+├── RELEASE_CHECKLIST.md
+├── CHANGELOG.md
 ├── MAINTAINING.md
 ├── AI_LEARNING_GUIDE.md
 ├── STUDENT_GUIDE.md
@@ -95,6 +102,7 @@
 ├── assets/
 ├── week01_algorithm_analysis/
 │   ├── lecture.md
+│   ├── preview.md
 │   ├── exercises.md
 │   ├── answers.md
 │   ├── extensions.md
@@ -113,13 +121,14 @@
 每个 week 文件夹包含：
 
 - `lecture.md`：系统讲义，包含概念、C 表示、关键操作、复杂度和授课建议。
+- `preview.md`：课前 15 分钟预习页，用于降低首次学习门槛并明确课堂观察任务。
 - `examples/*.c`：可编译运行的 C 语言示例代码。
 - `exercises.md`：基础理解、代码阅读、分析设计和 LLM 辅助任务。
 - `answers.md`：参考答案和评分建议。
 - `extensions.md`：不带标准答案的拓展讨论问题。
 - `interactive.html`：独立交互演示页，可直接用浏览器打开。
 
-`assets/` 存放公共可视化样式和脚本。`test/` 包含随堂测试、课后作业、在线模拟考试、LLM/代码大模型辅助学习任务和参考答案。`assignments/` 是跨周实验作业模板。`teacher_guide/` 是教师和助教使用指南。`review/` 是期中、期末复习包。`onlineweb/` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习、阅读材料、在线自测和记录学习进度。`ASSESSMENT_SECURITY.md` 说明公开学习材料与正式考核材料的边界。`MAINTAINING.md` 说明生成器维护和长期拆分策略。`.github/workflows/pages.yml` 用于自动部署 GitHub Pages，`.github/workflows/ci.yml` 用于课程结构、链接、编码、Pages 产物、C 示例编译、Lab public tests 和 sanitizer 检查，`tools/generate_course.mjs` 用于重新生成课程材料。
+`assets/` 存放公共可视化样式和脚本。`test/` 包含随堂测试、课后作业、在线模拟考试、LLM/代码大模型辅助学习任务和参考答案。`assignments/` 是跨周实验作业模板。`teacher_guide/` 是教师和助教使用指南。`review/` 是期中、期末复习包。`onlineweb/` 是课程总网站，用于集中浏览周次、查看知识图谱、做练习、阅读材料、在线自测和记录学习进度。`ASSESSMENT_SECURITY.md` 说明公开学习材料与正式考核材料的边界。`TEACHING_QUALITY.md` 说明每周宽度、深度和达标信号。`SUBMISSION_GUIDE.md` 说明 GitHub Classroom / OJ 提交方式。`STUDENT_PROGRESS_REPORT.md` 用于学生阶段反思。`RELEASE_CHECKLIST.md` 用于开课前发布核查。`MAINTAINING.md` 说明生成器维护和长期拆分策略。`.github/workflows/pages.yml` 用于自动部署 GitHub Pages，`.github/workflows/ci.yml` 用于课程结构、链接、编码、Pages 产物、C 示例编译、Lab public tests、sanitizer、讲义包和前端烟测检查，`tools/generate_course.mjs` 用于重新生成课程材料。
 
 ## 16 周安排
 
@@ -192,9 +201,10 @@ python3 tools/compile_examples.py --require-compiler
 python3 tools/run_lab_tests.py --all --expect-starter-fail
 python3 tools/run_reference_solutions.py
 python3 tools/sanitize_examples.py
+python3 tools/build_print_pack.py
 ```
 
-这些脚本会检查 16 个 week 文件夹、交互演示数据、阅读器、实验模板、教师指南、复习包、站内链接、文本编码和 Pages 发布所需文件。编译脚本会用 `gcc`、`clang` 或 `CC` 环境变量指定的编译器编译所有 C 示例；参考实现脚本会验证 6 个 Lab 的 public output；sanitizer 脚本用于在支持 AddressSanitizer/UndefinedBehaviorSanitizer 的环境中检查内存和未定义行为风险。
+这些脚本会检查 16 个 week 文件夹、交互演示数据、阅读器、实验模板、教师指南、复习包、站内链接、文本编码和 Pages 发布所需文件。编译脚本会用 `gcc`、`clang` 或 `CC` 环境变量指定的编译器编译所有 C 示例；参考实现脚本会验证 6 个 Lab 的 public output；sanitizer 脚本用于在支持 AddressSanitizer/UndefinedBehaviorSanitizer 的环境中检查内存和未定义行为风险；讲义包脚本会生成 `build/print_pack/course_pack.md`，用于备课、归档或进一步转 PDF。
 
 如果本机暂时没有 C 编译器，可以先列出所有示例：
 
@@ -207,6 +217,7 @@ python3 tools/compile_examples.py --list
 ```bash
 make check
 make compile
+make print-pack
 ```
 
 ## 开发环境

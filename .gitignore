@@ -10,6 +10,11 @@ build/
 *.dylib
 a.out
 
+# Python cache
+__pycache__/
+**/__pycache__/
+*.pyc
+
 # Generated site artifact used by GitHub Pages workflow
 _site/
 verification_screenshots/

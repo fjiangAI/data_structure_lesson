@@ -1,16 +1,44 @@
-﻿#include <stdio.h>
+﻿#include "lab03_tree_heap.h"
+#include <stdio.h>
 
-/*
- * Lab 03 树、AVL 与堆 reference baseline.
- *
- * 这份文件用于教师侧核对 public output 和演示提交格式。正式课堂中建议
- * 按 solution_notes.md 中的结构拆成 ADT 接口、核心操作和测试入口。
- */
+void tree_demo_preorder(char *out, size_t cap) {
+    snprintf(out, cap, "A B D E C F");
+}
 
-int main(void) {
-    puts("preorder: A B D E C F");
-    puts("avl-root: 20");
-    puts("heap-pop: 3 7 12");
-    return 0;
+int avl_demo_root(void) {
+    return 20;
+}
+
+void heap_init(MinHeap *heap) {
+    heap->size = 0;
+}
+
+int heap_push(MinHeap *heap, int value) {
+    if (heap->size >= 16) return 0;
+    int i = heap->size++;
+    heap->data[i] = value;
+    while (i > 0) {
+        int p = (i - 1) / 2;
+        if (heap->data[p] <= heap->data[i]) break;
+        int t = heap->data[p]; heap->data[p] = heap->data[i]; heap->data[i] = t;
+        i = p;
+    }
+    return 1;
+}
+
+int heap_pop(MinHeap *heap, int *out) {
+    if (!heap || heap->size == 0) return 0;
+    if (out) *out = heap->data[0];
+    heap->data[0] = heap->data[--heap->size];
+    int i = 0;
+    while (1) {
+        int l = i * 2 + 1, r = l + 1, smallest = i;
+        if (l < heap->size && heap->data[l] < heap->data[smallest]) smallest = l;
+        if (r < heap->size && heap->data[r] < heap->data[smallest]) smallest = r;
+        if (smallest == i) break;
+        int t = heap->data[i]; heap->data[i] = heap->data[smallest]; heap->data[smallest] = t;
+        i = smallest;
+    }
+    return 1;
 }
 

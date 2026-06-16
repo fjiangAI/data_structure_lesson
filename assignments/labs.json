@@ -13,6 +13,8 @@
     ],
     "folder": "assignments/lab01_linear_list",
     "source": "starter/lab01_linear_list.c",
+    "header": "starter/lab01_linear_list.h",
+    "public_main": "tests/public_main.c",
     "expected_output": "expected_output.txt",
     "test": "tests/test_lab.py"
   },
@@ -30,6 +32,8 @@
     ],
     "folder": "assignments/lab02_stack_queue_string",
     "source": "starter/lab02_stack_queue_string.c",
+    "header": "starter/lab02_stack_queue_string.h",
+    "public_main": "tests/public_main.c",
     "expected_output": "expected_output.txt",
     "test": "tests/test_lab.py"
   },
@@ -47,6 +51,8 @@
     ],
     "folder": "assignments/lab03_tree_heap",
     "source": "starter/lab03_tree_heap.c",
+    "header": "starter/lab03_tree_heap.h",
+    "public_main": "tests/public_main.c",
     "expected_output": "expected_output.txt",
     "test": "tests/test_lab.py"
   },
@@ -64,6 +70,8 @@
     ],
     "folder": "assignments/lab04_graph_search",
     "source": "starter/lab04_graph_search.c",
+    "header": "starter/lab04_graph_search.h",
+    "public_main": "tests/public_main.c",
     "expected_output": "expected_output.txt",
     "test": "tests/test_lab.py"
   },
@@ -81,6 +89,8 @@
     ],
     "folder": "assignments/lab05_sorting",
     "source": "starter/lab05_sorting.c",
+    "header": "starter/lab05_sorting.h",
+    "public_main": "tests/public_main.c",
     "expected_output": "expected_output.txt",
     "test": "tests/test_lab.py"
   },
@@ -98,6 +108,8 @@
     ],
     "folder": "assignments/lab06_integrated_project",
     "source": "starter/lab06_integrated_project.c",
+    "header": "starter/lab06_integrated_project.h",
+    "public_main": "tests/public_main.c",
     "expected_output": "expected_output.txt",
     "test": "tests/test_lab.py"
   }

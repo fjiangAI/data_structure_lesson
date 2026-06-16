@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: check compile examples test-labs test-references sanitize clean
+.PHONY: check compile examples test-labs test-references sanitize print-pack visuals clean
 
 check:
 	$(PYTHON) tools/check_course_structure.py
@@ -19,6 +19,12 @@ test-references:
 
 sanitize:
 	$(PYTHON) tools/sanitize_examples.py
+
+print-pack:
+	$(PYTHON) tools/build_print_pack.py
+
+visuals:
+	$(PYTHON) tools/verify_visuals.py
 
 clean:
 	rm -rf build verification_screenshots assignments/lab*/build

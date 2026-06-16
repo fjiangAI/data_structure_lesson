@@ -1,23 +1,56 @@
-﻿#include <stdio.h>
+﻿#include "lab01_linear_list.h"
 #include <stdlib.h>
 
-/*
- * Lab 01 线性表实现与对比
- *
- * 使用方式：
- * 1. 先阅读 assignments/lab01_.../README.md。
- * 2. 按 TODO 补全数据结构和核心操作。
- * 3. 运行 tests/test_lab.py，直到输出与 expected_output.txt 一致。
- */
+void seq_init(SeqList *list, int capacity) {
+    /* TODO: initialize size, capacity, and storage invariant. */
+    (void)list;
+    (void)capacity;
+}
 
-/* TODO 1: 定义顺序表结构和初始化函数 */
-/* TODO 2: 实现 insert_at 与 erase_at */
-/* TODO 3: 定义单链表结点并实现头插、删除和逆置 */
-/* TODO 4: 按 expected_output.txt 打印结果 */
-
-int main(void) {
-    puts("LAB01_STARTER");
-    puts("请补全 TODO 后，让本程序输出 expected_output.txt 中的内容。");
+int seq_insert(SeqList *list, int index, int value) {
+    /* TODO: check boundary and move suffix from back to front. */
+    (void)list;
+    (void)index;
+    (void)value;
     return 0;
+}
+
+int seq_erase(SeqList *list, int index) {
+    /* TODO: check boundary and move suffix left. */
+    (void)list;
+    (void)index;
+    return 0;
+}
+
+int seq_find(const SeqList *list, int value) {
+    /* TODO: return first matched index, or -1 when not found. */
+    (void)list;
+    (void)value;
+    return -1;
+}
+
+void list_push_front(ListNode **head, int value) {
+    /* TODO: allocate a node and link it before current head. */
+    (void)head;
+    (void)value;
+}
+
+int list_find(const ListNode *head, int value) {
+    /* TODO: walk next pointers. */
+    (void)head;
+    (void)value;
+    return 0;
+}
+
+int list_delete_value(ListNode **head, int value) {
+    /* TODO: unlink the first matched node and free it. */
+    (void)head;
+    (void)value;
+    return 0;
+}
+
+void list_clear(ListNode **head) {
+    /* TODO: release every node and set *head to NULL. */
+    (void)head;
 }
 

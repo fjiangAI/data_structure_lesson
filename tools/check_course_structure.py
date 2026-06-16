@@ -31,6 +31,11 @@ def main():
         "onlineweb/viewer.html",
         "onlineweb/exam.html",
         "ASSESSMENT_SECURITY.md",
+        "TEACHING_QUALITY.md",
+        "SUBMISSION_GUIDE.md",
+        "STUDENT_PROGRESS_REPORT.md",
+        "RELEASE_CHECKLIST.md",
+        "CHANGELOG.md",
         "MAINTAINING.md",
         "assets/course-visualizer.css",
         "assets/course-visualizer.js",
@@ -42,6 +47,8 @@ def main():
         "Dockerfile",
         ".devcontainer/devcontainer.json",
         ".devcontainer/Dockerfile",
+        "tools/build_print_pack.py",
+        "tools/verify_visuals.py",
     ]
     for rel in required_root:
         if not (ROOT / rel).exists():
@@ -52,7 +59,7 @@ def main():
         fail(f"Expected 16 week folders, found {len(week_dirs)}")
 
     for week in week_dirs:
-        for rel in ["lecture.md", "exercises.md", "answers.md", "extensions.md", "interactive.html"]:
+        for rel in ["preview.md", "lecture.md", "exercises.md", "answers.md", "extensions.md", "interactive.html"]:
             if not (week / rel).exists():
                 fail(f"Missing {week.name}/{rel}")
         examples = list((week / "examples").glob("*.c"))
@@ -89,6 +96,11 @@ def main():
         starters = sorted((lab / "starter").glob("*.c"))
         if len(starters) != 1:
             fail(f"Expected exactly one starter C file in {lab.relative_to(ROOT)}/starter")
+        headers = sorted((lab / "starter").glob("*.h"))
+        if len(headers) != 1:
+            fail(f"Expected exactly one starter header in {lab.relative_to(ROOT)}/starter")
+        if not (lab / "tests" / "public_main.c").exists():
+            fail(f"Missing {lab.relative_to(ROOT)}/tests/public_main.c")
         if not (lab / "tests" / "test_lab.py").exists():
             fail(f"Missing {lab.relative_to(ROOT)}/tests/test_lab.py")
 

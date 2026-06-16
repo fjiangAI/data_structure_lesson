@@ -45,6 +45,14 @@ jobs:
       - name: Run sanitizer checks for C examples
         run: python3 tools/sanitize_examples.py
 
+      - name: Build printable lecture pack
+        run: python3 tools/build_print_pack.py
+
       - name: Check Pages artifact contents
         run: python3 tools/check_pages_artifact.py
+
+      - name: Verify frontend render smoke test
+        run: |
+          python3 -m pip install websocket-client
+          python3 tools/verify_visuals.py
 

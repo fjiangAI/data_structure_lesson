@@ -12,12 +12,38 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-import websocket
+try:
+    import websocket
+except ImportError:
+    websocket = None
 
 
 ROOT = Path(__file__).resolve().parents[1]
-EDGE = Path(r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe")
 PORT = 9223
+
+
+def find_browser():
+    candidates = [
+        os.environ.get("BROWSER_PATH"),
+        r"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
+        r"C:\Program Files\Microsoft\Edge\Application\msedge.exe",
+        "msedge",
+        "microsoft-edge",
+        "google-chrome",
+        "google-chrome-stable",
+        "chromium",
+        "chromium-browser",
+    ]
+    for candidate in candidates:
+        if not candidate:
+            continue
+        path = Path(candidate)
+        if path.exists():
+            return path
+        resolved = shutil.which(candidate)
+        if resolved:
+            return Path(resolved)
+    return None
 
 
 class QuietHandler(http.server.SimpleHTTPRequestHandler):
@@ -158,14 +184,20 @@ def verify_page(rel_path, screenshot_name, site_port):
 
 
 def main():
-    if not EDGE.exists():
-        raise RuntimeError(f"Microsoft Edge not found at {EDGE}")
+    if websocket is None:
+        print("Visual verification skipped: install websocket-client to enable browser checks.")
+        return
+
+    browser = find_browser()
+    if browser is None:
+        print("Visual verification skipped: no Edge/Chrome/Chromium browser found.")
+        return
 
     site_server, site_port = start_site_server()
     user_data = Path(tempfile.mkdtemp(prefix="ds-course-edge-"))
     proc = subprocess.Popen(
         [
-            str(EDGE),
+            str(browser),
             "--headless=new",
             f"--remote-debugging-port={PORT}",
             f"--user-data-dir={user_data}",
