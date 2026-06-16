@@ -98,21 +98,21 @@
             <strong>BST 查找</strong>
             <small>平均 O(log n)，最坏 O(n)</small>
           </button>
-          <button class="op-card" data-name="BST 插入" data-action="查找失败位置成为新叶子" data-cost="平均 O(log n)">
+          <button class="op-card" data-name="BST 插入" data-action="查找失败位置成为新叶子" data-cost="平均 O(log n)，最坏 O(n)">
             <strong>BST 插入</strong>
-            <small>平均 O(log n)</small>
+            <small>平均 O(log n)，最坏 O(n)</small>
           </button>
-          <button class="op-card" data-name="BST 删除" data-action="叶子、单孩子、双孩子分别处理" data-cost="平均 O(log n)">
+          <button class="op-card" data-name="BST 删除" data-action="叶子、单孩子、双孩子分别处理" data-cost="平均 O(log n)，最坏 O(n)">
             <strong>BST 删除</strong>
-            <small>平均 O(log n)</small>
+            <small>平均 O(log n)，最坏 O(n)</small>
           </button>
           <button class="op-card" data-name="AVL 旋转" data-action="局部改变父子关系恢复高度" data-cost="O(1)">
             <strong>AVL 旋转</strong>
             <small>O(1)</small>
           </button>
-          <button class="op-card" data-name="AVL 插入" data-action="沿递归返回路径更新高度并旋转" data-cost="O(log n)">
+          <button class="op-card" data-name="AVL 插入" data-action="沿递归返回路径更新高度并旋转" data-cost="最坏 O(log n)">
             <strong>AVL 插入</strong>
-            <small>O(log n)</small>
+            <small>最坏 O(log n)</small>
           </button>
       </div>
       <div id="operationExplain" class="operation-explain">点击一个操作，观察它对应的组织方式和复杂度。</div>
@@ -141,12 +141,12 @@
     {
       "name": "BST 插入",
       "action": "查找失败位置成为新叶子",
-      "cost": "平均 O(log n)"
+      "cost": "平均 O(log n)，最坏 O(n)"
     },
     {
       "name": "BST 删除",
       "action": "叶子、单孩子、双孩子分别处理",
-      "cost": "平均 O(log n)"
+      "cost": "平均 O(log n)，最坏 O(n)"
     },
     {
       "name": "AVL 旋转",
@@ -156,7 +156,7 @@
     {
       "name": "AVL 插入",
       "action": "沿递归返回路径更新高度并旋转",
-      "cost": "O(log n)"
+      "cost": "最坏 O(log n)"
     }
   ],
   "kind": "avl",

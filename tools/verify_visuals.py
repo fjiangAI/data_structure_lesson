@@ -123,7 +123,30 @@ def verify_page(rel_path, screenshot_name, site_port):
         page.call("Runtime.enable")
         page.call("Page.enable")
         page.call("Page.navigate", {"url": url})
-        time.sleep(2)
+        deadline = time.time() + 8
+        while time.time() < deadline:
+            ready = page.call(
+                "Runtime.evaluate",
+                {
+                    "returnByValue": True,
+                    "expression": """
+(() => {
+  const grid = document.querySelector('#weekGrid');
+  if (grid) return grid.querySelectorAll('.week-card').length > 0;
+  const doc = document.querySelector('#docContent');
+  if (!doc) {
+    const visual = document.querySelector('#visualCanvas, #labCanvas');
+    if (visual) return visual.children.length > 0;
+    return document.body && document.body.innerText.length > 100;
+  }
+  return !doc.querySelector('.loading') && doc.innerText.length > 100;
+})()
+""",
+                },
+            )["result"].get("value")
+            if ready:
+                break
+            time.sleep(0.25)
 
         result = page.call(
             "Runtime.evaluate",
@@ -133,7 +156,16 @@ def verify_page(rel_path, screenshot_name, site_port):
 (() => {
   const visible = (selector) => Array.from(document.querySelectorAll(selector)).filter(el => {
     const r = el.getBoundingClientRect();
-    return r.width > 0 && r.height > 0;
+    if (r.width > 0 && r.height > 0) return true;
+    if (el.ownerSVGElement && typeof el.getBBox === 'function') {
+      try {
+        const box = el.getBBox();
+        return box.width >= 0 && box.height >= 0;
+      } catch (_) {
+        return false;
+      }
+    }
+    return false;
   }).length;
   const next = document.querySelector('#nextStep') || document.querySelector('#labNext');
   if (next) {

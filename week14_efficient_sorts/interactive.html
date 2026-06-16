@@ -94,9 +94,9 @@
         <h2>关键操作不是口号，而是状态变化</h2>
       </div>
       <div class="ops">
-          <button class="op-card" data-name="快速排序划分" data-action="小于枢轴放左侧，大于枢轴放右侧" data-cost="平均 O(n log n)">
+          <button class="op-card" data-name="快速排序划分" data-action="单次扫描把小于枢轴的元素放左侧" data-cost="单次 O(n)，整体平均 O(n log n)">
             <strong>快速排序划分</strong>
-            <small>平均 O(n log n)</small>
+            <small>单次 O(n)，整体平均 O(n log n)</small>
           </button>
           <button class="op-card" data-name="归并" data-action="两个有序段线性合并" data-cost="O(n)">
             <strong>归并</strong>
@@ -135,8 +135,8 @@
   "operations": [
     {
       "name": "快速排序划分",
-      "action": "小于枢轴放左侧，大于枢轴放右侧",
-      "cost": "平均 O(n log n)"
+      "action": "单次扫描把小于枢轴的元素放左侧",
+      "cost": "单次 O(n)，整体平均 O(n log n)"
     },
     {
       "name": "归并",
