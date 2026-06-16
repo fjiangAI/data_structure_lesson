@@ -9,8 +9,9 @@
 3. 每 2 到 3 周布置一次 [assignments/](../assignments/) 中的实验。
 4. 批改编程题时参考 [rubrics.md](rubrics.md)。
 5. 参考 [lab_solutions/](lab_solutions/) 准备 public/hidden tests 和讲评。
-6. 对学生的 AI 使用记录参考 [../AI_LEARNING_GUIDE.md](../AI_LEARNING_GUIDE.md)。
-7. 正式考试、真实 hidden tests 和成绩脚本不要放在公开 Pages 中，发布边界见 [../ASSESSMENT_SECURITY.md](../ASSESSMENT_SECURITY.md)。
+6. 若要提升课堂挑战度，参考 [deep_teaching_guide.md](deep_teaching_guide.md) 设计不变量审查、反例构造、性能实验和 AI 代码审查。
+7. 对学生的 AI 使用记录参考 [../AI_LEARNING_GUIDE.md](../AI_LEARNING_GUIDE.md)。
+8. 正式考试、真实 hidden tests 和成绩脚本不要放在公开 Pages 中，发布边界见 [../ASSESSMENT_SECURITY.md](../ASSESSMENT_SECURITY.md)。
 
 ## 公开与私有材料分层
 
@@ -25,4 +26,4 @@
 - 每个操作都要回到结构不变量。
 - 复杂度必须从操作步骤推导，不只背结论。
 - C 代码必须关注边界、失败返回、内存释放和测试证据。
-
+- 高阶训练应要求学生提交证据：反例、状态表、性能数据、错误代码诊断或 AI 输出审查记录。
